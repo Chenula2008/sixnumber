@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - SixNumber</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0a0e27 0%, #1a1040 50%, #0d1b3e 100%); min-height: 100vh; color: #ffffff; }
+        
+        /* Navbar */
+        .navbar { background: rgba(10, 14, 39, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding: 0 30px; height: 70px; display: flex; align-items: center; justify-content: space-between; }
+        .nav-brand { font-size: 24px; font-weight: 900; }
+        .nav-brand span:first-child { color: #fff; }
+        .nav-brand span:last-child { background: linear-gradient(135deg, #00d4ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-actions { display: flex; gap: 10px; }
+        .nav-btn { padding: 10px 18px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.3s ease; border: 1px solid transparent; }
+        .btn-dashboard { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
+        .btn-logout { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+
+        /* Main Content */
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 28px; font-weight: 800; }
+        .user-count { background: rgba(124, 58, 237, 0.2); color: #c4b5fd; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; border: 1px solid rgba(124, 58, 237, 0.3); }
+
+        /* Table Styling */
+        .table-wrapper { background: rgba(255,255,255,0.03); backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; overflow: hidden; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th, td { padding: 16px 20px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        th { background: rgba(0,0,0,0.2); color: #a78bfa; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
+        td { color: #e2e8f0; font-size: 14px; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+        
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .badge-admin { background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3); }
+        .badge-user { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        .action-btn { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; margin-right: 5px; }
+        .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-delete:hover { background: #ef4444; color: white; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-brand"><span>Six</span><span>Number</span> <span style="font-size:14px; color:#f472b6; margin-left:10px;">Admin</span></div>
+        <div class="nav-actions">
+            <a href="/dashboard" class="nav-btn btn-dashboard">← Dashboard</a>
+            <a href="/logout" class="nav-btn btn-logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ User Management</h1>
+            <% if (typeof users !== 'undefined') { %>
+                <span class="user-count"><%= users.length %> Total Users</span>
+            <% } %>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Balance</th>
+                        <th>Role</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof users !== 'undefined' && users.length > 0) { %>
+                        <% users.forEach(function(u, index) { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td><strong><%= u.username %></strong></td>
+                                <td><%= u.firstName || '-' %></td>
+                                <td><%= u.lastName || '-' %></td>
+                                <td><%= u.email %></td>
+                                <td style="color: #10b981; font-weight: 600;">$<%= (u.walletCents / 100).toFixed(2) %></td>
+                                <td>
+                                    <% if (u.isAdmin || u.role === 'admin') { %>
+                                        <span class="badge badge-admin">Admin</span>
+                                    <% } else { %>
+                                        <span class="badge badge-user">User</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% 
+                                        let joinDate = 'Recently';
+                                        if (u.createdAt) {
+                                            const d = new Date(u.createdAt);
+                                            if (!isNaN(d.getTime())) joinDate = d.toLocaleDateString();
+                                        }
+                                    %>
+                                    <%= joinDate %>
+                                </td>
+                                <td>
+                                    <!-- Add your delete or edit forms here if needed -->
+                                    <button class="action-btn btn-delete" onclick="alert('Delete functionality goes here')">Delete</button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">No users found in the database.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

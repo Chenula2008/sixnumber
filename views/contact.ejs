@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Support - SixNumber</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0a0e27 0%, #1a1040 50%, #0d1b3e 100%); min-height: 100vh; color: #ffffff; }
+        .main-content { max-width: 700px; margin: 50px auto; padding: 20px; }
+        .card { background: rgba(255,255,255,0.03); backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 40px; }
+        .page-title { font-size: 28px; font-weight: 800; margin-bottom: 10px; text-align: center; }
+        .page-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); text-align: center; margin-bottom: 30px; }
+        
+        /* === NEW: INFO GRID === */
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 35px; }
+        .info-card { 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            border-radius: 16px; 
+            padding: 20px 15px; 
+            text-align: center; 
+            transition: all 0.3s ease; 
+        }
+        .info-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.06); border-color: rgba(0, 212, 255, 0.3); }
+        .info-icon { font-size: 28px; margin-bottom: 10px; }
+        .info-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+        .info-desc { font-size: 11px; color: rgba(255,255,255,0.5); }
+
+        /* === FORM STYLES === */
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 8px; text-transform: uppercase; }
+        .form-input, .form-textarea { width: 100%; padding: 16px; background: rgba(0,0,0,0.2); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; font-size: 15px; font-family: 'Inter', sans-serif; outline: none; transition: 0.3s; }
+        .form-textarea { min-height: 150px; resize: vertical; }
+        .form-input:focus, .form-textarea:focus { border-color: #00d4ff; box-shadow: 0 0 15px rgba(0, 212, 255, 0.2); }
+        .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #00d4ff, #7c3aed); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(124, 58, 237, 0.4); }
+        
+        /* === NEW: TIPS BOX === */
+        .tips-box { 
+            background: rgba(0, 212, 255, 0.05); 
+            border: 1px solid rgba(0, 212, 255, 0.2); 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-top: 30px; 
+        }
+        .tips-title { font-size: 14px; font-weight: 700; color: #00d4ff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .tips-list { list-style: none; padding: 0; margin: 0; }
+        .tips-list li { font-size: 13px; color: #cbd5e1; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+        .tips-list li::before { content: '✓'; color: #10b981; font-weight: bold; flex-shrink: 0; }
+        
+        .back-link { display: block; text-align: center; margin-top: 25px; color: rgba(255,255,255,0.5); text-decoration: none; font-weight: 500; transition: 0.3s; }
+        .back-link:hover { color: #00d4ff; }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="card">
+            <h1 class="page-title">📩 Contact Support</h1>
+            <p class="page-subtitle">Have an issue with a withdrawal or your account? We are here to help!</p>
+            
+            <!-- NEW: Support Features Grid -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">⏱️</div>
+                    <div class="info-title">Fast Response</div>
+                    <div class="info-desc">Usually within 24 hours</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🔒</div>
+                    <div class="info-title">100% Secure</div>
+                    <div class="info-desc">Your data is protected</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🌍</div>
+                    <div class="info-title">Global Support</div>
+                    <div class="info-desc">Available worldwide</div>
+                </div>
+            </div>
+            
+            <form id="contactForm">
+                <div class="form-group">
+                    <label class="form-label">Subject</label>
+                    <input type="text" id="subject" class="form-input" placeholder="e.g., Withdrawal not received" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Your Message</label>
+                    <textarea id="message" class="form-textarea" placeholder="Describe your issue in detail..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn"> Send Message to Admin</button>
+            </form>
+
+            <!-- NEW: Tips for faster response -->
+            <div class="tips-box">
+                <div class="tips-title">💡 Tips for a faster response:</div>
+                <ul class="tips-list">
+                    <li>Include your registered email address if it's different from this account.</li>
+                    <li>For withdrawal issues, please provide your PayPal/BTC address in the message.</li>
+                    <li>Be as detailed as possible about the issue you are facing.</li>
+                </ul>
+            </div>
+
+            <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subject, message })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                Swal.fire({ icon: 'success', title: 'Sent!', text: data.message, background: '#1a1040', color: '#fff', confirmButtonColor: '#10b981' })
+                .then(() => { document.getElementById('contactForm').reset(); });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.error, background: '#1a1040', color: '#fff', confirmButtonColor: '#ef4444' });
+            }
+        });
+    </script>
+</body>
+</html>

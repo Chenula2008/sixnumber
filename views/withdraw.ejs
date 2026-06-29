@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw Funds - Six Number</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Montag Ad Code -->
+    <script src="https://quge5.com/88/tag.min.js" data-zone="254010" async data-cfasync="false"></script>
+    <!-- ADSTERRA AD CODE -->
+    <!-- <script src="https://pl30089548.effectivecpmnetwork.com/ab/96/8d/ab968d8cfc05f32a5f967786f69c2118.js"></script> -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* === RESET & BASE === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0a0e27 0%, #1a1040 50%, #0d1b3e 100%); min-height: 100vh; color: #ffffff; overflow-x: hidden; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 80%, rgba(120, 80, 255, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(0, 200, 255, 0.08) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+        .shape { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.4; z-index: 0; animation: float 20s infinite ease-in-out; }
+        .shape-1 { width: 400px; height: 400px; background: linear-gradient(135deg, #7c3aed, #00d4ff); top: -100px; left: -100px; }
+        .shape-2 { width: 300px; height: 300px; background: linear-gradient(135deg, #f472b6, #8b5cf6); bottom: -50px; right: -50px; }
+        @keyframes float { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(20px, -20px); } }
+
+        /* === NAVBAR === */
+        .navbar { position: sticky; top: 0; z-index: 100; background: rgba(10, 14, 39, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding: 0 30px; height: 70px; display: flex; align-items: center; justify-content: space-between; }
+        .nav-brand { font-size: 24px; font-weight: 900; display: inline-block; }
+        .nav-brand span:first-child { color: #fff; }
+        .nav-brand span:last-child { background: linear-gradient(135deg, #00d4ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-balance { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); padding: 10px 20px; border-radius: 50px; }
+        .balance-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .balance-info { display: flex; flex-direction: column; }
+        .balance-label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+        .balance-amount { font-size: 20px; font-weight: 800; color: #10b981; }
+        .nav-actions { display: flex; gap: 10px; }
+        .nav-btn { padding: 10px 18px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.3s ease; border: 1px solid transparent; display: flex; align-items: center; gap: 6px; }
+        .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        .btn-withdraw { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
+        .btn-history { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+        .btn-admin { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
+        .btn-logout { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+
+        /* === MAIN CONTENT === */
+        .main-content { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; padding: 40px 20px; animation: fadeInUp 0.6s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .page-header { text-align: center; margin-bottom: 30px; }
+        .page-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+        .page-subtitle { font-size: 15px; color: rgba(255,255,255,0.5); }
+
+        /* === STATS ROW === */
+        .stats-row { display: flex; gap: 15px; margin-bottom: 30px; }
+        .stat-card { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 20px; text-align: center; backdrop-filter: blur(10px); }
+        .stat-icon { font-size: 24px; margin-bottom: 8px; }
+        .stat-value { font-size: 24px; font-weight: 800; }
+        .stat-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+        /* === FORM CARD === */
+        .form-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 35px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-wrapper { position: relative; }
+        .input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; color: rgba(255,255,255,0.3); pointer-events: none; }
+        .form-input, .form-select { width: 100%; padding: 16px 16px 16px 48px; font-size: 15px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; outline: none; transition: all 0.3s ease; font-family: 'Inter', sans-serif; }
+                .form-select { 
+            appearance: none; 
+            cursor: pointer; 
+            padding-right: 45px; /* Make room for the arrow */
+        }
+        .form-select option {
+            background: #1a1040;
+            color: #ffffff;
+            padding: 10px;
+        }
+        .form-select option:first-child {
+            color: rgba(255,255,255,0.5);
+        }
+        .select-arrow {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        .form-select:focus ~ .select-arrow {
+            color: #00d4ff;
+            transform: translateY(-50%) rotate(180deg);
+        }
+        .form-select:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+        .form-select:valid {
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+        .form-select:valid ~ .input-icon {
+            color: #10b981;
+        }
+        
+        .submit-btn { width: 100%; padding: 16px; font-size: 16px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; margin-top: 10px; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4); }
+        
+        .warning-text { text-align: center; margin-top: 20px; font-size: 13px; color: #f59e0b; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .back-link { display: block; text-align: center; margin-top: 25px; color: rgba(255,255,255,0.5); text-decoration: none; font-weight: 500; transition: 0.3s; }
+        .back-link:hover { color: #00d4ff; }
+
+                /* === FOOTER SECTION === */
+        .footer-section {
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 15px;
+        }
+        .footer-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .footer-link:hover {
+            color: #00d4ff;
+            transform: translateY(-2px);
+        }
+        .footer-copyright {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 12px;
+            margin: 0;
+        }
+
+        @media (max-width: 600px) {
+            .navbar { padding: 15px; height: auto; flex-wrap: wrap; gap: 10px; }
+            .nav-actions { flex-wrap: wrap; justify-content: center; }
+            .stats-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/dashboard"><div class="nav-brand"><span>Six</span><span> Number</span></div></a>
+        <div class="nav-balance">
+            <div class="balance-icon"></div>
+            <div class="balance-info">
+                <span class="balance-label">Balance</span>
+                <span class="balance-amount">$<%= (user.walletCents / 100).toFixed(2) %></span>
+            </div>
+        </div>
+        <div class="nav-actions">
+            <a href="/withdraw" class="nav-btn btn-withdraw">💸 Withdrawal</a>
+            <a href="/history" class="nav-btn btn-history">📋 History</a>
+
+            <!-- This button goes to the Direct Link for EVERYONE -->
+            <a href="https://omg10.com/4/11208116" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">💰 Earn Bonus</a>
+            
+            <a href="/profile" class="nav-btn btn-profile" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3);">👤 Profile</a>
+            <!-- This button is ONLY for the Admin Panel -->
+            <% if (user.isAdmin || user.role === 'admin' || user.username === 'admin') { %>
+                <a href="/admin" class="nav-btn btn-admin">🛡️ Admin</a>
+            <% } %>
+
+            <!-- <a href="/admin" class="nav-btn btn-admin">🛡️ Admin</a> -->
+            <a href="/logout" class="nav-btn btn-logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- ADSTERRA 728x90 BANNER AD -->
+        <!-- STICKY BOTTOM BANNER AD -->
+    <!-- <div id="sticky-bottom-ad" style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 728px; background: #1a1040; border-top: 2px solid #7c3aed; box-shadow: 0 -4px 15px rgba(0,0,0,0.5); z-index: 9999; text-align: center; padding: 10px 0;">
+        
+        Close Button
+        <button onclick="document.getElementById('sticky-bottom-ad').style.display='none'" style="position: absolute; top: -12px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">✕</button>
+
+        Adsterra Ad Code
+        <script>
+        atOptions = {
+        'key' : 'db0ed9e0becc15947411eb2559250131',
+        'format' : 'iframe',
+        'height' : 90,
+        'width' : 728,
+        'params' : {}
+        };
+        </script>
+        <script src="https://www.highperformanceformat.com/db0ed9e0becc15947411eb2559250131/invoke.js"></script>
+    </div> -->
+
+        <!-- RIGHT SIDE SKYSCRAPER AD -->
+    <!-- <style>
+        .right-side-ad {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .right-side-ad .close-btn {
+            background: rgba(239, 68, 68, 0.8);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .right-side-ad .ad-container {
+            background: rgba(26, 16, 64, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        /* Hide on mobile and tablet screens so it doesn't block the website */
+        @media (max-width: 1200px) {
+            .right-side-ad { display: none; }
+        }
+    </style> -->
+
+    <!-- LEFT SIDE SKYSCRAPER AD -->
+    <!-- <style>
+        .left-side-ad {
+            position: fixed;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .left-side-ad .close-btn {
+            background: rgba(239, 68, 68, 0.8);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .left-side-ad .ad-container {
+            background: rgba(26, 16, 64, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        /* Hide on mobile and tablet screens so it doesn't block the website */
+        @media (max-width: 1200px) {
+            .left-side-ad { display: none; }
+        }
+    </style> -->
+
+    <!-- <div class="left-side-ad">
+        <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
+        <div class="ad-container">
+            <script>
+            atOptions = {
+            'key' : '15ea3c11d7f9a5219fb4e3501401f1c8',
+            'format' : 'iframe',
+            'height' : 600,
+            'width' : 160,
+            'params' : {}
+            };
+            </script>
+            <script src="https://www.highperformanceformat.com/15ea3c11d7f9a5219fb4e3501401f1c8/invoke.js"></script>
+        </div>
+    </div> -->
+
+    <!-- <div class="right-side-ad">
+        <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
+        <div class="ad-container">
+            <script>
+            atOptions = {
+            'key' : '15ea3c11d7f9a5219fb4e3501401f1c8',
+            'format' : 'iframe',
+            'height' : 600,
+            'width' : 160,
+            'params' : {}
+            };
+            </script>
+            <script src="https://www.highperformanceformat.com/15ea3c11d7f9a5219fb4e3501401f1c8/invoke.js"></script>
+        </div>
+    </div> -->
+
+        <!-- === ADSTERRA NATIVE BANNER === -->
+        <!-- <div style="margin-top: 30px; text-align: center; min-height: 100px; width: 100%;">
+            <script async="async" data-cfasync="false" src="https://pl30089839.effectivecpmnetwork.com/956fe1540f10604af9ca9b91cc60c35a/invoke.js"></script>
+            <div id="container-956fe1540f10604af9ca9b91cc60c35a"></div>
+        </div> -->
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Request Withdrawal</h1>
+            <p class="page-subtitle">Cash out your earnings securely and quickly.</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon">💵</div>
+                <div class="stat-value" style="color: #10b981;">$<%= (user.walletCents / 100).toFixed(2) %></div>
+                <div class="stat-label">Available Balance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value" style="color: #f59e0b;">$<%= (pendingCents / 100).toFixed(2) %></div>
+                <div class="stat-label">Pending Withdrawals</div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="form-card">
+            <form id="withdrawForm">
+                <div class="form-group">
+                    <label class="form-label">Amount to Withdraw</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="amount" name="amount" min="5" step="0.01" class="form-input" placeholder="Minimum $5.00" required>
+                        <span class="input-icon">💲</span>
+                    </div>
+                </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Payment Method</label>
+                        <div class="input-wrapper">
+                            <select id="method" class="form-select" required>
+                                <option value="" disabled selected>💳 Choose payment method...</option>
+                                <option value="paypal">🅿️ PayPal - Send to your PayPal email</option>
+                                <option value="bitcoin">₿ Bitcoin - Send to your (ERC20) Wallet address</option>
+                            </select>
+                            <span class="input-icon">💳</span>
+                        <span class="select-arrow">▼</span>
+                        </div>
+                        <small style="color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 6px; display: block;">Select how you want to receive your money</small>
+                    </div>
+
+                <div class="form-group">
+                    <label class="form-label">Payment Address / Email</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="address" class="form-input" placeholder="Enter your PayPal email or BTC wallet" required>
+                        <span class="input-icon">📍</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">🚀 Request Payout</button>
+            </form>
+            
+            <div class="warning-text">⚠️ Note: All withdrawals take up to 3 business days to process.</div>
+        </div>
+
+                <!-- Footer Section -->
+        <div class="footer-section">
+            <div class="footer-links">
+                <a href="/dashboard" class="footer-link">← Back to Dashboard</a>
+            </div>
+            <p class="footer-copyright">© 2026 SixNumber. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('withdrawForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('amount').value);
+            const method = document.getElementById('method').value;
+            const address = document.getElementById('address').value;
+
+                // 🚨 FIXED: Changed minimum amount back to $5.00
+                if (amount < 5) {
+                    Swal.fire({ 
+                        icon: 'error', 
+                        title: 'Too Low', 
+                        text: 'Minimum withdrawal amount is $5.00.', 
+                        background: '#1a1040', 
+                        color: '#fff', 
+                        confirmButtonColor: '#ef4444' 
+                    });
+                    return;
+                }
+
+            const response = await fetch('/api/withdraw', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount, method, address })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire({ 
+                    icon: 'success', 
+                    title: 'Success!', 
+                    text: data.message, 
+                    background: '#1a1040', 
+                    color: '#fff', 
+                    confirmButtonColor: '#10b981' 
+                }).then(() => { window.location.href = '/dashboard'; });
+            } else {
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: 'Error', 
+                    text: data.error, 
+                    background: '#1a1040', 
+                    color: '#fff', 
+                    confirmButtonColor: '#ef4444' 
+                });
+            }
+        });
+    </script>
+
+    <!-- Floating Support Button -->
+    <a href="/contact" class="floating-support-btn" title="Contact Support">
+        <span class="support-icon">💬</span>
+        <span class="support-tooltip">Need Help?</span>
+    </a>
+
+    <style>
+        .floating-support-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            text-decoration: none;
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+            z-index: 9999;
+            transition: all 0.3s ease;
+            animation: pulse-support 2s infinite;
+        }
+        .floating-support-btn:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 12px 35px rgba(124, 58, 237, 0.7);
+        }
+        .support-tooltip {
+            position: absolute;
+            right: 75px;
+            background: rgba(15, 23, 42, 0.9);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            transform: translateX(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .floating-support-btn:hover .support-tooltip {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        @keyframes pulse-support {
+            0% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.6); }
+            70% { box-shadow: 0 0 0 15px rgba(124, 58, 237, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+        }
+    </style>
+
+    <!-- Social Bar -->
+    <!-- <script src="https://pl30091522.effectivecpmnetwork.com/4d/4a/d2/4d4ad260a07ec44f37c29878447d9e4b.js"></script> -->
+
+</body>
+</html>

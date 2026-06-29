@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Six Number</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Reset & Base */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0b0f19;
+            color: #e2e8f0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .sidebar-logo {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-menu { list-style: none; flex: 1; }
+        .nav-item { margin-bottom: 10px; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(124, 58, 237, 0.15);
+            color: #a78bfa;
+            transform: translateX(5px);
+        }
+        .nav-link .icon { font-size: 20px; }
+        .sidebar-footer {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: #f87171;
+            text-decoration: none;
+            font-weight: 500;
+            background: rgba(239, 68, 68, 0.1);
+            transition: all 0.3s ease;
+        }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.2); }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 30px;
+            width: calc(100% - 260px);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header-title h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+        }
+        .header-title p {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        .admin-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .admin-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #f43f5e, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+        .stat-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #c084fc); }
+        .stat-card.blue::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .stat-card.green::before { background: linear-gradient(90deg, #10b981, #34d399); }
+        .stat-card.orange::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        .stat-card.purple .stat-icon { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+        .stat-card.blue .stat-icon { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .stat-card.green .stat-icon { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .stat-card.orange .stat-icon { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+        .stat-value { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+        .stat-label { font-size: 14px; color: #64748b; font-weight: 500; }
+
+        /* Content Sections */
+        .content-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Tables */
+        .admin-table { width: 100%; border-collapse: collapse; }
+        .admin-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .admin-table td {
+            padding: 16px;
+            font-size: 14px;
+            color: #cbd5e1;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .admin-table tbody tr { transition: background 0.2s; }
+        .admin-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+        
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            font-size: 14px;
+        }
+        .user-name { font-weight: 600; color: #fff; }
+        .user-email { font-size: 12px; color: #64748b; }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .badge-approved { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .badge-rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: all 0.2s;
+        }
+        .btn-approve { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .btn-reject { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .action-btn:hover { transform: scale(1.05); }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 14, 39, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 0 30px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            display: inline-block;
+        }
+
+        .nav-brand span:first-child { color: #ffffff; }
+        .nav-brand span:last-child { 
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* === MOBILE RESPONSIVE FIXES === */
+        @media (max-width: 768px) {
+            /* Transform Sidebar into a Bottom Navigation Bar */
+            .sidebar {
+                width: 100%;
+                height: 70px;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                top: auto;
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: center;
+                padding: 0 10px;
+                border-right: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+                z-index: 1000;
+            }
+
+            .sidebar-logo, .sidebar-footer, .sidebar .navbar {
+                display: none;
+            }
+
+            .nav-menu {
+                display: flex;
+                flex-direction: row;
+                gap: 5px;
+                flex: 1;
+                justify-content: space-around;
+            }
+
+            .nav-item { margin-bottom: 0; }
+
+            .nav-link {
+                flex-direction: column;
+                gap: 4px;
+                padding: 8px 12px;
+                font-size: 11px;
+                text-align: center;
+            }
+
+            .nav-link .icon { font-size: 20px; }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px 15px;
+                padding-bottom: 90px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .header-title h1 { font-size: 22px; }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat-card { padding: 15px; }
+            .stat-value { font-size: 22px; }
+
+            .admin-table th, .admin-table td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+
+            .user-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="navbar">
+            <a href="/dashboard"><div class="nav-brand"><span>Six</span><span> Number</span></div></a>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="/admin" class="nav-link active">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#users-section" class="nav-link">
+                    <span class="icon">👥</span>
+                    <span>Users</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#withdrawals-section" class="nav-link">
+                    <span class="icon">💸</span>
+                    <span>Withdrawals</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-btn">
+                <span class="icon">🚪</span>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                <h1>Admin Dashboard</h1>
+                <p>Welcome back, manage your platform easily.</p>
+            </div>
+            <div class="admin-badge">
+                <div class="admin-avatar"><%= user.username.charAt(0).toUpperCase() %></div>
+                <div>
+                    <div style="font-weight: 600; color: #fff; font-size: 14px;"><%= user.username %></div>
+                    <div style="font-size: 11px; color: #a78bfa;">Super Admin</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card purple">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value"><%= totalUsers || 0 %></div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value"><%= totalWithdrawals || 0 %></div>
+                <div class="stat-label">Pending Withdrawals</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value">$<%= (users.reduce((acc, u) => acc + (u.walletCents || 0), 0) / 100).toFixed(2) %></div>
+                <div class="stat-label">Total Platform Balance</div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-icon">📈</div>
+                <div class="stat-value"><%= withdrawals.filter(w => w.status === 'approved').length %></div>
+                <div class="stat-label">Approved Payouts</div>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div class="content-section" id="users-section">
+            <div class="section-header">
+                <h2 class="section-title">👥 Registered Users</h2>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Balance</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (users && users.length > 0) { %>
+                            <% users.forEach(u => { %>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <div class="user-avatar"><%= u.username.charAt(0).toUpperCase() %></div>
+                                            <div>
+                                                <div class="user-name"><%= u.username %></div>
+                                                <div class="user-email"><%= u.email %></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><%= u.firstName || '-' %></td>
+                                    <td><%= u.lastName || '-' %></td>
+                                    <td style="color: #34d399; font-weight: 600;">$<%= ((u.walletCents || 0) / 100).toFixed(2) %></td>
+                                    <td style="color: #64748b; font-size: 13px;">
+                                        <%= (u.createdAt && !isNaN(new Date(u.createdAt).getTime())) ? new Date(u.createdAt).toLocaleDateString() : 'Recently' %>
+                                    </td>
+                                    
+                                    <!-- 🛡️ ADMIN PROTECTION CODE START -->
+                                    <td>
+                                        <% if (!u.isAdmin && u.role !== 'admin') { %>
+                                            <form action="/admin/user/<%= u._id %>/delete" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete <%= u.username %>?');">
+                                                <button type="submit" class="action-btn btn-delete">Delete</button>
+                                            </form>
+                                        <% } else { %>
+                                            <span style="color: #a78bfa; font-size: 12px; font-weight: 600;">🛡️ Protected</span>
+                                        <% } %>
+                                    </td>
+                                    <!-- 🛡️ ADMIN PROTECTION CODE END -->
+
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr><td colspan="6" style="text-align:center; padding: 30px; color: #64748b;">No users found.</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Withdrawals Section -->
+        <div class="content-section" id="withdrawals-section">
+            <div class="section-header">
+                <h2 class="section-title">💸 Withdrawal Requests</h2>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Payment Details</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (withdrawals && withdrawals.length > 0) { %>
+                            <% withdrawals.forEach(w => { %>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <div class="user-avatar" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">
+                                                <%= (w.userId && w.userId.username) ? w.userId.username.charAt(0).toUpperCase() : '?' %>
+                                            </div>
+                                            <div>
+                                                <div class="user-name"><%= (w.userId && w.userId.username) ? w.userId.username : 'Unknown' %></div>
+                                                <div class="user-email">
+                                                    <%= (w.userId && w.userId.firstName) ? w.userId.firstName + ' ' + (w.userId.lastName || '') : 'No name provided' %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="color: #fbbf24; font-weight: 700;">$<%= ((w.amountCents || 0) / 100).toFixed(2) %></td>
+                                    <td><%= w.method || '-' %></td>
+                                    <td style="font-family: monospace; font-size: 12px; color: #94a3b8; max-width: 200px; overflow: hidden; text-overflow: ellipsis;"><%= w.paymentAddress || '-' %></td>
+                                    <td>
+                                        <% if (w.status === 'approved') { %>
+                                            <span class="badge badge-approved">Approved</span>
+                                        <% } else if (w.status === 'rejected') { %>
+                                            <span class="badge badge-rejected">Rejected</span>
+                                        <% } else { %>
+                                            <span class="badge badge-pending">Pending</span>
+                                        <% } %>
+                                    </td>
+                                    <td style="color: #64748b; font-size: 13px;">
+                                        <%= (w.createdAt && !isNaN(new Date(w.createdAt).getTime())) ? new Date(w.createdAt).toLocaleDateString() : 'Recently' %>
+                                    </td>
+                                    <td>
+                                        <% if (w.status === 'pending') { %>
+                                            <form action="/admin/withdrawal/<%= w._id %>/action" method="POST" style="display:inline;">
+                                                <input type="hidden" name="action" value="approve">
+                                                <button type="submit" class="action-btn btn-approve">Approve</button>
+                                            </form>
+                                            <form action="/admin/withdrawal/<%= w._id %>/action" method="POST" style="display:inline;">
+                                                <input type="hidden" name="action" value="reject">
+                                                <button type="submit" class="action-btn btn-reject">Reject</button>
+                                            </form>
+                                        <% } else { %>
+                                            <span style="color: #475569; font-size: 12px;">Completed</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr><td colspan="7" style="text-align:center; padding: 30px; color: #64748b;">No withdrawal requests found.</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

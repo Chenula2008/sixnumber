@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Six Number</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Montag Ad Code -->
+    <script src="https://quge5.com/88/tag.min.js" data-zone="254010" async data-cfasync="false"></script>
+    <!-- ADSTERRA AD CODE -->
+    <!-- <script src="https://pl30089548.effectivecpmnetwork.com/ab/96/8d/ab968d8cfc05f32a5f967786f69c2118.js"></script> -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        /* === RESET & BASE === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1040 50%, #0d1b3e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* === ANIMATED BACKGROUND PARTICLES === */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 80, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 200, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 100, 200, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* === TOP NAVIGATION === */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 14, 39, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 0 30px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            display: inline-block;
+        }
+
+        .nav-brand span:first-child { color: #ffffff; }
+        .nav-brand span:last-child { 
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-balance {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 20px;
+            border-radius: 50px;
+        }
+
+        .balance-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .balance-info { display: flex; flex-direction: column; }
+        .balance-label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+        .balance-amount { font-size: 20px; font-weight: 800; color: #10b981; }
+
+        .nav-actions { display: flex; gap: 10px; align-items: center; }
+
+        .nav-btn {
+            padding: 10px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+
+        .btn-withdraw { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+        .btn-history { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+        .btn-admin { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
+        .btn-logout { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+        .btn-logout:hover { background: rgba(239, 68, 68, 0.25); }
+
+        /* === MAIN CONTENT === */
+        .main-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 70px);
+            padding: 40px 20px;
+        }
+
+        /* === HERO SECTION === */
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(124, 58, 237, 0.15);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 13px;
+            color: #a78bfa;
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-size: 42px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 10px;
+            line-height: 1.1;
+        }
+
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, #00d4ff, #7c3aed, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        /* === MAIN CARD === */
+        .earn-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .earn-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed, #f472b6, #7c3aed, #00d4ff);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .card-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        /* === TARGET NUMBERS === */
+        .target-numbers {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 56px;
+            font-weight: 700;
+            letter-spacing: 12px;
+            background: linear-gradient(135deg, #00d4ff, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            text-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+            user-select: all;
+        }
+
+        /* === INPUT FIELD === */
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .number-input {
+            width: 100%;
+            padding: 18px 24px;
+            font-size: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            letter-spacing: 8px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: #ffffff;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .number-input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 4px;
+            font-size: 16px;
+        }
+
+        .number-input:focus {
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* === SUBMIT BUTTON === */
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+        }
+
+        .submit-btn:active { transform: translateY(0); }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* === EARNING INFO === */
+        .earn-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 25px;
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            border-radius: 12px;
+        }
+
+        .earn-info span {
+            font-size: 14px;
+            color: rgba(16, 185, 129, 0.8);
+            font-weight: 500;
+        }
+
+        .earn-amount {
+            font-weight: 800 !important;
+            color: #10b981 !important;
+        }
+
+        /* === STATS ROW === */
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 480px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card .stat-icon { font-size: 24px; margin-bottom: 8px; }
+        .stat-card .stat-value { font-size: 22px; font-weight: 800; color: #ffffff; }
+        .stat-card .stat-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+        /* === FOOTER === */
+        .footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 12px;
+        }
+
+        /* === MOBILE RESPONSIVE === */
+        @media (max-width: 768px) {
+            .navbar { padding: 0 15px; height: 60px; flex-wrap: wrap; gap: 10px; height: auto; padding: 15px; }
+            .nav-balance { padding: 8px 14px; }
+            .balance-amount { font-size: 16px; }
+            .nav-actions { flex-wrap: wrap; justify-content: center; }
+            .nav-btn { padding: 8px 12px; font-size: 12px; }
+            .hero-title { font-size: 28px; }
+            .target-numbers { font-size: 40px; letter-spacing: 8px; }
+            .earn-card { padding: 30px 20px; }
+            .stats-row { flex-direction: column; }
+        }
+
+        /* === ANIMATIONS === */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .earn-card { animation: fadeInUp 0.6s ease; }
+        .stats-row { animation: fadeInUp 0.8s ease; }
+    </style>
+</head>
+<body>
+
+    <!-- === TOP NAVIGATION === -->
+    <nav class="navbar">
+        <a href="/dashboard"><div class="nav-brand"><span>Six</span><span> Number</span></div></a>
+
+        <div class="nav-balance">
+            <div class="balance-icon">💰</div>
+            <div class="balance-info">
+                <span class="balance-label">Balance</span>
+                <span class="balance-amount">$<span id="balance"><%= (user.walletCents / 100).toFixed(2) %></span></span>
+            </div>
+        </div>
+
+        <div class="nav-actions">
+            <a href="/withdraw" class="nav-btn btn-withdraw">💸 Withdrawal</a>
+            <a href="/history" class="nav-btn btn-history">📋 History</a>
+
+            <!-- This button goes to the Direct Link for EVERYONE -->
+            <a href="https://omg10.com/4/11208116" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">💰 Earn Bonus</a>
+
+            <!-- <a href="/admin" class="nav-btn btn-admin">🛡️ Admin</a> -->
+            <a href="/profile" class="nav-btn btn-profile" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3);">👤 Profile</a>
+            <!-- This button is ONLY for the Admin Panel -->
+            <% if (user.isAdmin || user.role === 'admin' || user.username === 'admin') { %>
+                <a href="/admin" class="nav-btn btn-admin">🛡️ Admin</a>
+            <% } %>
+            <a href="/logout" class="nav-btn btn-logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- ADSTERRA 728x90 BANNER AD -->
+        <!-- STICKY BOTTOM BANNER AD -->
+    <!-- <div id="sticky-bottom-ad" style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 728px; background: #1a1040; border-top: 2px solid #7c3aed; box-shadow: 0 -4px 15px rgba(0,0,0,0.5); z-index: 9999; text-align: center; padding: 10px 0;">
+        
+        Close Button
+        <button onclick="document.getElementById('sticky-bottom-ad').style.display='none'" style="position: absolute; top: -12px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">✕</button>
+
+        Adsterra Ad Code
+        <script>
+        atOptions = {
+        'key' : 'db0ed9e0becc15947411eb2559250131',
+        'format' : 'iframe',
+        'height' : 90,
+        'width' : 728,
+        'params' : {}
+        };
+        </script>
+        <script src="https://www.highperformanceformat.com/db0ed9e0becc15947411eb2559250131/invoke.js"></script>
+    </div> -->
+
+        <!-- RIGHT SIDE SKYSCRAPER AD -->
+    <!-- <style>
+        .right-side-ad {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .right-side-ad .close-btn {
+            background: rgba(239, 68, 68, 0.8);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .right-side-ad .ad-container {
+            background: rgba(26, 16, 64, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        /* Hide on mobile and tablet screens so it doesn't block the website */
+        @media (max-width: 1200px) {
+            .right-side-ad { display: none; }
+        }
+    </style> -->
+
+    <!-- LEFT SIDE SKYSCRAPER AD -->
+    <!-- <style>
+        .left-side-ad {
+            position: fixed;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .left-side-ad .close-btn {
+            background: rgba(239, 68, 68, 0.8);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .left-side-ad .ad-container {
+            background: rgba(26, 16, 64, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        /* Hide on mobile and tablet screens so it doesn't block the website */
+        @media (max-width: 1200px) {
+            .left-side-ad { display: none; }
+        }
+    </style> -->
+
+    <!-- <div class="left-side-ad">
+        <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
+        <div class="ad-container">
+            <script>
+            atOptions = {
+            'key' : '15ea3c11d7f9a5219fb4e3501401f1c8',
+            'format' : 'iframe',
+            'height' : 600,
+            'width' : 160,
+            'params' : {}
+            };
+            </script>
+            <script src="https://www.highperformanceformat.com/15ea3c11d7f9a5219fb4e3501401f1c8/invoke.js"></script>
+        </div>
+    </div> -->
+
+    <!-- <div class="right-side-ad">
+        <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
+        <div class="ad-container">
+            <script>
+            atOptions = {
+            'key' : '15ea3c11d7f9a5219fb4e3501401f1c8',
+            'format' : 'iframe',
+            'height' : 600,
+            'width' : 160,
+            'params' : {}
+            };
+            </script>
+            <script src="https://www.highperformanceformat.com/15ea3c11d7f9a5219fb4e3501401f1c8/invoke.js"></script>
+        </div>
+    </div> -->
+
+        <!-- === ADSTERRA NATIVE BANNER === -->
+        <!-- <div style="margin-top: 30px; text-align: center; min-height: 100px; width: 100%;">
+            <script async="async" data-cfasync="false" src="https://pl30089839.effectivecpmnetwork.com/956fe1540f10604af9ca9b91cc60c35a/invoke.js"></script>
+            <div id="container-956fe1540f10604af9ca9b91cc60c35a"></div>
+        </div> -->
+
+    <!-- === MAIN CONTENT === -->
+    <div class="main-content">
+
+        <div class="hero-badge">⚡ Earn Money by Typing Numbers</div>
+        <h1 class="hero-title">Welcome to <span class="gradient-text">Six Number</span></h1>
+        <p class="hero-subtitle">Type the numbers below correctly to earn rewards instantly</p>
+
+        <!-- === EARN CARD === -->
+        <div class="earn-card">
+            <div class="card-label">Type These Numbers</div>
+            <div class="target-numbers" id="targetNumbers"><%= user.currentNumbers %></div>
+            
+            <div class="input-wrapper">
+                <input type="text" id="numberInput" class="number-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="• • • • • •" autocomplete="off">
+            </div>
+            
+            <button class="submit-btn" id="submitBtn" onclick="submitNumbers()">
+                ✨ Submit & Earn
+            </button>
+
+            <div class="earn-info">
+                <span>🎯 Earn</span>
+                <span class="earn-amount">$0.01</span>
+                <span>per correct submission</span>
+            </div>
+        </div>
+
+        <!-- === STATS ROW === -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon">💵</div>
+                <div class="stat-value">$<%= (user.walletCents / 100).toFixed(2) %></div>
+                <div class="stat-label">Total Earned</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔢</div>
+                <div class="stat-value"><%= user.walletCents %></div>
+                <div class="stat-label">Submissions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value">$5.00</div>
+                <div class="stat-label">Min. Withdraw</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === FOOTER === -->
+    <div class="footer">
+        © 2026 SixNumber. All rights reserved.
+    </div>
+
+    <!-- === AD NETWORK PLACEMENT === -->
+    <!-- Paste your Monetag ad code here -->
+
+    <!-- === JAVASCRIPT === -->
+    <script>
+        // Only allow numbers in input
+        document.getElementById('numberInput').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        async function submitNumbers() {
+            const typedNumbers = document.getElementById('numberInput').value;
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (!/^\d{6}$/.test(typedNumbers)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops!',
+                    text: 'Please enter exactly 6 numbers.',
+                    background: '#1a1040',
+                    color: '#fff',
+                    confirmButtonColor: '#7c3aed'
+                });
+                return;
+            }
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Verifying...';
+
+            try {
+                const response = await fetch('/api/earn', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ typedNumbers })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update UI
+                    document.getElementById('balance').innerText = data.newBalance;
+                    document.getElementById('targetNumbers').innerText = data.newNumbers;
+                    document.getElementById('numberInput').value = '';
+
+                    // Update stat cards
+                    document.querySelectorAll('.stat-value')[0].innerText = '$' + data.newBalance;
+                    document.querySelectorAll('.stat-value')[1].innerText = Math.round(parseFloat(data.newBalance) * 100);
+
+                    // Success Popup
+                    Swal.fire({
+                        icon: 'success',
+                        title: '🎉 Correct!',
+                        html: `<span style="font-size: 18px; color: #10b981; font-weight: bold;">+$${data.earned}</span><br><span style="color: #999; font-size: 14px;">added to your wallet</span>`,
+                        background: '#1a1040',
+                        color: '#fff',
+                        confirmButtonColor: '#10b981',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Incorrect!',
+                        text: data.error,
+                        background: '#1a1040',
+                        color: '#fff',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong. Please try again.',
+                    background: '#1a1040',
+                    color: '#fff',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitBtn.textContent = '✨ Submit & Earn';
+        }
+
+        // Allow pressing Enter to submit
+        document.getElementById('numberInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') submitNumbers();
+        });
+    </script>
+
+    <!-- Floating Support Button -->
+    <a href="/contact" class="floating-support-btn" title="Contact Support">
+        <span class="support-icon">💬</span>
+        <span class="support-tooltip">Need Help?</span>
+    </a>
+
+    <style>
+        .floating-support-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            text-decoration: none;
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+            z-index: 9999;
+            transition: all 0.3s ease;
+            animation: pulse-support 2s infinite;
+        }
+        .floating-support-btn:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 12px 35px rgba(124, 58, 237, 0.7);
+        }
+        .support-tooltip {
+            position: absolute;
+            right: 75px;
+            background: rgba(15, 23, 42, 0.9);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            transform: translateX(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .floating-support-btn:hover .support-tooltip {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        @keyframes pulse-support {
+            0% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.6); }
+            70% { box-shadow: 0 0 0 15px rgba(124, 58, 237, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+        }
+    </style>
+
+    <!-- Social Bar -->
+    <!-- <script src="https://pl30091522.effectivecpmnetwork.com/4d/4a/d2/4d4ad260a07ec44f37c29878447d9e4b.js"></script> -->
+
+</body>
+</html>

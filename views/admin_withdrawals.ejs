@@ -1,0 +1,127 @@
+<!-- Admin Withdrawals Table Styling -->
+<style>
+    .admin-table-container { 
+        overflow-x: auto; 
+        margin-top: 20px; 
+        border-radius: 16px; 
+        border: 1px solid rgba(255,255,255,0.08); 
+        background: rgba(255,255,255,0.02);
+    }
+    .admin-table { width: 100%; border-collapse: collapse; }
+    .admin-table th, .admin-table td { padding: 14px 18px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .admin-table th { 
+        background: rgba(124, 58, 237, 0.15); 
+        color: #a78bfa; 
+        font-weight: 600; 
+        text-transform: uppercase; 
+        font-size: 12px; 
+        letter-spacing: 1px; 
+    }
+    .admin-table tbody tr { transition: background 0.2s; }
+    .admin-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+    .admin-table td { color: #e2e8f0; font-size: 14px; }
+    
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .status-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-approved { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .status-rejected { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .action-btn { 
+        padding: 6px 12px; 
+        border-radius: 6px; 
+        font-size: 12px; 
+        font-weight: 600; 
+        text-decoration: none; 
+        border: none; 
+        cursor: pointer; 
+        margin-right: 5px; 
+        transition: all 0.2s; 
+    }
+    .btn-approve { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .btn-reject { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .btn-approve:hover { background: rgba(16, 185, 129, 0.4); }
+    .btn-reject:hover { background: rgba(239, 68, 68, 0.3); }
+</style>
+
+<!-- Withdrawals Table -->
+<div class="admin-table-container">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Payment Details</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (withdrawals && withdrawals.length > 0) { %>
+                <% withdrawals.forEach(function(w) { %>
+                    <tr>
+                        <td><strong><%= (w.userId && w.userId.username) ? w.userId.username : 'Unknown' %></strong></td>
+                        <td style="color: #10b981; font-weight: 600;">$<%= ((w.amountCents || 0) / 100).toFixed(2) %></td>
+                        <td><%= w.method || '-' %></td>
+                        <td style="font-family: monospace; font-size: 12px; color: rgba(255,255,255,0.7);"><%= w.details || '-' %></td>
+                        <td>
+                            <% if (w.status === 'approved') { %>
+                                <span class="status-badge status-approved">Approved</span>
+                            <% } else if (w.status === 'rejected') { %>
+                                <span class="status-badge status-rejected">Rejected</span>
+                            <% } else { %>
+                                <span class="status-badge status-pending">Pending</span>
+                            <% } %>
+                        </td>
+                        <td style="color: rgba(255,255,255,0.5); font-size: 12px;">
+                            <%= (w.createdAt && !isNaN(new Date(w.createdAt).getTime())) ? new Date(w.createdAt).toLocaleDateString() : 'Recently' %>
+                        </td>
+                        <td>
+                            <% if (w.status === 'pending') { %>
+                                <button class="action-btn btn-approve" onclick="updateWithdrawal('<%= w._id %>', 'approved')">Approve</button>
+                                <button class="action-btn btn-reject" onclick="updateWithdrawal('<%= w._id %>', 'rejected')">Reject</button>
+                            <% } else { %>
+                                <span style="color: rgba(255,255,255,0.3); font-size: 12px;">Completed</span>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }); %>
+            <% } else { %>
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">No withdrawal requests found.</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Simple script to handle Approve/Reject buttons
+    async function updateWithdrawal(id, status) {
+        if(!confirm(`Are you sure you want to mark this withdrawal as ${status}?`)) return;
+        
+        try {
+            const res = await fetch(`/api/admin/withdrawals/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: status })
+            });
+            const data = await res.json();
+            if(data.success) {
+                location.reload(); // Refresh page to show updated status
+            } else {
+                alert('Error updating withdrawal.');
+            }
+        } catch (err) {
+            alert('Network error.');
+        }
+    }
+</script>
