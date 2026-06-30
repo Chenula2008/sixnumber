@@ -212,8 +212,8 @@ app.post('/signup', async (req, res) => {
                 
                 <!-- Body -->
                 <div style="padding: 40px 30px; background-color: #1a1040;">
-                    <h2 style="font-size: 24px; margin-top: 0; margin-bottom: 16px; color: #0f172a; font-weight: 700;">Welcome to SixNumber, ${firstName} ${lastName}! 👋</h2>
-                    <p style="font-size: 16px; line-height: 1.6; color: #475569; margin-bottom: 24px;">
+                    <h2 style="font-size: 24px; margin-top: 0; margin-bottom: 16px; color: #ffffff; font-weight: 700;">Welcome to SixNumber, ${firstName} ${lastName}! 👋</h2>
+                    <p style="font-size: 16px; line-height: 1.6; color: #cbd5e1; margin-bottom: 24px;">
                         We're thrilled to have you on board! To get started and secure your account, please take a second to verify your email address.
                     </p>
                     
@@ -226,7 +226,7 @@ app.post('/signup', async (req, res) => {
 
                     <!-- Fallback Link Box -->
                     <div style="background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 16px; margin-top: 24px; text-align: center;">
-                        <p style="font-size: 13px; color: #64748b; margin: 0 0 8px 0;">Having trouble clicking the button? Copy and paste this link into your browser:</p>
+                        <p style="font-size: 13px; color: #1a1040; margin: 0 0 8px 0;">Having trouble clicking the button? Copy and paste this link into your browser:</p>
                         <a href="${verificationUrl}" style="color: #00d4ff; font-size: 13px; word-break: break-all; text-decoration: none; font-weight: 600;">${verificationUrl}</a>
                     </div>
                 </div>
