@@ -200,25 +200,43 @@ app.post('/signup', async (req, res) => {
         
         const verificationUrl = `${process.env.BASE_URL}/verify-email?token=${token}`;
         
+        // 🎨 PREMIUM EMAIL VERIFICATION TEMPLATE
         const emailHtml = `
-            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
-                <div style="background: linear-gradient(135deg, #00d4ff, #7c3aed); padding: 30px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: 1px;">SixNumber</h1>
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+                
+                <!-- Header (Matches your website's gradient) -->
+                <div style="background: linear-gradient(135deg, #00d4ff, #7c3aed); padding: 40px 20px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">SixNumber</h1>
+                    <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0 0; font-size: 14px; font-weight: 500;">Welcome to the future of earning</p>
                 </div>
-                <div style="padding: 40px 30px; color: #334155;">
-                    <h2 style="font-size: 22px; margin-top: 0; margin-bottom: 20px; color: #0f172a;">Welcome to SixNumber, ${firstName}! 👋</h2>
-                    <p style="font-size: 16px; line-height: 1.6; color: #475569; margin-bottom: 30px;">
-                        Thank you for creating an account. To activate your account and start earning, please verify your email address by clicking the button below.
+                
+                <!-- Body -->
+                <div style="padding: 40px 30px; background-color: #ffffff; color: #334155;">
+                    <h2 style="font-size: 24px; margin-top: 0; margin-bottom: 16px; color: #0f172a; font-weight: 700;">Hi ${firstName} ${lastName}, 👋</h2>
+                    <p style="font-size: 16px; line-height: 1.6; color: #475569; margin-bottom: 24px;">
+                        We're thrilled to have you on board! To get started and secure your account, please take a second to verify your email address.
                     </p>
-                    <div style="text-align: center; margin: 40px 0;">
-                        <a href="${verificationUrl}" style="display: inline-block; padding: 16px 32px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);">Verify My Email Address</a>
+                    
+                    <!-- Big Verify Button -->
+                    <div style="text-align: center; margin: 32px 0;">
+                        <a href="${verificationUrl}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); letter-spacing: 0.5px;">
+                            Verify My Email Address
+                        </a>
                     </div>
-                    <p style="font-size: 14px; color: #94a3b8; text-align: center; margin-top: 30px;">
-                        If you did not create this account, please ignore this email.
-                    </p>
+
+                    <!-- Fallback Link Box -->
+                    <div style="background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 16px; margin-top: 24px; text-align: center;">
+                        <p style="font-size: 13px; color: #64748b; margin: 0 0 8px 0;">Having trouble clicking the button? Copy and paste this link into your browser:</p>
+                        <a href="${verificationUrl}" style="color: #00d4ff; font-size: 13px; word-break: break-all; text-decoration: none; font-weight: 600;">${verificationUrl}</a>
+                    </div>
                 </div>
-                <div style="background-color: #f8fafc; padding: 20px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-                    <p style="font-size: 12px; color: #94a3b8; margin: 0;">
+                
+                <!-- Footer -->
+                <div style="background-color: #f1f5f9; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                    <p style="font-size: 12px; color: #94a3b8; margin: 0 0 8px 0;">
+                        If you didn't create an account with SixNumber, you can safely ignore this email.
+                    </p>
+                    <p style="font-size: 12px; color: #64748b; margin: 0; font-weight: 600;">
                         © 2026 SixNumber. All rights reserved.
                     </p>
                 </div>
