@@ -211,8 +211,8 @@ app.post('/signup', async (req, res) => {
                 </div>
                 
                 <!-- Body -->
-                <div style="padding: 40px 30px; background-color: #ffffff; color: #334155;">
-                    <h2 style="font-size: 24px; margin-top: 0; margin-bottom: 16px; color: #0f172a; font-weight: 700;">Hi ${firstName} ${lastName}, 👋</h2>
+                <div style="padding: 40px 30px; background-color: #1a1040;">
+                    <h2 style="font-size: 24px; margin-top: 0; margin-bottom: 16px; color: #0f172a; font-weight: 700;">Welcome to SixNumber, ${firstName} ${lastName}! 👋</h2>
                     <p style="font-size: 16px; line-height: 1.6; color: #475569; margin-bottom: 24px;">
                         We're thrilled to have you on board! To get started and secure your account, please take a second to verify your email address.
                     </p>
