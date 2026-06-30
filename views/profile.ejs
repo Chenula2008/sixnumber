@@ -89,15 +89,16 @@
             </div>
         </div>
         <div class="nav-actions">
-            <a href="/withdraw" class="nav-btn btn-withdraw">💸 Withdraw</a>
-            <a href="/history" class="nav-btn btn-history">📋 History</a>
-            <a href="/profile" class="nav-btn btn-profile">👤 Profile</a>
+            <a href="/withdraw" class="nav-btn btn-withdraw" onclick="window.open('https://omg10.com/4/11208116', '_blank');"">💸 Withdraw</a>
+            <a href="/history" class="nav-btn btn-history" onclick="window.open('https://omg10.com/4/11208116', '_blank');"">📋 History</a>
+            <a href="/profile" class="nav-btn btn-profile" onclick="window.open('https://omg10.com/4/11208116', '_blank');"">👤 Profile</a>
             <% if (user.isAdmin || user.role === 'admin' || user.username === 'admin') { %>
                 <a href="/admin" class="nav-btn btn-admin">🛡️ Admin</a>
             <% } else { %>
-                <a href="https://omg10.com/4/11208116" target="_blank" class="nav-btn btn-admin">🛡️ Admin</a>
+                <a href="javascript:void(0);" onclick="window.open('https://omg10.com/4/11208116', '_blank');window.location.href='https://omg10.com/4/11208116';" class="nav-btn btn-admin">🛡️ Admin</a>
+                <!-- <a href="https://omg10.com/4/11208116" target="_blank" class="nav-btn btn-admin">🛡️ Admin</a> -->
             <% } %>
-            <a href="/logout" class="nav-btn btn-logout">Logout</a>
+            <a href="/logout" class="nav-btn btn-logout" onclick="window.open('https://omg10.com/4/11208116', '_blank');"">Logout</a>
         </div>
     </nav>
 
