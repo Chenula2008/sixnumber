@@ -8,44 +8,10 @@ const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 const Withdrawal = require('./models/Withdrawal');
 const crypto = require('crypto');
+const sgMail = require('@sendgrid/mail'); // 🚀 Official SendGrid Package
 
-// 🚀 RESEND API FUNCTION (Bypasses Gmail DMARC spam blocks)
-async function sendEmailViaResend(to, subject, html, plainText, replyToEmail = null) {
-    const apiKey = process.env.RESEND_API_KEY;
-    const fromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
-
-    const payload = {
-        from: `SixNumber <${fromEmail}>`,
-        to: [to],
-        subject: subject,
-        html: html,
-        text: plainText // Plain text prevents spam filters
-    };
-
-    if (replyToEmail) {
-        payload.reply_to = replyToEmail;
-    }
-
-    try {
-        const response = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (response.ok) {
-            console.log('✅ Resend Email sent successfully to', to);
-        } else {
-            const errorData = await response.json();
-            console.error('❌ Resend Error:', errorData);
-        }
-    } catch (err) {
-        console.error('❌ Resend Fetch Error:', err);
-    }
-}
+// 🚀 Initialize SendGrid with your API Key
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // 1. INITIALIZE EXPRESS APP
 const app = express();
@@ -227,8 +193,21 @@ app.post('/signup', async (req, res) => {
 
         const plainText = `Welcome to SixNumber, ${firstName}!\n\nPlease verify your email address by clicking the link below:\n\n${verificationUrl}\n\nIf you did not create this account, please ignore this email.\n\n© 2026 SixNumber.`;
 
-        // 🚀 SEND VERIFICATION EMAIL VIA RESEND (Bypasses Spam)
-        sendEmailViaResend(email, 'Please verify your email for SixNumber', emailHtml, plainText);
+        // 🚀 SEND VERIFICATION EMAIL VIA OFFICIAL SENDGRID PACKAGE
+        const msg = {
+            to: email,
+            from: process.env.SENDER_EMAIL, // ⚠️ MUST exactly match the verified sender in SendGrid dashboard
+            subject: 'Please verify your email for SixNumber',
+            text: plainText, // Plain text prevents spam filters
+            html: emailHtml,
+        };
+
+        sgMail.send(msg)
+            .then(() => console.log('✅ SendGrid Email sent successfully to', email))
+            .catch((error) => {
+                // This will print the exact error if it fails (e.g., "The from address does not match a verified Sender Identity")
+                console.error('❌ SendGrid Error:', error.response ? error.response.body : error);
+            });
 
         res.render('login', { 
             error: "✅ Account created! Please check your email inbox to verify your account.", 
@@ -415,9 +394,19 @@ app.post('/api/contact', authMiddleware, async (req, res) => {
 
         const contactPlainText = `New Support Message\n\nFrom: ${user.firstName} ${user.lastName} (${user.email})\nSubject: ${subject}\n\nMessage:\n${message}`;
 
-        // 🚀 SEND SUPPORT EMAIL VIA RESEND
-        const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
-        sendEmailViaResend(adminEmail, `📩 New Support Message: ${subject}`, contactHtml, contactPlainText, user.email);
+        // 🚀 SEND SUPPORT EMAIL TO ADMIN VIA SENDGRID
+        const msg = {
+            to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+            from: process.env.SENDER_EMAIL,
+            replyTo: user.email, // Allows you to hit "Reply" in Gmail and it goes to the user
+            subject: `📩 New Support Message: ${subject}`,
+            text: contactPlainText,
+            html: contactHtml,
+        };
+
+        sgMail.send(msg)
+            .then(() => console.log('✅ Support email sent to admin via SendGrid!'))
+            .catch((error) => console.error('❌ SendGrid Support Error:', error.response ? error.response.body : error));
 
         res.json({ success: true, message: "Message sent to Admin successfully! We will get back to you soon." });
     } catch (err) {
