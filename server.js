@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 const Withdrawal = require('./models/Withdrawal');
 const crypto = require('crypto');
-const sgMail = require('@sendgrid/mail'); // 🚀 Official SendGrid Package
+const sgMail = require('@sendgrid/mail'); // 🚀 Official SendGrid Package (Used for Support Emails)
 
 // 🚀 Initialize SendGrid with your API Key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -63,9 +63,11 @@ function generateNumbers() {
 // --- PAGE ROUTES ---
 app.get('/', (req, res) => res.redirect('/login'));
 
+// 🚨 UPDATED: Passes the verification link from the session to the page
 app.get('/login', (req, res) => {
     if (req.session.userId) return res.redirect('/dashboard');
-    res.render('login', { error: null, success: null });
+    const verificationLink = req.session.verificationLink || null; 
+    res.render('login', { error: null, success: null, verificationLink });
 });
 
 app.get('/signup', (req, res) => {
@@ -121,17 +123,31 @@ app.post('/login', async (req, res) => {
         const user = await User.findOne({ email });
         
         if (!user) {
-            return res.render('login', { error: "Invalid email or password.", success: null });
+            return res.render('login', { error: "Invalid email or password.", success: null, verificationLink: req.session.verificationLink });
         }
 
         const isUserAdmin = user.isAdmin || user.role === 'admin';
+        
+        // 🚨 BULLETPROOF: If they aren't verified, regenerate the link and show it to them!
         if (!user.isVerified && !isUserAdmin) {
-            return res.render('login', { error: "⚠️ Please verify your email address before logging in.", success: null });
+            if (!user.verificationToken) {
+                user.verificationToken = crypto.randomBytes(32).toString('hex');
+                user.verificationTokenExpires = Date.now() + 3600000;
+                await user.save();
+            }
+            const verificationUrl = `${process.env.BASE_URL}/verify-email?token=${user.verificationToken}`;
+            req.session.verificationLink = verificationUrl;
+
+            return res.render('login', { 
+                error: "⚠️ Please verify your email address before logging in. Click the link below:", 
+                success: null,
+                verificationLink: verificationUrl
+            });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.render('login', { error: "Invalid email or password.", success: null });
+            return res.render('login', { error: "Invalid email or password.", success: null, verificationLink: req.session.verificationLink });
         }
 
         req.session.userId = user._id;
@@ -142,7 +158,7 @@ app.post('/login', async (req, res) => {
 
     } catch (err) {
         console.log("LOGIN ERROR:", err);
-        res.render('login', { error: "Server error.", success: null });
+        res.render('login', { error: "Server error.", success: null, verificationLink: req.session.verificationLink });
     }
 });
 
@@ -167,51 +183,13 @@ app.post('/signup', async (req, res) => {
         // 🚨 Uses your BASE_URL environment variable
         const verificationUrl = `${process.env.BASE_URL}/verify-email?token=${token}`;
         
-        const emailHtml = `
-            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
-                <div style="background: linear-gradient(135deg, #00d4ff, #7c3aed); padding: 40px 20px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">SixNumber</h1>
-                    <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0 0; font-size: 14px; font-weight: 500;">Welcome to the future of earning</p>
-                </div>
-                <div style="padding: 40px 30px; background-color: #1a1040;">
-                    <h2 style="font-size: 24px; margin-top: 0; margin-bottom: 16px; color: #ffffff; font-weight: 700;">Welcome to SixNumber, ${firstName} ${lastName}! 👋</h2>
-                    <p style="font-size: 16px; line-height: 1.6; color: #cbd5e1; margin-bottom: 24px;">We're thrilled to have you on board! To get started and secure your account, please take a second to verify your email address.</p>
-                    <div style="text-align: center; margin: 32px 0;">
-                        <a href="${verificationUrl}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); letter-spacing: 0.5px;">Verify My Email Address</a>
-                    </div>
-                    <div style="background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 16px; margin-top: 24px; text-align: center;">
-                        <p style="font-size: 13px; color: #1a1040; margin: 0 0 8px 0;">Having trouble clicking the button? Copy and paste this link into your browser:</p>
-                        <a href="${verificationUrl}" style="color: #00d4ff; font-size: 13px; word-break: break-all; text-decoration: none; font-weight: 600;">${verificationUrl}</a>
-                    </div>
-                </div>
-                <div style="background-color: #f1f5f9; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-                    <p style="font-size: 12px; color: #94a3b8; margin: 0 0 8px 0;">If you didn't create an account with SixNumber, you can safely ignore this email.</p>
-                    <p style="font-size: 12px; color: #64748b; margin: 0; font-weight: 600;">© 2026 SixNumber. All rights reserved.</p>
-                </div>
-            </div>
-        `;
-
-        const plainText = `Welcome to SixNumber, ${firstName}!\n\nPlease verify your email address by clicking the link below:\n\n${verificationUrl}\n\nIf you did not create this account, please ignore this email.\n\n© 2026 SixNumber.`;
-
-        // 🚀 SEND VERIFICATION EMAIL VIA OFFICIAL SENDGRID PACKAGE
-        const msg = {
-            to: email,
-            from: process.env.SENDER_EMAIL, // ⚠️ MUST exactly match the verified sender in SendGrid dashboard
-            subject: 'Please verify your email for SixNumber',
-            text: plainText, // Plain text prevents spam filters
-            html: emailHtml,
-        };
-
-        sgMail.send(msg)
-            .then(() => console.log('✅ SendGrid Email sent successfully to', email))
-            .catch((error) => {
-                // This will print the exact error if it fails (e.g., "The from address does not match a verified Sender Identity")
-                console.error('❌ SendGrid Error:', error.response ? error.response.body : error);
-            });
+        // 🚀 SAVE LINK TO SESSION (Displays on the login page instead of emailing)
+        req.session.verificationLink = verificationUrl;
 
         res.render('login', { 
-            error: "✅ Account created! Please check your email inbox to verify your account.", 
-            success: null
+            error: "✅ Account created! Please click the verification link below to activate your account.", 
+            success: null,
+            verificationLink: verificationUrl
         });
 
     } catch (err) {
@@ -432,6 +410,7 @@ app.get('/verify-email', async (req, res) => {
         }
 
         user.isVerified = true;
+        req.session.verificationLink = null; // 🚨 Clear the link from the screen once verified
         user.verificationToken = undefined;
         user.verificationTokenExpires = undefined;
         await user.save();

@@ -8,8 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Montag Ad Code -->
     <script src="https://quge5.com/88/tag.min.js" data-zone="254010" async data-cfasync="false"></script>
-    <!-- ADSTERRA AD CODE -->
-    <!-- <script src="https://pl30089548.effectivecpmnetwork.com/ab/96/8d/ab968d8cfc05f32a5f967786f69c2118.js"></script> -->
     <style>
         /* === RESET & BASE === */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -377,17 +375,7 @@
             color: #00d4ff;
         }
 
-                /* === ERROR & SUCCESS MESSAGE ANIMATIONS === */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        .error-message {
-            animation: shake 0.5s ease;
-        }
-
+        /* === ERROR & SUCCESS MESSAGE ANIMATIONS === */
         .success-message {
             animation: fadeIn 0.5s ease;
         }
@@ -395,6 +383,13 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 🚨 PULSING ANIMATION FOR VERIFICATION BOX === */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
     </style>
@@ -408,12 +403,6 @@
 
     <!-- Login Container -->
     <div class="login-container">
-
-        <!-- === ADSTERRA NATIVE BANNER (TOP POSITION) === -->
-        <!-- <div style="margin: 20px auto 30px auto; text-align: center; min-height: 100px; width: 100%; max-width: 728px;">
-            <script async="async" data-cfasync="false" src="https://pl30089839.effectivecpmnetwork.com/956fe1540f10604af9ca9b91cc60c35a/invoke.js"></script>
-            <div id="container-956fe1540f10604af9ca9b91cc60c35a"></div>
-        </div> -->
         
         <!-- Logo Section -->
         <div class="logo-section">
@@ -430,12 +419,12 @@
                 <p class="login-subtitle">Sign in to continue earning</p>
             </div>
 
-                    <% if (typeof error !== 'undefined' && error) { %>
-                        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 14px 18px; border-radius: 12px; margin-bottom: 25px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; animation: shake 0.5s ease;">
-                            <span style="font-size: 20px;">⚠️</span>
-                            <span><%= error %></span>
-                        </div>
-                    <% } %>
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="error-message">
+                    <span style="font-size: 20px;">⚠️</span>
+                    <span><%= error %></span>
+                </div>
+            <% } %>
 
             <% if (typeof success !== 'undefined' && success) { %>
                 <div class="success-message" style="
@@ -451,9 +440,22 @@
                     align-items: center;
                     gap: 10px;
                 ">
-                    <!-- Green Checkmark for success -->
                     <span style="font-size: 20px;">✅</span>
                     <span><%= success %></span>
+                </div>
+            <% } %>
+
+            <!-- 🚨 VERIFICATION LINK BOX (Shows only when user needs to verify) -->
+            <% if (typeof verificationLink !== 'undefined' && verificationLink) { %>
+                <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1)); border: 2px solid #10b981; color: #ffffff; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center; animation: pulse 2s infinite;">
+                    <h3 style="margin: 0 0 10px 0; color: #10b981; font-size: 18px;">👇 FINAL STEP: VERIFY YOUR ACCOUNT 👇</h3>
+                    <p style="margin: 0 0 15px 0; font-size: 14px; color: #cbd5e1;">You must click the link below to activate your account before you can log in.</p>
+                    <a href="<%= verificationLink %>" style="display: inline-block; padding: 12px 24px; background: #10b981; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
+                        ✅ Click Here to Verify My Email
+                    </a>
+                    <p style="margin: 15px 0 0 0; font-size: 12px; color: #94a3b8; word-break: break-all;">
+                        Or copy/paste this link: <br><span style="color: #00d4ff;"><%= verificationLink %></span>
+                    </p>
                 </div>
             <% } %>
 
@@ -525,137 +527,6 @@
             }
         }
     </script>
-
-    <!-- ADSTERRA 728x90 BANNER AD -->
-        <!-- STICKY BOTTOM BANNER AD -->
-    <!-- <div id="sticky-bottom-ad" style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 728px; background: #1a1040; border-top: 2px solid #7c3aed; box-shadow: 0 -4px 15px rgba(0,0,0,0.5); z-index: 9999; text-align: center; padding: 10px 0;">
-        
-        Close Button
-        <button onclick="document.getElementById('sticky-bottom-ad').style.display='none'" style="position: absolute; top: -12px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">✕</button>
-
-        Adsterra Ad Code
-        <script>
-        atOptions = {
-        'key' : 'db0ed9e0becc15947411eb2559250131',
-        'format' : 'iframe',
-        'height' : 90,
-        'width' : 728,
-        'params' : {}
-        };
-        </script>
-        <script src="https://www.highperformanceformat.com/db0ed9e0becc15947411eb2559250131/invoke.js"></script>
-    </div> -->
-
-        <!-- RIGHT SIDE SKYSCRAPER AD -->
-    <!-- <style>
-        .right-side-ad {
-            position: fixed;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            z-index: 9998;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .right-side-ad .close-btn {
-            background: rgba(239, 68, 68, 0.8);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .right-side-ad .ad-container {
-            background: rgba(26, 16, 64, 0.6);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        /* Hide on mobile and tablet screens so it doesn't block the website */
-        @media (max-width: 1200px) {
-            .right-side-ad { display: none; }
-        }
-    </style> -->
-
-    <!-- LEFT SIDE SKYSCRAPER AD -->
-    <!-- <style>
-        .left-side-ad {
-            position: fixed;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            z-index: 9998;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .left-side-ad .close-btn {
-            background: rgba(239, 68, 68, 0.8);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .left-side-ad .ad-container {
-            background: rgba(26, 16, 64, 0.6);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        /* Hide on mobile and tablet screens so it doesn't block the website */
-        @media (max-width: 1200px) {
-            .left-side-ad { display: none; }
-        }
-    </style> -->
-
-    <!-- <div class="left-side-ad">
-        <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
-        <div class="ad-container">
-            <script>
-            atOptions = {
-            'key' : '15ea3c11d7f9a5219fb4e3501401f1c8',
-            'format' : 'iframe',
-            'height' : 600,
-            'width' : 160,
-            'params' : {}
-            };
-            </script>
-            <script src="https://www.highperformanceformat.com/15ea3c11d7f9a5219fb4e3501401f1c8/invoke.js"></script>
-        </div>
-    </div> -->
-
-    <!-- <div class="right-side-ad">
-        <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
-        <div class="ad-container">
-            <script>
-            atOptions = {
-            'key' : '15ea3c11d7f9a5219fb4e3501401f1c8',
-            'format' : 'iframe',
-            'height' : 600,
-            'width' : 160,
-            'params' : {}
-            };
-            </script>
-            <script src="https://www.highperformanceformat.com/15ea3c11d7f9a5219fb4e3501401f1c8/invoke.js"></script>
-        </div>
-    </div> -->
-
-    <!-- Social Bar -->
-    <!-- <script src="https://pl30091522.effectivecpmnetwork.com/4d/4a/d2/4d4ad260a07ec44f37c29878447d9e4b.js"></script> -->
 
     <!-- Register Monetag Service Worker -->
     <script>
