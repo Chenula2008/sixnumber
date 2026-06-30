@@ -9,8 +9,8 @@ const User = require('./models/User');
 const Withdrawal = require('./models/Withdrawal');
 const crypto = require('crypto');
 
-// 🚀 SENDGRID HTTPS API FUNCTION (Bypasses all Render SMTP blocks)
-async function sendEmailViaSendGrid(to, subject, html, replyToEmail = null) {
+// 🚀 SENDGRID HTTPS API FUNCTION (Updated with Plain Text for Spam Filters)
+async function sendEmailViaSendGrid(to, subject, html, plainText, replyToEmail = null) {
     const apiKey = process.env.SENDGRID_API_KEY;
     const senderEmail = process.env.SENDER_EMAIL;
 
@@ -18,7 +18,10 @@ async function sendEmailViaSendGrid(to, subject, html, replyToEmail = null) {
         personalizations: [{ to: [{ email: to }] }],
         from: { email: senderEmail, name: "SixNumber" },
         subject: subject,
-        content: [{ type: 'text/html', value: html }]
+        content: [
+            { type: 'text/plain', value: plainText }, // 🚨 CRITICAL: Plain text version prevents Spam folder
+            { type: 'text/html', value: html }
+        ]
     };
 
     if (replyToEmail) {
@@ -243,8 +246,11 @@ app.post('/signup', async (req, res) => {
             </div>
         `;
 
-        // 🚀 SEND VERIFICATION EMAIL VIA SENDGRID HTTPS API
-        sendEmailViaSendGrid(email, 'Please verify your email for SixNumber', emailHtml);
+        // 📝 PLAIN TEXT VERSION (Required to bypass Spam filters)
+        const plainText = `Welcome to SixNumber, ${firstName}!\n\nPlease verify your email address by clicking the link below:\n\n${verificationUrl}\n\nIf you did not create this account, please ignore this email.\n\n© 2026 SixNumber.`;
+
+        // 🚀 SEND VERIFICATION EMAIL VIA SENDGRID (Now includes plain text)
+        sendEmailViaSendGrid(email, 'Please verify your email for SixNumber', emailHtml, plainText);
 
         res.render('login', { 
             error: "✅ Account created! Please check your email inbox to verify your account.", 
@@ -429,8 +435,11 @@ app.post('/api/contact', authMiddleware, async (req, res) => {
             </div>
         `;
 
-        // 🚀 SEND SUPPORT EMAIL VIA SENDGRID
-        sendEmailViaSendGrid(process.env.SENDER_EMAIL, `📩 New Support Message: ${subject}`, contactHtml, user.email);
+        // 📝 PLAIN TEXT VERSION FOR SUPPORT
+        const contactPlainText = `New Support Message\n\nFrom: ${user.firstName} ${user.lastName} (${user.email})\nSubject: ${subject}\n\nMessage:\n${message}`;
+
+        // 🚀 SEND SUPPORT EMAIL VIA SENDGRID (Now includes plain text)
+        sendEmailViaSendGrid(process.env.SENDER_EMAIL, `📩 New Support Message: ${subject}`, contactHtml, contactPlainText, user.email);
 
         res.json({ success: true, message: "Message sent to Admin successfully! We will get back to you soon." });
     } catch (err) {
