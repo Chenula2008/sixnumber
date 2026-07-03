@@ -7,8 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Montag Ad Code -->
     <script src="https://quge5.com/88/tag.min.js" data-zone="254010" async data-cfasync="false"></script>
-    <!-- ADSTERRA AD CODE -->
-    <!-- <script src="https://pl30089548.effectivecpmnetwork.com/ab/96/8d/ab968d8cfc05f32a5f967786f69c2118.js"></script> -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
     <style>
         /* === RESET & BASE === */
@@ -57,7 +55,8 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            display: inline-block;
+            text-decoration: none;
+            color: white;
         }
 
         .nav-brand span:first-child { color: #ffffff; }
@@ -337,7 +336,7 @@
 
         /* === MOBILE RESPONSIVE === */
         @media (max-width: 768px) {
-            .navbar { padding: 0 15px; height: 60px; flex-wrap: wrap; gap: 10px; height: auto; padding: 15px; }
+            .navbar { padding: 0 15px; height: auto; padding: 15px; flex-wrap: wrap; gap: 10px; }
             .nav-balance { padding: 8px 14px; }
             .balance-amount { font-size: 16px; }
             .nav-actions { flex-wrap: wrap; justify-content: center; }
@@ -356,325 +355,8 @@
 
         .earn-card { animation: fadeInUp 0.6s ease; }
         .stats-row { animation: fadeInUp 0.8s ease; }
-    </style>
-</head>
-<body>
 
-    <!-- === TOP NAVIGATION === -->
-    <nav class="navbar">
-        <a href="/dashboard" onclick="window.open('https://omg10.com/4/11208116', '_blank');""><div class="nav-brand"><span>Six</span><span> Number</span></div></a>
-
-        <div class="nav-balance">
-            <div class="balance-icon">💰</div>
-            <div class="balance-info">
-                <span class="balance-label">Balance</span>
-                <span class="balance-amount">$<span id="balance"><%= (user.walletCents / 100).toFixed(2) %></span></span>
-            </div>
-        </div>
-
-        <div class="nav-actions">
-            <a href="/withdraw" class="nav-btn btn-withdraw" onclick="window.open('https://omg10.com/4/11208116', '_blank');"">💸 Withdrawal</a>
-            <a href="/history" class="nav-btn btn-history" onclick="window.open('https://omg10.com/4/11208116', '_blank');"">📋 History</a>
-
-            <!-- This button goes to the Direct Link for EVERYONE -->
-            <a href="javascript:void(0);" onclick="window.open('https://omg10.com/4/11208116', '_blank');window.location.href='https://omg10.com/4/11208116';" class="nav-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">💰 Earn Bonus</a>
-            <!-- <a href="https://omg10.com/4/11208116" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">💰 Earn Bonus</a> -->
-
-            <!-- <a href="/admin" class="nav-btn btn-admin">🛡️ Admin</a> -->
-            <a href="/profile" class="nav-btn btn-profile" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3);" onclick="window.open('https://omg10.com/4/11208116', '_blank');"">👤 Profile</a>
-            <!-- This button is ONLY for the Admin Panel -->
-            <% if (user.isAdmin || user.role === 'admin' || user.username === 'admin') { %>
-                <a href="/admin" class="nav-btn btn-admin">🛡️ Admin</a>
-            <% } %>
-            <a href="/logout" onclick="window.open('https://omg10.com/4/11208116', '_blank');" class="nav-btn btn-logout">Logout</a>
-        </div>
-    </nav>
-
-    <!-- ADSTERRA 728x90 BANNER AD -->
-        <!-- STICKY BOTTOM BANNER AD -->
-    <!-- <div id="sticky-bottom-ad" style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 728px; background: #1a1040; border-top: 2px solid #7c3aed; box-shadow: 0 -4px 15px rgba(0,0,0,0.5); z-index: 9999; text-align: center; padding: 10px 0;">
-        
-        Close Button
-        <button onclick="document.getElementById('sticky-bottom-ad').style.display='none'" style="position: absolute; top: -12px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">✕</button>
-
-        Adsterra Ad Code
-        <script>
-        atOptions = {
-        'key' : 'db0ed9e0becc15947411eb2559250131',
-        'format' : 'iframe',
-        'height' : 90,
-        'width' : 728,
-        'params' : {}
-        };
-        </script>
-        <script src="https://www.highperformanceformat.com/db0ed9e0becc15947411eb2559250131/invoke.js"></script>
-    </div> -->
-
-        <!-- RIGHT SIDE SKYSCRAPER AD -->
-    <!-- <style>
-        .right-side-ad {
-            position: fixed;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            z-index: 9998;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .right-side-ad .close-btn {
-            background: rgba(239, 68, 68, 0.8);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .right-side-ad .ad-container {
-            background: rgba(26, 16, 64, 0.6);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        /* Hide on mobile and tablet screens so it doesn't block the website */
-        @media (max-width: 1200px) {
-            .right-side-ad { display: none; }
-        }
-    </style> -->
-
-    <!-- LEFT SIDE SKYSCRAPER AD -->
-    <!-- <style>
-        .left-side-ad {
-            position: fixed;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            z-index: 9998;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .left-side-ad .close-btn {
-            background: rgba(239, 68, 68, 0.8);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .left-side-ad .ad-container {
-            background: rgba(26, 16, 64, 0.6);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        /* Hide on mobile and tablet screens so it doesn't block the website */
-        @media (max-width: 1200px) {
-            .left-side-ad { display: none; }
-        }
-    </style> -->
-
-    <!-- <div class="left-side-ad">
-        <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
-        <div class="ad-container">
-            <script>
-            atOptions = {
-            'key' : '15ea3c11d7f9a5219fb4e3501401f1c8',
-            'format' : 'iframe',
-            'height' : 600,
-            'width' : 160,
-            'params' : {}
-            };
-            </script>
-            <script src="https://www.highperformanceformat.com/15ea3c11d7f9a5219fb4e3501401f1c8/invoke.js"></script>
-        </div>
-    </div> -->
-
-    <!-- <div class="right-side-ad">
-        <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
-        <div class="ad-container">
-            <script>
-            atOptions = {
-            'key' : '15ea3c11d7f9a5219fb4e3501401f1c8',
-            'format' : 'iframe',
-            'height' : 600,
-            'width' : 160,
-            'params' : {}
-            };
-            </script>
-            <script src="https://www.highperformanceformat.com/15ea3c11d7f9a5219fb4e3501401f1c8/invoke.js"></script>
-        </div>
-    </div> -->
-
-        <!-- === ADSTERRA NATIVE BANNER === -->
-        <!-- <div style="margin-top: 30px; text-align: center; min-height: 100px; width: 100%;">
-            <script async="async" data-cfasync="false" src="https://pl30089839.effectivecpmnetwork.com/956fe1540f10604af9ca9b91cc60c35a/invoke.js"></script>
-            <div id="container-956fe1540f10604af9ca9b91cc60c35a"></div>
-        </div> -->
-
-    <!-- === MAIN CONTENT === -->
-    <div class="main-content">
-
-        <div class="hero-badge">⚡ Earn Money by Typing Numbers</div>
-        <h1 class="hero-title">Welcome to <span class="gradient-text">Six Number</span></h1>
-        <p class="hero-subtitle">Type the numbers below correctly to earn rewards instantly</p>
-
-        <!-- === EARN CARD === -->
-        <div class="earn-card">
-            <div class="card-label">Type These Numbers</div>
-            <div class="target-numbers" id="targetNumbers"><%= user.currentNumbers %></div>
-            
-            <div class="input-wrapper">
-                <input type="text" id="numberInput" class="number-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="• • • • • •" autocomplete="off">
-            </div>
-            
-            <button class="submit-btn" id="submitBtn" onclick="submitNumbers()">
-                ✨ Submit & Earn
-            </button>
-
-            <div class="earn-info">
-                <span>🎯 Earn</span>
-                <span class="earn-amount">$0.01</span>
-                <span>per correct submission</span>
-            </div>
-        </div>
-
-        <!-- === STATS ROW === -->
-        <div class="stats-row">
-            <div class="stat-card">
-                <div class="stat-icon">💵</div>
-                <div class="stat-value">$<%= (user.walletCents / 100).toFixed(2) %></div>
-                <div class="stat-label">Total Earned</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🔢</div>
-                <div class="stat-value"><%= user.walletCents %></div>
-                <div class="stat-label">Submissions</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🏆</div>
-                <div class="stat-value">$5.00</div>
-                <div class="stat-label">Min. Withdraw</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- === FOOTER === -->
-    <div class="footer">
-        © 2026 SixNumber. All rights reserved.
-    </div>
-
-    <!-- === AD NETWORK PLACEMENT === -->
-    <!-- Paste your Monetag ad code here -->
-
-    <!-- === JAVASCRIPT === -->
-    <script>
-        // Only allow numbers in input
-        document.getElementById('numberInput').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
-
-        async function submitNumbers() {
-            const typedNumbers = document.getElementById('numberInput').value;
-            const submitBtn = document.getElementById('submitBtn');
-
-            if (!/^\d{6}$/.test(typedNumbers)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops!',
-                    text: 'Please enter exactly 6 numbers.',
-                    background: '#1a1040',
-                    color: '#fff',
-                    confirmButtonColor: '#7c3aed'
-                });
-                return;
-            }
-
-            // Disable button and show loading
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Verifying...';
-
-            try {
-                const response = await fetch('/api/earn', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ typedNumbers })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Update UI
-                    document.getElementById('balance').innerText = data.newBalance;
-                    document.getElementById('targetNumbers').innerText = data.newNumbers;
-                    document.getElementById('numberInput').value = '';
-
-                    // Update stat cards
-                    document.querySelectorAll('.stat-value')[0].innerText = '$' + data.newBalance;
-                    document.querySelectorAll('.stat-value')[1].innerText = Math.round(parseFloat(data.newBalance) * 100);
-
-                    // Success Popup
-                    Swal.fire({
-                        icon: 'success',
-                        title: '🎉 Correct!',
-                        html: `<span style="font-size: 18px; color: #10b981; font-weight: bold;">+$${data.earned}</span><br><span style="color: #999; font-size: 14px;">added to your wallet</span>`,
-                        background: '#1a1040',
-                        color: '#fff',
-                        confirmButtonColor: '#10b981',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Incorrect!',
-                        text: data.error,
-                        background: '#1a1040',
-                        color: '#fff',
-                        confirmButtonColor: '#ef4444'
-                    });
-                }
-            } catch (err) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Something went wrong. Please try again.',
-                    background: '#1a1040',
-                    color: '#fff',
-                    confirmButtonColor: '#ef4444'
-                });
-            }
-
-            // Re-enable button
-            submitBtn.disabled = false;
-            submitBtn.textContent = '✨ Submit & Earn';
-        }
-
-        // Allow pressing Enter to submit
-        document.getElementById('numberInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') submitNumbers();
-        });
-    </script>
-
-    <!-- Floating Support Button -->
-    <a href="/contact" class="floating-support-btn" title="Contact Support">
-        <span class="support-icon">💬</span>
-        <span class="support-tooltip" onclick="window.open('https://omg10.com/4/11208116', '_blank');"">Need Help?</span>
-    </a>
-
-    <style>
+        /* === FLOATING SUPPORT BUTTON === */
         .floating-support-btn {
             position: fixed;
             bottom: 30px;
@@ -724,9 +406,271 @@
             100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
         }
     </style>
+</head>
+<body>
 
-    <!-- Social Bar -->
-    <!-- <script src="https://pl30091522.effectivecpmnetwork.com/4d/4a/d2/4d4ad260a07ec44f37c29878447d9e4b.js"></script> -->
+    <!-- === TOP NAVIGATION === -->
+    <nav class="navbar">
+        <a href="/dashboard" onclick="window.open('https://omg10.com/4/11208116', '_blank');" class="nav-brand">
+            <span>Six</span><span> Number</span>
+        </a>
+
+        <div class="nav-balance">
+            <div class="balance-icon">💰</div>
+            <div class="balance-info">
+                <span class="balance-label">Balance</span>
+                <span class="balance-amount">$<span id="balance"><%= (user.walletCents / 100).toFixed(3) %></span></span>
+            </div>
+        </div>
+
+        <!-- 🚀 DYNAMIC NAVBAR: Shows Login/Signup for Guests, Normal Buttons for Users -->
+        <div class="nav-actions">
+            <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+                <a href="/withdraw" class="nav-btn btn-withdraw" onclick="window.open('https://omg10.com/4/11208116', '_blank');">💸 Withdrawal</a>
+                <a href="/history" class="nav-btn btn-history" onclick="window.open('https://omg10.com/4/11208116', '_blank');">📋 History</a>
+                <a href="javascript:void(0);" onclick="window.open('https://omg10.com/4/11208116', '_blank');" class="nav-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">💰 Earn Bonus</a>
+                <a href="/profile" class="nav-btn btn-profile" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3);" onclick="window.open('https://omg10.com/4/11208116', '_blank');">👤 Profile</a>
+                
+                <% if (user.isAdmin || user.role === 'admin' || user.username === 'admin') { %>
+                    <a href="/admin" class="nav-btn btn-admin">🛡️ Admin</a>
+                <% } %>
+                <a href="/logout" onclick="window.open('https://omg10.com/4/11208116', '_blank');" class="nav-btn btn-logout">Logout</a>
+            <% } else { %>
+                <a href="/login" class="nav-btn" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white;">🔒 Login</a>
+                <a href="/signup" class="nav-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">✨ Sign Up</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <!-- === MAIN CONTENT === -->
+    <div class="main-content">
+
+        <!-- 🚀 DAILY LIMIT PROGRESS BAR (Only visible to logged-in users) -->
+        <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 16px; margin-bottom: 25px; text-align: center; border: 1px solid rgba(255,255,255,0.08); width: 100%; max-width: 480px;">
+            <p style="font-size: 13px; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Daily Typing Limit</p>
+            <p id="remainingText" style="font-size: 28px; font-weight: 800; color: <%= remainingEntries > 0 ? '#10b981' : '#ef4444' %>; margin: 0;">
+                <%= remainingEntries %> <span style="font-size: 16px; color: #94a3b8; font-weight: 500;">/ 170 entries left today</span>
+            </p>
+            <div style="width: 100%; height: 10px; background: rgba(0,0,0,0.3); border-radius: 5px; margin-top: 15px; overflow: hidden;">
+                <div id="limitProgressBar" style="width: <%= ((170 - remainingEntries) / 170) * 100 %>%; height: 100%; background: linear-gradient(90deg, #10b981, #00d4ff); transition: width 0.5s ease; border-radius: 5px;"></div>
+            </div>
+        </div>
+        <% } %>
+
+        <div class="hero-badge">⚡ Earn Money by Typing Numbers</div>
+        <h1 class="hero-title">Welcome to <span class="gradient-text">Six Number</span></h1>
+        <p class="hero-subtitle">Type the numbers below correctly to earn rewards instantly</p>
+
+        <!-- 🚀 DYNAMIC EARN CARD: Shows Input for Users, Preview Mode for Guests -->
+        <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+            <!-- === EARN CARD (LOGGED IN) === -->
+            <div class="earn-card">
+                <div class="card-label">Type These Numbers</div>
+                <div class="target-numbers" id="targetNumbers"><%= user.currentNumbers %></div>
+                
+                <div class="input-wrapper">
+                    <input type="text" id="numberInput" class="number-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="• • • • • •" autocomplete="off">
+                </div>
+                
+                <button class="submit-btn" id="submitBtn" onclick="submitNumbers()">
+                    ✨ Submit & Earn
+                </button>
+
+                <div class="earn-info">
+                    <span>🎯 Earn</span>
+                    <span class="earn-amount">$0.001</span>
+                    <span>per correct submission</span>
+                </div>
+            </div>
+        <% } else { %>
+            <!-- === PREVIEW CARD (GUEST) === -->
+            <div class="earn-card" style="text-align: center; border: 2px dashed rgba(0, 212, 255, 0.3);">
+                <div class="card-label" style="color: #00d4ff;">👀 Preview Mode</div>
+                <div class="target-numbers" style="font-size: 48px; opacity: 0.6;"><%= user.currentNumbers %></div>
+                
+                <!-- 🚀 GUEST INPUT FIELD -->
+                <div class="input-wrapper">
+                    <input type="text" id="guestNumberInput" class="number-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="• • • • • •" autocomplete="off">
+                </div>
+                
+                <!-- 🚀 GUEST SUBMIT BUTTON -->
+                <button class="submit-btn" id="guestSubmitBtn" onclick="promptGuestSignup()" style="background: linear-gradient(135deg, #00d4ff, #7c3aed);">
+                    🔒 Login to Earn
+                </button>
+
+                <div class="earn-info" style="margin-top: 25px;">
+                    <span>🎯 Earn</span>
+                    <span class="earn-amount">$0.001</span>
+                    <span>per correct submission</span>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- === STATS ROW === -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon">💵</div>
+                <div class="stat-value">$<%= (user.walletCents / 100).toFixed(3) %></div>
+                <div class="stat-label">Total Earned</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔢</div>
+                <div class="stat-value"><%= Math.round(user.walletCents * 10) %></div>
+                <div class="stat-label">Submissions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value">$5.00</div>
+                <div class="stat-label">Min. Withdraw</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === FOOTER === -->
+    <div class="footer">
+        © 2026 SixNumber. All rights reserved.
+    </div>
+
+    <!-- Floating Support Button -->
+    <a href="/contact" class="floating-support-btn" title="Contact Support">
+        <span class="support-icon" onclick="window.open('https://omg10.com/4/11208116', '_blank');">💬</span>
+        <span class="support-tooltip">Need Help?</span>
+    </a>
+
+    <!-- === JAVASCRIPT === -->
+    <script>
+        // 🚀 LOGGED IN USER SCRIPT
+        const numberInput = document.getElementById('numberInput');
+        if (numberInput) {
+            numberInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            numberInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') submitNumbers();
+            });
+        }
+
+        // 🚀 GUEST USER SCRIPT
+        const guestInput = document.getElementById('guestNumberInput');
+        if (guestInput) {
+            guestInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            guestInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') promptGuestSignup();
+            });
+        }
+
+        // 🚀 GUEST SIGNUP PROMPT
+        function promptGuestSignup() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Join SixNumber to Earn!',
+                html: 'Creating an account takes less than 10 seconds.<br>Start earning <strong style="color: #10b981;">$0.001</strong> per correct submission instantly!',
+                background: '#1a1040',
+                color: '#fff',
+                showCancelButton: true,
+                confirmButtonText: '✨ Create Free Account',
+                cancelButtonText: '🔒 I have an account',
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#3b82f6'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/signup';
+                } else if (result.dismiss === 'cancel') {
+                    window.location.href = '/login';
+                }
+            });
+        }
+
+        // 🚀 LOGGED IN SUBMISSION LOGIC
+        async function submitNumbers() {
+            const typedNumbers = document.getElementById('numberInput').value;
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (!/^\d{6}$/.test(typedNumbers)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops!',
+                    text: 'Please enter exactly 6 numbers.',
+                    background: '#1a1040',
+                    color: '#fff',
+                    confirmButtonColor: '#7c3aed'
+                });
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Verifying...';
+
+            try {
+                const response = await fetch('/api/earn', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ typedNumbers })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.remaining !== undefined) {
+                        const remainingText = document.getElementById('remainingText');
+                        if (remainingText) {
+                            const color = data.remaining > 0 ? '#10b981' : '#ef4444';
+                            remainingText.style.color = color;
+                            remainingText.innerHTML = `${data.remaining} <span style="font-size: 16px; color: #94a3b8; font-weight: 500;">/ 170 entries left today</span>`;
+                        }
+                        const progressBar = document.getElementById('limitProgressBar');
+                        if (progressBar) {
+                            const percentage = ((170 - data.remaining) / 170) * 100;
+                            progressBar.style.width = `${percentage}%`;
+                        }
+                    }
+
+                    document.getElementById('balance').innerText = data.newBalance;
+                    document.getElementById('targetNumbers').innerText = data.newNumbers;
+                    document.getElementById('numberInput').value = '';
+
+                    document.querySelectorAll('.stat-value')[1].innerText = Math.round(parseFloat(data.newBalance) * 1000);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '🎉 Correct!',
+                        html: `<span style="font-size: 18px; color: #10b981; font-weight: bold;">+$${data.earned}</span><br><span style="color: #999; font-size: 14px;">added to your wallet</span>`,
+                        background: '#1a1040',
+                        color: '#fff',
+                        confirmButtonColor: '#10b981',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Incorrect!',
+                        text: data.error,
+                        background: '#1a1040',
+                        color: '#fff',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong. Please try again.',
+                    background: '#1a1040',
+                    color: '#fff',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = '✨ Submit & Earn';
+        }
+    </script>
 
 </body>
 </html>

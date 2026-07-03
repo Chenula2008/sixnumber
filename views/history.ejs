@@ -20,7 +20,7 @@
 
         /* Navbar */
         .navbar { position: sticky; top: 0; z-index: 100; background: rgba(10, 14, 39, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding: 0 30px; height: 70px; display: flex; align-items: center; justify-content: space-between; }
-        .nav-brand { font-size: 24px; font-weight: 900; display: flex; align-items: center; gap: 8px; display: inline-block; }
+        .nav-brand { font-size: 24px; font-weight: 900; display: flex; align-items: center; gap: 8px; text-decoration: none; color: white; }
         .nav-brand span:first-child { color: #fff; }
         .nav-brand span:last-child { background: linear-gradient(135deg, #00d4ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .nav-balance { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); padding: 10px 20px; border-radius: 50px; }
@@ -59,12 +59,32 @@
         .table-wrapper { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 16px 25px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        td { padding: 20px 25px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.8); }
+        td { padding: 20px 25px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.8); vertical-align: top; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: rgba(255,255,255,0.02); }
 
         .amount-cell { font-weight: 700; color: #ffffff; font-size: 15px; }
-        .address-cell { font-family: monospace; font-size: 12px; color: rgba(255,255,255,0.5); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        /* 🚀 NEW: Bank Details Styling */
+        .bank-details {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.6;
+            max-width: 250px;
+        }
+        .bank-details strong {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+        .address-cell { 
+            font-family: monospace; 
+            font-size: 12px; 
+            color: rgba(255,255,255,0.5); 
+            max-width: 150px; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            white-space: nowrap; 
+        }
 
         /* Status Badges */
         .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 600; }
@@ -86,6 +106,13 @@
         .footer-link:hover { color: #00d4ff; transform: translateY(-2px); }
         .footer-copyright { color: rgba(255, 255, 255, 0.3); font-size: 12px; margin: 0; }
 
+        /* Floating Support Button */
+        .floating-support-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: linear-gradient(135deg, #00d4ff, #7c3aed); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; text-decoration: none; box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5); z-index: 9999; transition: all 0.3s ease; animation: pulse-support 2s infinite; }
+        .floating-support-btn:hover { transform: scale(1.1) rotate(10deg); box-shadow: 0 12px 35px rgba(124, 58, 237, 0.7); }
+        .support-tooltip { position: absolute; right: 75px; background: rgba(15, 23, 42, 0.9); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; opacity: 0; pointer-events: none; transition: all 0.3s ease; transform: translateX(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .floating-support-btn:hover .support-tooltip { opacity: 1; transform: translateX(0); }
+        @keyframes pulse-support { 0% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.6); } 70% { box-shadow: 0 0 0 15px rgba(124, 58, 237, 0); } 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); } }
+
         @media (max-width: 768px) {
             .navbar { padding: 15px; height: auto; flex-wrap: wrap; gap: 10px; }
             .nav-actions { flex-wrap: wrap; justify-content: center; }
@@ -101,166 +128,28 @@
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="/dashboard" onclick="window.open('https://omg10.com/4/11208116', '_blank');""><div class="nav-brand"><span>Six</span><span> Number</span></div></a>
+        <a href="/dashboard" onclick="window.open('https://omg10.com/4/11208116', '_blank');" class="nav-brand">
+            <span>Six</span><span> Number</span>
+        </a>
         <div class="nav-balance">
             <div class="balance-icon">💰</div>
             <div class="balance-info">
                 <span class="balance-label">Balance</span>
-                <span class="balance-amount">$<%= (user.walletCents / 100).toFixed(2) %></span>
+                <!-- 🚀 Updated to 3 decimal places -->
+                <span class="balance-amount">$<%= (user.walletCents / 100).toFixed(3) %></span>
             </div>
         </div>
         <div class="nav-actions">
-            <a href="/withdraw" class="nav-btn btn-withdraw" onclick="window.open('https://omg10.com/4/11208116', '_blank');""> 💸 Withdrawal</a>
-            <a href="/history" class="nav-btn btn-history" onclick="window.open('https://omg10.com/4/11208116', '_blank');"">📋 History</a>
-
-            <!-- This button goes to the Direct Link for EVERYONE -->
-            <a href="javascript:void(0);" onclick="window.open('https://omg10.com/4/11208116', '_blank');window.location.href='https://omg10.com/4/11208116';" class="nav-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">💰 Earn Bonus</a>
-            <!-- <a href="https://omg10.com/4/11208116" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">💰 Earn Bonus</a> -->
-
-            <a href="/profile" class="nav-btn btn-profile" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3);" onclick="window.open('https://omg10.com/4/11208116', '_blank');"">👤 Profile</a>
-            <!-- This button is ONLY for the Admin Panel -->
+            <a href="/withdraw" class="nav-btn btn-withdraw" onclick="window.open('https://omg10.com/4/11208116', '_blank');">💸 Withdrawal</a>
+            <a href="/history" class="nav-btn btn-history" onclick="window.open('https://omg10.com/4/11208116', '_blank');">📋 History</a>
+            <a href="javascript:void(0);" onclick="window.open('https://omg10.com/4/11208116', '_blank');" class="nav-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">💰 Earn Bonus</a>
+            <a href="/profile" class="nav-btn btn-profile" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3);" onclick="window.open('https://omg10.com/4/11208116', '_blank');">👤 Profile</a>
             <% if (user.isAdmin || user.role === 'admin' || user.username === 'admin') { %>
                 <a href="/admin" class="nav-btn btn-admin">🛡️ Admin</a>
             <% } %>
-
-            <!-- <a href="/admin" class="nav-btn btn-admin">🛡️ Admin</a> -->
-            <a href="/logout" class="nav-btn btn-logout" onclick="window.open('https://omg10.com/4/11208116', '_blank');"">Logout</a>
+            <a href="/logout" class="nav-btn btn-logout" onclick="window.open('https://omg10.com/4/11208116', '_blank');">Logout</a>
         </div>
     </nav>
-
-    <!-- ADSTERRA 728x90 BANNER AD -->
-        <!-- STICKY BOTTOM BANNER AD -->
-    <!-- <div id="sticky-bottom-ad" style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 728px; background: #1a1040; border-top: 2px solid #7c3aed; box-shadow: 0 -4px 15px rgba(0,0,0,0.5); z-index: 9999; text-align: center; padding: 10px 0;">
-        
-        Close Button
-        <button onclick="document.getElementById('sticky-bottom-ad').style.display='none'" style="position: absolute; top: -12px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">✕</button>
-
-        Adsterra Ad Code
-        <script>
-        atOptions = {
-        'key' : 'db0ed9e0becc15947411eb2559250131',
-        'format' : 'iframe',
-        'height' : 90,
-        'width' : 728,
-        'params' : {}
-        };
-        </script>
-        <script src="https://www.highperformanceformat.com/db0ed9e0becc15947411eb2559250131/invoke.js"></script>
-    </div> -->
-
-        <!-- RIGHT SIDE SKYSCRAPER AD -->
-    <!-- <style>
-        .right-side-ad {
-            position: fixed;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            z-index: 9998;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .right-side-ad .close-btn {
-            background: rgba(239, 68, 68, 0.8);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .right-side-ad .ad-container {
-            background: rgba(26, 16, 64, 0.6);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        /* Hide on mobile and tablet screens so it doesn't block the website */
-        @media (max-width: 1200px) {
-            .right-side-ad { display: none; }
-        }
-    </style> -->
-
-    <!-- LEFT SIDE SKYSCRAPER AD -->
-    <!-- <style>
-        .left-side-ad {
-            position: fixed;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            z-index: 9998;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .left-side-ad .close-btn {
-            background: rgba(239, 68, 68, 0.8);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .left-side-ad .ad-container {
-            background: rgba(26, 16, 64, 0.6);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        /* Hide on mobile and tablet screens so it doesn't block the website */
-        @media (max-width: 1200px) {
-            .left-side-ad { display: none; }
-        }
-    </style> -->
-
-    <!-- <div class="left-side-ad">
-        <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
-        <div class="ad-container">
-            <script>
-            atOptions = {
-            'key' : '15ea3c11d7f9a5219fb4e3501401f1c8',
-            'format' : 'iframe',
-            'height' : 600,
-            'width' : 160,
-            'params' : {}
-            };
-            </script>
-            <script src="https://www.highperformanceformat.com/15ea3c11d7f9a5219fb4e3501401f1c8/invoke.js"></script>
-        </div>
-    </div> -->
-
-    <!-- <div class="right-side-ad">
-        <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
-        <div class="ad-container">
-            <script>
-            atOptions = {
-            'key' : '15ea3c11d7f9a5219fb4e3501401f1c8',
-            'format' : 'iframe',
-            'height' : 600,
-            'width' : 160,
-            'params' : {}
-            };
-            </script>
-            <script src="https://www.highperformanceformat.com/15ea3c11d7f9a5219fb4e3501401f1c8/invoke.js"></script>
-        </div>
-    </div> -->
-
-        <!-- === ADSTERRA NATIVE BANNER === -->
-        <!-- <div style="margin-top: 30px; text-align: center; min-height: 100px; width: 100%;">
-            <script async="async" data-cfasync="false" src="https://pl30089839.effectivecpmnetwork.com/956fe1540f10604af9ca9b91cc60c35a/invoke.js"></script>
-            <div id="container-956fe1540f10604af9ca9b91cc60c35a"></div>
-        </div> -->
 
     <!-- Main Content -->
     <div class="main-content">
@@ -278,12 +167,14 @@
             </div>
             <div class="stat-card">
                 <div class="stat-icon">⏳</div>
-                <div class="stat-value" style="color: #f59e0b;">$<%= (myWithdrawals.filter(w => w.status === 'pending').reduce((sum, w) => sum + w.amountCents, 0) / 100).toFixed(2) %></div>
+                <!-- 🚀 Updated to 3 decimal places -->
+                <div class="stat-value" style="color: #f59e0b;">$<%= (myWithdrawals.filter(w => w.status === 'pending').reduce((sum, w) => sum + w.amountCents, 0) / 100).toFixed(3) %></div>
                 <div class="stat-label">Pending Amount</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">✅</div>
-                <div class="stat-value" style="color: #10b981;">$<%= (myWithdrawals.filter(w => w.status === 'approved').reduce((sum, w) => sum + w.amountCents, 0) / 100).toFixed(2) %></div>
+                <!-- 🚀 Updated to 3 decimal places -->
+                <div class="stat-value" style="color: #10b981;">$<%= (myWithdrawals.filter(w => w.status === 'approved').reduce((sum, w) => sum + w.amountCents, 0) / 100).toFixed(3) %></div>
                 <div class="stat-label">Successfully Paid</div>
             </div>
         </div>
@@ -310,7 +201,7 @@
                                 <th>Date</th>
                                 <th>Amount</th>
                                 <th>Method</th>
-                                <th class="hide-mobile">Payment Address</th>
+                                <th class="hide-mobile">Payment Details</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -318,9 +209,34 @@
                             <% myWithdrawals.forEach(w => { %>
                                 <tr>
                                     <td><%= new Date(w.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></td>
-                                    <td class="amount-cell">$<%= (w.amountCents / 100).toFixed(2) %></td>
-                                    <td><%= w.method === 'paypal' ? '️ PayPal' : '₿ Bitcoin' %></td>
-                                    <td class="address-cell hide-mobile" title="<%= w.paymentAddress %>"><%= w.paymentAddress %></td>
+                                    <!-- 🚀 Updated to 3 decimal places -->
+                                    <td class="amount-cell">$<%= (w.amountCents / 100).toFixed(3) %></td>
+                                    
+                                    <!-- 🚀 Method with Icons -->
+                                    <td>
+                                        <% if (w.method === 'bank') { %>
+                                            <span style="color: #fbbf24; font-weight: 600;">🏦 Bank</span>
+                                        <% } else if (w.method === 'bitcoin') { %>
+                                            <span style="color: #f7931a; font-weight: 600;">₿ Bitcoin</span>
+                                        <% } else { %>
+                                            <span style="color: #3b82f6; font-weight: 600;">🅿️ PayPal</span>
+                                        <% } %>
+                                    </td>
+
+                                    <!-- 🚀 Payment Details (Shows Bank Info or Crypto Address) -->
+                                    <td class="hide-mobile">
+                                        <% if (w.method === 'bank') { %>
+                                            <div class="bank-details">
+                                                <div><strong>Bank:</strong> <%= w.bankName || '-' %></div>
+                                                <div><strong>Name:</strong> <%= w.accountHolderName || '-' %></div>
+                                                <div><strong>A/C:</strong> <%= w.accountNumber || '-' %></div>
+                                                <div><strong>Branch:</strong> <%= w.branchName %> (<%= w.branchCode || '-' %>)</div>
+                                            </div>
+                                        <% } else { %>
+                                            <div class="address-cell" title="<%= w.paymentAddress %>"><%= w.paymentAddress || '-' %></div>
+                                        <% } %>
+                                    </td>
+
                                     <td>
                                         <% if (w.status === 'pending') { %>
                                             <span class="status-badge status-pending">⏳ Pending</span>
@@ -348,66 +264,11 @@
         </div>
     </div>
 
-    <!-- Social Bar -->
-    <!-- <script src="https://pl30091522.effectivecpmnetwork.com/4d/4a/d2/4d4ad260a07ec44f37c29878447d9e4b.js"></script> -->
-
-</body>
-
-    <!-- Floating Support Button -->
+    <!-- Floating Support Button (Moved inside body) -->
     <a href="/contact" class="floating-support-btn" title="Contact Support">
-        <span class="support-icon">💬</span>
-        <span class="support-tooltip" onclick="window.open('https://omg10.com/4/11208116', '_blank');"">Need Help?</span>
+        <span class="support-icon" onclick="window.open('https://omg10.com/4/11208116', '_blank');">💬</span>
+        <span class="support-tooltip">Need Help?</span>
     </a>
 
-    <style>
-        .floating-support-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            text-decoration: none;
-            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
-            z-index: 9999;
-            transition: all 0.3s ease;
-            animation: pulse-support 2s infinite;
-        }
-        .floating-support-btn:hover {
-            transform: scale(1.1) rotate(10deg);
-            box-shadow: 0 12px 35px rgba(124, 58, 237, 0.7);
-        }
-        .support-tooltip {
-            position: absolute;
-            right: 75px;
-            background: rgba(15, 23, 42, 0.9);
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s ease;
-            transform: translateX(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .floating-support-btn:hover .support-tooltip {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        @keyframes pulse-support {
-            0% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.6); }
-            70% { box-shadow: 0 0 0 15px rgba(124, 58, 237, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
-        }
-    </style>
-
+</body>
 </html>

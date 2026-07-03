@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema({
     lastEarnedAt: { type: Date, default: null },
     currentNumbers: { type: String, default: null },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    dailyEntries: { type: Number, default: 0 },
+    lastEntryDate: { type: String, default: '' },
     
     // 🚨 NEW EMAIL VERIFICATION FIELDS
     isVerified: { type: Boolean, default: false },

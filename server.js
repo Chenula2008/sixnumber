@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 const Withdrawal = require('./models/Withdrawal');
 const crypto = require('crypto');
-const sgMail = require('@sendgrid/mail'); // 🚀 Official SendGrid Package (Used for Support Emails)
+const sgMail = require('@sendgrid/mail');
 
 // 🚀 Initialize SendGrid with your API Key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -40,9 +40,8 @@ mongoose.connect(process.env.MONGO_URI)
 const authMiddleware = async (req, res, next) => {
     if (req.session.userId) {
         const user = await User.findById(req.session.userId);
-        if (user) {
-            return next();
-        } else {
+        if (user) return next();
+        else {
             req.session.destroy();
             return res.redirect('/login');
         }
@@ -61,9 +60,8 @@ function generateNumbers() {
 }
 
 // --- PAGE ROUTES ---
-app.get('/', (req, res) => res.redirect('/login'));
+app.get('/', (req, res) => res.redirect('/dashboard'));
 
-// 🚨 UPDATED: Passes the verification link from the session to the page
 app.get('/login', (req, res) => {
     if (req.session.userId) return res.redirect('/dashboard');
     const verificationLink = req.session.verificationLink || null; 
@@ -75,17 +73,41 @@ app.get('/signup', (req, res) => {
     res.render('signup', { error: null, success: null });
 });
 
-app.get('/dashboard', authMiddleware, async (req, res) => {
-    const user = await User.findById(req.session.userId);
-    const pendingWithdrawals = await Withdrawal.find({ userId: user._id, status: 'pending' });
+app.get('/dashboard', async (req, res) => {
+    let user;
+    let isLoggedIn = false;
     let pendingCents = 0;
-    pendingWithdrawals.forEach(w => { pendingCents += w.amountCents; });
+    let remainingEntries = 170;
 
-    if (!user.currentNumbers) {
-        user.currentNumbers = generateNumbers();
-        await user.save();
+    if (req.session.userId) {
+        user = await User.findById(req.session.userId);
+        isLoggedIn = true;
+        
+        const pendingWithdrawals = await Withdrawal.find({ userId: user._id, status: 'pending' });
+        pendingWithdrawals.forEach(w => { pendingCents += w.amountCents; });
+
+        const today = new Date().toISOString().split('T')[0];
+        if (user.lastEntryDate === today) {
+            remainingEntries = 170 - (user.dailyEntries || 0);
+        }
+
+        if (!user.currentNumbers) {
+            user.currentNumbers = generateNumbers();
+            await user.save();
+        }
+    } else {
+        user = {
+            username: 'Guest',
+            firstName: 'Guest',
+            lastName: '',
+            walletCents: 0,
+            currentNumbers: generateNumbers(),
+            isAdmin: false,
+            role: 'user'
+        };
     }
-    res.render('dashboard', { user, pendingCents });
+    
+    res.render('dashboard', { user, pendingCents, remainingEntries, isLoggedIn });
 });
 
 app.get('/withdraw', authMiddleware, async (req, res) => {
@@ -107,10 +129,7 @@ app.get('/profile', authMiddleware, async (req, res) => {
     res.render('profile', { user });
 });
 
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/login');
-});
+app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/dashboard'); });
 
 app.get('/sw.js', (req, res) => {
     res.sendFile(__dirname + '/public/sw.js');
@@ -128,7 +147,6 @@ app.post('/login', async (req, res) => {
 
         const isUserAdmin = user.isAdmin || user.role === 'admin';
         
-        // 🚨 BULLETPROOF: If they aren't verified, regenerate the link and show it to them!
         if (!user.isVerified && !isUserAdmin) {
             if (!user.verificationToken) {
                 user.verificationToken = crypto.randomBytes(32).toString('hex');
@@ -162,6 +180,117 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// 🚀 HELPER FUNCTION: Send Registration Notification
+function sendRegistrationNotification(newUser) {
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+    const senderEmail = process.env.SENDER_EMAIL;
+    const web3formsKey = process.env.WEB3FORMS_ACCESS_KEY;
+
+    const notificationData = {
+        username: newUser.username,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        date: new Date().toLocaleString()
+    };
+
+    // 🚀 ATTEMPT 1: TRY WEB3FORMS FIRST (As requested)
+    if (web3formsKey) {
+        const web3formsPayload = {
+            access_key: web3formsKey.trim(),
+            subject: `🎉 New User Registration: ${notificationData.username}`,
+            from_name: 'SixNumber System',
+            email: notificationData.email,
+            message: `🎉 NEW USER REGISTRATION 🎉\n\nA new user has just signed up for SixNumber!\n\n👤 Username: ${notificationData.username}\n📛 Full Name: ${notificationData.firstName} ${notificationData.lastName}\n📧 Email: ${notificationData.email}\n📅 Date: ${notificationData.date}\n\nYou can manage this user in your Admin Panel.`
+        };
+
+        fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'User-Agent': 'SixNumber-Server/1.0'
+            },
+            body: JSON.stringify(web3formsPayload)
+        })
+        .then(async (response) => {
+            const text = await response.text();
+            try {
+                const data = JSON.parse(text);
+                if (data.success) {
+                    console.log('✅ Admin notification sent via Web3Forms!');
+                } else {
+                    throw new Error('Web3Forms API returned error');
+                }
+            } catch (e) {
+                // 🚨 WEB3FORMS FAILED - FALL BACK TO SENDGRID
+                console.error('❌ Web3Forms failed (Cloudflare block), falling back to SendGrid...');
+                sendViaSendGrid(notificationData, adminEmail, senderEmail);
+            }
+        })
+        .catch(err => {
+            console.error('❌ Web3Forms network error, falling back to SendGrid...');
+            sendViaSendGrid(notificationData, adminEmail, senderEmail);
+        });
+    } else {
+        // No Web3Forms key, use SendGrid directly
+        sendViaSendGrid(notificationData, adminEmail, senderEmail);
+    }
+}
+
+// 🚀 SENDGRID FALLBACK FUNCTION
+function sendViaSendGrid(data, adminEmail, senderEmail) {
+    if (!adminEmail || !senderEmail) {
+        console.error('❌ Cannot send notification: Missing ADMIN_EMAIL or SENDER_EMAIL in environment variables');
+        return;
+    }
+
+    const notificationHtml = `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #1a1040; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="background: linear-gradient(135deg, #10b981, #059669); padding: 25px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">🎉 New User Registration</h1>
+            </div>
+            <div style="padding: 30px; color: #ffffff;">
+                <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 20px;">A new user has just signed up for SixNumber!</p>
+                
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; color: #94a3b8;">Username:</p>
+                    <p style="margin: 0; font-size: 18px; font-weight: 700; color: #00d4ff;">${data.username}</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; color: #94a3b8;">Full Name:</p>
+                    <p style="margin: 0; font-size: 16px; color: #ffffff;">${data.firstName} ${data.lastName}</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; color: #94a3b8;">Email Address:</p>
+                    <p style="margin: 0; font-size: 16px; color: #ffffff;">${data.email}</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; color: #94a3b8;">Registered At:</p>
+                    <p style="margin: 0; font-size: 16px; color: #ffffff;">${data.date}</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="${process.env.BASE_URL}/admin" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #7c3aed, #00d4ff); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700;">🛡️ Go to Admin Panel</a>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const msg = {
+        to: adminEmail,
+        from: senderEmail,
+        replyTo: data.email,
+        subject: `🎉 New User Registration: ${data.username}`,
+        text: `New User Registration\n\nUsername: ${data.username}\nName: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nDate: ${data.date}`,
+        html: notificationHtml,
+    };
+
+    sgMail.send(msg)
+        .then(() => console.log('✅ Admin registration notification sent via SendGrid (fallback)!'))
+        .catch((error) => console.error('❌ SendGrid Notification Error:', error.response ? error.response.body : error));
+}
+
 app.post('/signup', async (req, res) => {
     const { username, email, password, firstName, lastName } = req.body; 
     try {
@@ -179,11 +308,11 @@ app.post('/signup', async (req, res) => {
         });
         
         await newUser.save(); 
+
+        // 🚀 SEND REGISTRATION NOTIFICATION (Web3Forms with SendGrid fallback)
+        sendRegistrationNotification(newUser);
         
-        // 🚨 Uses your BASE_URL environment variable
         const verificationUrl = `${process.env.BASE_URL}/verify-email?token=${token}`;
-        
-        // 🚀 SAVE LINK TO SESSION (Displays on the login page instead of emailing)
         req.session.verificationLink = verificationUrl;
 
         res.render('login', { 
@@ -232,9 +361,26 @@ app.post('/api/profile', authMiddleware, async (req, res) => {
 });
 
 // --- CORE ROUTES (Earning & Withdrawals) ---
-app.post('/api/earn', authMiddleware, async (req, res) => {
+app.post('/api/earn', async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: "You must be logged in to earn money. Please log in or create an account." });
+    }
+
     const user = await User.findById(req.session.userId);
     const { typedNumbers } = req.body;
+
+    const today = new Date().toISOString().split('T')[0];
+    if (user.lastEntryDate !== today) {
+        user.dailyEntries = 0;
+        user.lastEntryDate = today;
+    }
+
+    if (user.dailyEntries >= 170) {
+        return res.status(429).json({ 
+            error: "You have reached your daily limit of 170 entries. Come back tomorrow!",
+            remaining: 0 
+        });
+    }
 
     const now = Date.now();
     if (user.lastEarnedAt && (now - user.lastEarnedAt) < 5000) {
@@ -244,40 +390,66 @@ app.post('/api/earn', authMiddleware, async (req, res) => {
         return res.status(400).json({ error: "Incorrect numbers! Please type the exact numbers shown." });
     }
 
-    user.walletCents += 1; 
+    user.walletCents += 0.1; 
+    user.walletCents = Math.round(user.walletCents * 10) / 10; 
+    user.dailyEntries += 1; 
     user.lastEarnedAt = now;
     user.currentNumbers = generateNumbers();
     await user.save();
 
     res.json({ 
         success: true, 
-        earned: 0.01, 
-        newBalance: (user.walletCents / 100).toFixed(2),
-        newNumbers: user.currentNumbers
+        earned: 0.001, 
+        newBalance: (user.walletCents / 100).toFixed(3), 
+        newNumbers: user.currentNumbers,
+        remaining: 170 - user.dailyEntries
     });
 });
 
 app.post('/api/withdraw', authMiddleware, async (req, res) => {
     const user = await User.findById(req.session.userId);
-    const { amount, method, address } = req.body;
+    
+    const { amount, method, address, bankName, accountHolderName, accountNumber, branchName, branchCode } = req.body;
     const amountCents = Math.round(amount * 100);
+    
+    const feeCents = Math.round(amountCents * 0.02); 
+    const totalDeductionCents = amountCents + feeCents;
 
     if (amountCents < 500) return res.status(400).json({ error: "Minimum withdrawal is $5.00." });
-    if (!['paypal', 'bitcoin'].includes(method)) return res.status(400).json({ error: "Invalid method." });
-    if (user.walletCents < amountCents) return res.status(400).json({ error: "Insufficient funds." });
+    if (!['paypal', 'bitcoin', 'bank'].includes(method)) return res.status(400).json({ error: "Invalid method." });
+    
+    if (user.walletCents < totalDeductionCents) {
+        return res.status(400).json({ 
+            error: `Insufficient funds. You need $${(totalDeductionCents / 100).toFixed(3)} to cover the amount and the 2% fee.` 
+        });
+    }
 
-    user.walletCents -= amountCents;
+    if (method === 'bank') {
+        if (!bankName || !accountHolderName || !accountNumber || !branchName || !branchCode) {
+            return res.status(400).json({ error: "Please fill in all bank details." });
+        }
+    } else {
+        if (!address) return res.status(400).json({ error: "Please provide your payment address." });
+    }
+
+    user.walletCents -= totalDeductionCents;
     await user.save();
 
     await Withdrawal.create({
         userId: user._id,
         amountCents,
+        feeCents,
         method,
-        paymentAddress: address, 
+        paymentAddress: address,
+        bankName,
+        accountHolderName,
+        accountNumber,
+        branchName,
+        branchCode,
         status: 'pending'
     });
 
-    res.json({ success: true, message: "Withdrawal requested. Please allow at least 3 days for processing." });
+    res.json({ success: true, message: `Withdrawal requested! $${(amountCents/100).toFixed(3)} will be sent, and a $${(feeCents/100).toFixed(3)} fee was deducted.` });
 });
 
 // --- ADMIN ROUTES ---
@@ -287,13 +459,49 @@ app.get('/admin', authMiddleware, async (req, res) => {
         if (!user || (!user.isAdmin && user.role !== 'admin')) {
             return res.redirect('/dashboard');
         }
-        
-        const users = await User.find().sort({ createdAt: -1 }); 
-        const withdrawals = await Withdrawal.find().populate('userId', 'username firstName lastName').sort({ createdAt: -1 });  
-        const totalUsers = await User.countDocuments();
+
+        const userSearch = req.query.userSearch || '';
+        const withdrawalSearch = req.query.withdrawalSearch || '';
+
+        let userFilter = {};
+        if (userSearch) {
+            const regex = new RegExp(userSearch, 'i');
+            userFilter = {
+                $or: [
+                    { username: regex },
+                    { firstName: regex },
+                    { lastName: regex }
+                ]
+            };
+        }
+
+        let withdrawalFilter = {};
+        if (withdrawalSearch) {
+            const regex = new RegExp(withdrawalSearch, 'i');
+            const matchedUsers = await User.find({
+                $or: [
+                    { username: regex },
+                    { firstName: regex },
+                    { lastName: regex }
+                ]
+            }).select('_id');
+            
+            const matchedUserIds = matchedUsers.map(u => u._id);
+            withdrawalFilter = { userId: { $in: matchedUserIds } };
+        }
+
+        const users = await User.find(userFilter).sort({ createdAt: -1 }); 
+        const withdrawals = await Withdrawal.find(withdrawalFilter)
+            .populate('userId', 'username firstName lastName')
+            .sort({ createdAt: -1 });  
+
+        const totalUsers = await User.countDocuments(userFilter);
         const totalWithdrawals = await Withdrawal.countDocuments({ status: 'pending' });
         
-        res.render('admin', { user, users, withdrawals, totalUsers, totalWithdrawals });
+        res.render('admin', { 
+            user, users, withdrawals, totalUsers, totalWithdrawals,
+            userSearch, withdrawalSearch
+        });
     } catch (error) {
         console.error("ADMIN PAGE CRASH:", error);
         res.status(500).send("Admin page crashed. Error: " + error.message);
@@ -324,7 +532,7 @@ app.post('/admin/withdrawal/:id/action', authMiddleware, adminCheck, async (req,
         withdrawal.status = 'rejected';
         const user = await User.findById(withdrawal.userId);
         if(user) {
-            user.walletCents += withdrawal.amountCents;
+            user.walletCents += (withdrawal.amountCents + (withdrawal.feeCents || 0));
             await user.save();
         }
     }
@@ -372,11 +580,10 @@ app.post('/api/contact', authMiddleware, async (req, res) => {
 
         const contactPlainText = `New Support Message\n\nFrom: ${user.firstName} ${user.lastName} (${user.email})\nSubject: ${subject}\n\nMessage:\n${message}`;
 
-        // 🚀 SEND SUPPORT EMAIL TO ADMIN VIA SENDGRID
         const msg = {
             to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
             from: process.env.SENDER_EMAIL,
-            replyTo: user.email, // Allows you to hit "Reply" in Gmail and it goes to the user
+            replyTo: user.email,
             subject: `📩 New Support Message: ${subject}`,
             text: contactPlainText,
             html: contactHtml,
@@ -410,7 +617,7 @@ app.get('/verify-email', async (req, res) => {
         }
 
         user.isVerified = true;
-        req.session.verificationLink = null; // 🚨 Clear the link from the screen once verified
+        req.session.verificationLink = null; 
         user.verificationToken = undefined;
         user.verificationTokenExpires = undefined;
         await user.save();
