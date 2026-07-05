@@ -692,6 +692,138 @@ app.post('/reset-password/:token', async (req, res) => {
 
         console.log(`✅ Password reset successful for ${user.email}`);
 
+        // 🚀 SEND PASSWORD RESET CONFIRMATION EMAIL
+        const resetTime = new Date().toLocaleString('en-US', {
+            dateStyle: 'full',
+            timeStyle: 'long'
+        });
+
+        const confirmationHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Changed - SixNumber</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0e27;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0e27; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1a1040 0%, #0d1b3e 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #ef4444 0%, #f59e0b 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 800;">
+                                🔐 Password Changed
+                            </h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 50px 40px; color: #ffffff;">
+                            <p style="margin: 0 0 20px 0; font-size: 18px; color: #cbd5e1;">
+                                Hi ${user.firstName},
+                            </p>
+                            
+                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #94a3b8;">
+                                This is a confirmation that the password for your <strong style="color: #00d4ff;">SixNumber</strong> account has been successfully changed.
+                            </p>
+                            
+                            <!-- Reset Details Box -->
+                            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 25px; margin: 30px 0;">
+                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                                    Reset Details:
+                                </p>
+                                <p style="margin: 0 0 10px 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Account:</strong> ${user.email}
+                                </p>
+                                <p style="margin: 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Changed At:</strong> ${resetTime}
+                                </p>
+                            </div>
+                            
+                            <!-- Security Warning -->
+                            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 20px; margin: 30px 0;">
+                                <p style="margin: 0 0 10px 0; font-size: 16px; color: #f87171; font-weight: 700;">
+                                    ⚠️ Didn't make this change?
+                                </p>
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #fca5a5;">
+                                    If you did not reset your password, your account may have been compromised. Please contact our support team immediately and we will secure your account.
+                                </p>
+                            </div>
+                            
+                            <!-- Support Button -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="${process.env.BASE_URL}/contact" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #ef4444 0%, #f59e0b 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);">
+                                            📩 Contact Support
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: rgba(0,0,0,0.3); padding: 30px 40px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #64748b;">
+                                © 2026 SixNumber. All rights reserved.
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #475569;">
+                                This is an automated security notification.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+        `;
+
+        const confirmationPlainText = `
+Password Changed Successfully
+
+Hi ${user.firstName},
+
+This is a confirmation that the password for your SixNumber account has been successfully changed.
+
+Account: ${user.email}
+Changed At: ${resetTime}
+
+⚠️ Didn't make this change?
+If you did not reset your password, your account may have been compromised. Please contact our support team immediately at ${process.env.BASE_URL}/contact and we will secure your account.
+
+© 2026 SixNumber. All rights reserved.
+This is an automated security notification.
+        `;
+
+        const confirmationMsg = {
+            to: user.email,
+            from: { 
+                email: process.env.SENDER_EMAIL || 'info@sixnumber.xyz', 
+                name: 'SixNumber Security'
+            },
+            subject: '🔐 Your Password Was Changed - SixNumber',
+            text: confirmationPlainText,
+            html: confirmationHtml,
+        };
+
+        sgMail.send(confirmationMsg)
+            .then(() => {
+                console.log(`✅ Password reset confirmation email sent to ${user.email}`);
+            })
+            .catch((error) => {
+                console.error('❌ SendGrid Confirmation Email Error:', error.response ? error.response.body : error);
+            });
+
         res.render('login', {
             error: null,
             success: "✅ Password reset successful! You can now log in with your new password.",
