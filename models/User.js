@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     dailyEntries: { type: Number, default: 0 },
     lastEntryDate: { type: String, default: '' },
+
+    // Password Reset Fields
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
     
     // 🚨 NEW EMAIL VERIFICATION FIELDS
     isVerified: { type: Boolean, default: false },

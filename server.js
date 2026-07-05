@@ -459,21 +459,253 @@ If you didn't create an account with SixNumber, you can safely ignore this email
     }
 });
 
-// --- PASSWORD RESET ROUTES ---
-app.get('/forgot-password', (req, res) => res.render('forgot-password', { error: null }));
+// --- SECURE PASSWORD RESET ROUTES ---
+app.get('/forgot-password', (req, res) => res.render('forgot-password', { error: null, success: null }));
+
 app.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.render('forgot-password', { error: "Email not found." });
-    res.redirect(`/reset-password/${user._id}`);
+    
+    try {
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            // Don't reveal if email exists (security best practice)
+            return res.render('forgot-password', { 
+                error: null, 
+                success: "If an account exists with that email, a password reset link has been sent." 
+            });
+        }
+
+        // Generate secure reset token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+        await user.save();
+
+        const resetUrl = `${process.env.BASE_URL}/reset-password/${resetToken}`;
+
+        // 🚀 SEND PASSWORD RESET EMAIL
+        const resetHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Your Password - SixNumber</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0e27;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0e27; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1a1040 0%, #0d1b3e 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 800;">
+                                🔐 Password Reset Request
+                            </h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 50px 40px; color: #ffffff;">
+                            <p style="margin: 0 0 20px 0; font-size: 18px; color: #cbd5e1;">
+                                Hi ${user.firstName},
+                            </p>
+                            
+                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #94a3b8;">
+                                We received a request to reset your password for your <strong style="color: #00d4ff;">SixNumber</strong> account.
+                            </p>
+                            
+                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #94a3b8;">
+                                Click the button below to create a new password:
+                            </p>
+                            
+                            <!-- Reset Button -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="${resetUrl}" style="display: inline-block; padding: 18px 50px; background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 18px; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4);">
+                                            🔑 Reset My Password
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Alternative Link -->
+                            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin: 30px 0;">
+                                <p style="margin: 0 0 10px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                                    Or copy this link:
+                                </p>
+                                <p style="margin: 0; font-size: 14px; color: #00d4ff; word-break: break-all; font-family: 'Courier New', monospace;">
+                                    ${resetUrl}
+                                </p>
+                            </div>
+                            
+                            <!-- Security Notice -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 40px;">
+                                <tr>
+                                    <td style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                                        <p style="margin: 0; font-size: 14px; color: #64748b;">
+                                            ⏰ <strong>This link expires in 1 hour.</strong>
+                                        </p>
+                                        <p style="margin: 10px 0 0 0; font-size: 13px; color: #475569;">
+                                            If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: rgba(0,0,0,0.3); padding: 30px 40px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #64748b;">
+                                © 2026 SixNumber. All rights reserved.
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #475569;">
+                                You're receiving this email because a password reset was requested for your account.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+        `;
+
+        const resetPlainText = `
+Password Reset Request
+
+Hi ${user.firstName},
+
+We received a request to reset your password for your SixNumber account.
+
+Click the link below to create a new password:
+
+${resetUrl}
+
+⏰ This link expires in 1 hour.
+
+If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.
+
+© 2026 SixNumber. All rights reserved.
+        `;
+
+        const msg = {
+            to: email,
+            from: { 
+                email: process.env.SENDER_EMAIL || 'info@sixnumber.xyz', 
+                name: 'SixNumber Team'
+            },
+            subject: '🔐 Reset Your Password - SixNumber',
+            text: resetPlainText,
+            html: resetHtml,
+        };
+
+        await sgMail.send(msg);
+        console.log(`✅ Password reset email sent to ${email}`);
+
+        res.render('forgot-password', { 
+            error: null, 
+            success: "If an account exists with that email, a password reset link has been sent." 
+        });
+
+    } catch (err) {
+        console.error("FORGOT PASSWORD ERROR:", err);
+        res.render('forgot-password', { 
+            error: "An error occurred. Please try again later.", 
+            success: null 
+        });
+    }
 });
-app.get('/reset-password/:userId', (req, res) => res.render('reset-password', { userId: req.params.userId, error: null }));
-app.post('/reset-password/:userId', async (req, res) => {
-    const { userId } = req.params;
-    const { newPassword } = req.body;
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await User.findByIdAndUpdate(userId, { password: hashedPassword });
-    res.redirect('/login');
+
+// Show reset password form (validates token)
+app.get('/reset-password/:token', async (req, res) => {
+    try {
+        const user = await User.findOne({
+            resetPasswordToken: req.params.token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.render('login', {
+                error: "❌ Password reset link is invalid or has expired.",
+                success: null,
+                verificationLink: null
+            });
+        }
+
+        // Show reset form with token
+        res.render('reset-password', { 
+            token: req.params.token, 
+            error: null 
+        });
+
+    } catch (err) {
+        console.error("RESET PASSWORD GET ERROR:", err);
+        res.render('login', {
+            error: "❌ An error occurred. Please try again.",
+            success: null,
+            verificationLink: null
+        });
+    }
+});
+
+// Process password reset
+app.post('/reset-password/:token', async (req, res) => {
+    try {
+        const user = await User.findOne({
+            resetPasswordToken: req.params.token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.render('login', {
+                error: "❌ Password reset link is invalid or has expired.",
+                success: null,
+                verificationLink: null
+            });
+        }
+
+        const { newPassword } = req.body;
+
+        if (!newPassword || newPassword.length < 6) {
+            return res.render('reset-password', {
+                token: req.params.token,
+                error: "Password must be at least 6 characters long."
+            });
+        }
+
+        // Update password and clear reset token
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        console.log(`✅ Password reset successful for ${user.email}`);
+
+        res.render('login', {
+            error: null,
+            success: "✅ Password reset successful! You can now log in with your new password.",
+            verificationLink: null
+        });
+
+    } catch (err) {
+        console.error("RESET PASSWORD POST ERROR:", err);
+        res.render('login', {
+            error: "❌ An error occurred. Please try again.",
+            success: null,
+            verificationLink: null
+        });
+    }
 });
 
 // --- PROFILE API ---
