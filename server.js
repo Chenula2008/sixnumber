@@ -313,12 +313,144 @@ app.post('/signup', async (req, res) => {
         sendRegistrationNotification(newUser);
         
         const verificationUrl = `${process.env.BASE_URL}/verify-email?token=${token}`;
-        req.session.verificationLink = verificationUrl;
+        
+        // 🚀 SEND VERIFICATION EMAIL TO USER VIA SENDGRID
+        const verificationHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - SixNumber</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0e27;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0e27; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1a1040 0%, #0d1b3e 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 800; letter-spacing: -0.5px;">
+                                🎉 Welcome to SixNumber!
+                            </h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 50px 40px; color: #ffffff;">
+                            <p style="margin: 0 0 20px 0; font-size: 18px; color: #cbd5e1;">
+                                Hi ${firstName},
+                            </p>
+                            
+                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #94a3b8;">
+                                Thanks for signing up for <strong style="color: #00d4ff;">SixNumber</strong>! We're excited to have you on board.
+                            </p>
+                            
+                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #94a3b8;">
+                                To start earning money by typing numbers, please verify your email address by clicking the button below:
+                            </p>
+                            
+                            <!-- Verification Button -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="${verificationUrl}" style="display: inline-block; padding: 18px 50px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 18px; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);">
+                                            ✅ Verify My Email
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Alternative Link -->
+                            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin: 30px 0;">
+                                <p style="margin: 0 0 10px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                                    Or copy this link:
+                                </p>
+                                <p style="margin: 0; font-size: 14px; color: #00d4ff; word-break: break-all; font-family: 'Courier New', monospace;">
+                                    ${verificationUrl}
+                                </p>
+                            </div>
+                            
+                            <!-- Expiration Notice -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 40px;">
+                                <tr>
+                                    <td style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                                        <p style="margin: 0; font-size: 14px; color: #64748b;">
+                                            ⏰ <strong>This verification link expires in 1 hour.</strong>
+                                        </p>
+                                        <p style="margin: 10px 0 0 0; font-size: 13px; color: #475569;">
+                                            If you didn't create an account with SixNumber, you can safely ignore this email.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: rgba(0,0,0,0.3); padding: 30px 40px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #64748b;">
+                                © 2026 SixNumber. All rights reserved.
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #475569;">
+                                You're receiving this email because you registered at sixnumber.xyz
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+        `;
+
+        const verificationPlainText = `
+Welcome to SixNumber!
+
+Hi ${firstName},
+
+Thanks for signing up for SixNumber! We're excited to have you on board.
+
+To start earning money by typing numbers, please verify your email address by clicking the link below:
+
+${verificationUrl}
+
+⏰ This verification link expires in 1 hour.
+
+If you didn't create an account with SixNumber, you can safely ignore this email.
+
+© 2026 SixNumber. All rights reserved.
+        `;
+
+        const msg = {
+            to: email,
+            from: { 
+                email: 'info@sixnumber.xyz', 
+                name: 'SixNumber Team'
+            },
+            subject: '✅ Verify Your Email - SixNumber',
+            text: verificationPlainText,
+            html: verificationHtml,
+        };
+
+        sgMail.send(msg)
+            .then(() => {
+                console.log(`✅ Verification email sent to ${email}`);
+            })
+            .catch((error) => {
+                console.error('❌ SendGrid Verification Error:', error.response ? error.response.body : error);
+            });
 
         res.render('login', { 
-            error: "✅ Account created! Please click the verification link below to activate your account.", 
+            error: "✅ Account created! Please check your email for the verification link.", 
             success: null,
-            verificationLink: verificationUrl
+            verificationLink: null
         });
 
     } catch (err) {
