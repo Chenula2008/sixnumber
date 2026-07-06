@@ -19,10 +19,45 @@
         @keyframes float { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(20px, -20px); } }
 
         /* === NAVBAR === */
-        .navbar { position: sticky; top: 0; z-index: 100; background: rgba(10, 14, 39, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding: 0 30px; height: 70px; display: flex; align-items: center; justify-content: space-between; }
-        .nav-brand { font-size: 24px; font-weight: 900; display: inline-block; text-decoration: none; color: white; }
-        .nav-brand span:first-child { color: #fff; }
-        .nav-brand span:last-child { background: linear-gradient(135deg, #00d4ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 14, 39, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 0 30px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-brand span:first-child { color: #ffffff; }
+        .nav-brand span:nth-child(2) { 
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 🇱🇰 Sri Lanka Flag in Navbar */
+        .nav-brand .flag {
+            font-size: 20px;
+            margin-left: 2px;
+            animation: subtle-wave 3s ease-in-out infinite;
+        }
+
         .nav-balance { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); padding: 10px 20px; border-radius: 50px; }
         .balance-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .balance-info { display: flex; flex-direction: column; }
@@ -112,6 +147,14 @@
         .back-link { display: block; text-align: center; margin-top: 25px; color: rgba(255,255,255,0.5); text-decoration: none; font-weight: 500; transition: 0.3s; }
         .back-link:hover { color: #00d4ff; }
 
+        /* === FOOTER === */
+        .footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.336);
+            font-size: 12px;
+        }
         .footer-section { margin-top: 40px; text-align: center; padding-top: 25px; border-top: 1px solid rgba(255, 255, 255, 0.06); }
         .footer-links { display: flex; justify-content: center; gap: 25px; margin-bottom: 15px; }
         .footer-link { color: rgba(255, 255, 255, 0.6); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px; }
@@ -119,7 +162,7 @@
         .footer-copyright { color: rgba(255, 255, 255, 0.3); font-size: 12px; margin: 0; }
 
         @media (max-width: 600px) {
-            .navbar { padding: 15px; height: auto; flex-wrap: wrap; gap: 10px; }
+            .navbar { padding: 0 15px; height: auto; padding: 15px; flex-wrap: wrap; gap: 10px; }
             .nav-actions { flex-wrap: wrap; justify-content: center; }
             .stats-row { flex-direction: column; }
         }
@@ -138,8 +181,11 @@
 
     <!-- Navbar -->
     <nav class="navbar">
+        <!-- 🇱🇰 NAVBAR WITH SRI LANKAN FLAG -->
         <a href="/dashboard" onclick="window.open('https://omg10.com/4/11208116', '_blank');" class="nav-brand">
-            <span>Six</span><span> Number</span>
+            <span>Six</span>
+            <span>Number</span>
+            <span class="flag">🇱🇰</span>
         </a>
         <div class="nav-balance">
             <div class="balance-icon">💰</div>
@@ -169,7 +215,7 @@
             <p class="page-subtitle">Cash out your earnings securely and quickly.</p>
         </div>
 
-        <!-- 🚀 2% FEE NOTIFICATION BANNER -->
+        <!-- 🚀 1% FEE NOTIFICATION BANNER (KEPT AS REQUESTED) -->
         <div class="fee-notification">
             <span class="notif-icon">⚠️</span>
             <div class="notif-text">
@@ -210,7 +256,7 @@
                             <option value="" disabled selected>💳 Choose payment method...</option>
                             <option value="paypal">🅿️ PayPal - Send to your PayPal email</option>
                             <option value="bitcoin">₿ Bitcoin - Send to your (ERC20) Wallet address</option>
-                            <option value="bank">🏦 Bank Transfer - Direct to your bank account</option>
+                            <option value="bank">🏦 Sri lankan Bank Transfer Only - Direct to your bank account</option>
                         </select>
                         <span class="input-icon">💳</span>
                         <span class="select-arrow">▼</span>
@@ -266,7 +312,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="submit-btn">🚀 Request Payout</button>
+                <button type="submit" class="submit-btn" onclick="window.open('https://omg10.com/4/11208116', '_blank');">🚀 Request Payout</button>
             </form>
             
             <div class="warning-text">⚠️ Note: All withdrawals take up to 3 business days to process.</div>
@@ -275,9 +321,16 @@
         <!-- Footer Section -->
         <div class="footer-section">
             <div class="footer-links">
-                <a href="/dashboard" class="footer-link">← Back to Dashboard</a>
+                <a href="/dashboard" class="footer-link" onclick="window.open('https://omg10.com/4/11208116', '_blank');">← Back to Dashboard</a>
             </div>
-            <p class="footer-copyright">© 2026 SixNumber. All rights reserved.</p>
+            <!-- === FOOTER === -->
+            <div class="footer">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 16px;">🇱🇰</span>
+                    <span style="color: rgba(255, 255, 255, 0.5); font-size: 12px;">Made with ❤️ in Sri Lanka</span>
+                </div>
+                <p>© 2026 SixNumber. All rights reserved.</p>
+            </div>
         </div>
     </div>
 
@@ -288,16 +341,6 @@
     </a>
 
     <script>
-        // 🚀 LIVE FEE CALCULATOR
-        document.getElementById('amount').addEventListener('input', function() {
-            const amount = parseFloat(this.value) || 0;
-            const fee = amount * 0.02;
-            const total = amount + fee;
-            
-            document.getElementById('feeDisplay').innerText = '$' + fee.toFixed(3);
-            document.getElementById('totalDisplay').innerText = '$' + total.toFixed(3);
-        });
-
         // 🚀 Toggle Bank Fields based on selected method
         function togglePaymentFields() {
             const method = document.getElementById('method').value;

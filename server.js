@@ -902,21 +902,19 @@ app.post('/api/earn', async (req, res) => {
     });
 });
 
+// 🚀 UPDATED: Fee deduction removed - only amount is deducted
 app.post('/api/withdraw', authMiddleware, async (req, res) => {
     const user = await User.findById(req.session.userId);
     
     const { amount, method, address, bankName, accountHolderName, accountNumber, branchName, branchCode } = req.body;
     const amountCents = Math.round(amount * 100);
-    
-    const feeCents = Math.round(amountCents * 0.02); 
-    const totalDeductionCents = amountCents + feeCents;
 
     if (amountCents < 500) return res.status(400).json({ error: "Minimum withdrawal is $5.00." });
     if (!['paypal', 'bitcoin', 'bank'].includes(method)) return res.status(400).json({ error: "Invalid method." });
     
-    if (user.walletCents < totalDeductionCents) {
+    if (user.walletCents < amountCents) {
         return res.status(400).json({ 
-            error: `Insufficient funds. You need $${(totalDeductionCents / 100).toFixed(3)} to cover the amount and the 2% fee.` 
+            error: `Insufficient funds. You need $${(amountCents / 100).toFixed(3)} to make this withdrawal.` 
         });
     }
 
@@ -928,13 +926,14 @@ app.post('/api/withdraw', authMiddleware, async (req, res) => {
         if (!address) return res.status(400).json({ error: "Please provide your payment address." });
     }
 
-    user.walletCents -= totalDeductionCents;
+    // 🚀 Only deduct the withdrawal amount (no fee)
+    user.walletCents -= amountCents;
     await user.save();
 
     await Withdrawal.create({
         userId: user._id,
         amountCents,
-        feeCents,
+        feeCents: 0, // No fee charged
         method,
         paymentAddress: address,
         bankName,
@@ -945,7 +944,7 @@ app.post('/api/withdraw', authMiddleware, async (req, res) => {
         status: 'pending'
     });
 
-    res.json({ success: true, message: `Withdrawal requested! $${(amountCents/100).toFixed(3)} will be sent, and a $${(feeCents/100).toFixed(3)} fee was deducted.` });
+    res.json({ success: true, message: `Withdrawal of $${(amountCents/100).toFixed(3)} requested successfully!` });
 });
 
 // --- ADMIN ROUTES ---
@@ -1015,25 +1014,353 @@ app.post('/admin/user/:id/delete', authMiddleware, adminCheck, async (req, res) 
     res.redirect('/admin'); 
 });
 
+// 🚀 UPDATED: Email notifications kept, but no fee refund logic
 app.post('/admin/withdrawal/:id/action', authMiddleware, adminCheck, async (req, res) => {
     const { id } = req.params;
     const { action } = req.body;
     
-    const withdrawal = await Withdrawal.findById(id);
+    // 🚀 Populate userId to get user details for email notification
+    const withdrawal = await Withdrawal.findById(id).populate('userId', 'email firstName username');
     if (!withdrawal) return res.send('Withdrawal not found');
+
+    // 🚀 Fetch the full user object separately to properly update walletCents
+    const user = await User.findById(withdrawal.userId._id);
+    if (!user) return res.send('User not found');
+
+    const amount = (withdrawal.amountCents / 100).toFixed(3);
+    const date = new Date(withdrawal.createdAt).toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
+
+    // 🚀 Format payment details based on method
+    let paymentDetailsHtml = '';
+    let paymentDetailsText = '';
+
+    if (withdrawal.method === 'bank') {
+        paymentDetailsHtml = `
+            <p style="margin: 0 0 10px 0; font-size: 15px; color: #ffffff;">
+                <strong style="color: #94a3b8;">Bank Name:</strong> ${withdrawal.bankName || 'N/A'}
+            </p>
+            <p style="margin: 0 0 10px 0; font-size: 15px; color: #ffffff;">
+                <strong style="color: #94a3b8;">Account Holder:</strong> ${withdrawal.accountHolderName || 'N/A'}
+            </p>
+            <p style="margin: 0 0 10px 0; font-size: 15px; color: #ffffff;">
+                <strong style="color: #94a3b8;">Account Number:</strong> ${withdrawal.accountNumber || 'N/A'}
+            </p>
+            <p style="margin: 0; font-size: 15px; color: #ffffff;">
+                <strong style="color: #94a3b8;">Branch:</strong> ${withdrawal.branchName || 'N/A'} (${withdrawal.branchCode || 'N/A'})
+            </p>
+        `;
+        paymentDetailsText = `
+- Bank Name: ${withdrawal.bankName || 'N/A'}
+- Account Holder: ${withdrawal.accountHolderName || 'N/A'}
+- Account Number: ${withdrawal.accountNumber || 'N/A'}
+- Branch: ${withdrawal.branchName || 'N/A'} (${withdrawal.branchCode || 'N/A'})
+        `;
+    } else {
+        paymentDetailsHtml = `
+            <p style="margin: 0; font-size: 15px; color: #ffffff;">
+                <strong style="color: #94a3b8;">Wallet Address:</strong> ${withdrawal.paymentAddress || 'N/A'}
+            </p>
+        `;
+        paymentDetailsText = `- Wallet Address: ${withdrawal.paymentAddress || 'N/A'}`;
+    }
 
     if (action === 'approve') {
         withdrawal.status = 'approved';
+        await withdrawal.save();
+
+        // 🚀 SEND APPROVAL EMAIL
+        const approvalHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdrawal Approved - SixNumber</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0e27;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0e27; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1a1040 0%, #0d1b3e 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 800;">
+                                ✅ Withdrawal Approved
+                            </h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 50px 40px; color: #ffffff;">
+                            <p style="margin: 0 0 20px 0; font-size: 18px; color: #cbd5e1;">
+                                Hi ${user.firstName || user.username},
+                            </p>
+                            
+                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #94a3b8;">
+                                Great news! Your withdrawal request has been <strong style="color: #10b981;">approved</strong> and is now being processed.
+                            </p>
+                            
+                            <!-- Withdrawal Details Box -->
+                            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 25px; margin: 30px 0;">
+                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                                    Withdrawal Details:
+                                </p>
+                                <p style="margin: 0 0 10px 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Amount:</strong> $${amount}
+                                </p>
+                                <p style="margin: 0 0 10px 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Requested On:</strong> ${date}
+                                </p>
+                                <p style="margin: 0 0 10px 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Payment Method:</strong> ${withdrawal.method.toUpperCase()}
+                                </p>
+                                ${paymentDetailsHtml}
+                            </div>
+                            
+                            <!-- Processing Time Notice -->
+                            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 20px; margin: 30px 0;">
+                                <p style="margin: 0 0 10px 0; font-size: 16px; color: #34d399; font-weight: 700;">
+                                    ⏰ Processing Time
+                                </p>
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #a7f3d0;">
+                                    Your payment will be processed and sent to your account within <strong>3 business days</strong>. You will receive the funds according to your selected payment method.
+                                </p>
+                            </div>
+                            
+                            <!-- Thank You Message -->
+                            <div style="text-align: center; margin-top: 40px;">
+                                <p style="margin: 0; font-size: 16px; color: #cbd5e1; font-weight: 600;">
+                                    Thank you for using SixNumber! 🎉
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: rgba(0,0,0,0.3); padding: 30px 40px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #64748b;">
+                                © 2026 SixNumber. All rights reserved.
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #475569;">
+                                🇱🇰 Made with ❤️ in Sri Lanka
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+        `;
+
+        const approvalPlainText = `
+Withdrawal Approved
+
+Hi ${user.firstName || user.username},
+
+Great news! Your withdrawal request has been approved and is now being processed.
+
+Withdrawal Details:
+- Amount: $${amount}
+- Requested On: ${date}
+- Payment Method: ${withdrawal.method.toUpperCase()}
+${paymentDetailsText}
+
+⏰ Processing Time
+Your payment will be processed and sent to your account within 3 business days. You will receive the funds according to your selected payment method.
+
+Thank you for using SixNumber! 🎉
+
+© 2026 SixNumber. All rights reserved.
+🇱🇰 Made with ❤️ in Sri Lanka
+        `;
+
+        const approvalMsg = {
+            to: user.email,
+            from: { 
+                email: process.env.SENDER_EMAIL || 'info@sixnumber.xyz', 
+                name: 'SixNumber Team'
+            },
+            subject: `✅ Your Withdrawal of $${amount} Has Been Approved`,
+            text: approvalPlainText,
+            html: approvalHtml,
+        };
+
+        sgMail.send(approvalMsg)
+            .then(() => console.log(`✅ Approval email sent to ${user.email}`))
+            .catch((error) => console.error('❌ SendGrid Approval Email Error:', error.response ? error.response.body : error));
+
     } else if (action === 'reject') {
         withdrawal.status = 'rejected';
-        const user = await User.findById(withdrawal.userId);
-        if(user) {
-            user.walletCents += (withdrawal.amountCents + (withdrawal.feeCents || 0));
-            await user.save();
-        }
+        
+        // 🚀 Refund only the withdrawal amount (no fee to refund)
+        user.walletCents += withdrawal.amountCents;
+        await user.save();
+        
+        await withdrawal.save();
+
+        // 🚀 SEND REJECTION EMAIL
+        const rejectionHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdrawal Rejected - SixNumber</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0e27;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0e27; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1a1040 0%, #0d1b3e 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #ef4444 0%, #f59e0b 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 800;">
+                                ❌ Withdrawal Rejected
+                            </h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 50px 40px; color: #ffffff;">
+                            <p style="margin: 0 0 20px 0; font-size: 18px; color: #cbd5e1;">
+                                Hi ${user.firstName || user.username},
+                            </p>
+                            
+                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #94a3b8;">
+                                We regret to inform you that your withdrawal request has been <strong style="color: #f87171;">rejected</strong>.
+                            </p>
+                            
+                            <!-- Withdrawal Details Box -->
+                            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 25px; margin: 30px 0;">
+                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                                    Withdrawal Details:
+                                </p>
+                                <p style="margin: 0 0 10px 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Amount:</strong> $${amount}
+                                </p>
+                                <p style="margin: 0 0 10px 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Requested On:</strong> ${date}
+                                </p>
+                                <p style="margin: 0 0 10px 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Payment Method:</strong> ${withdrawal.method.toUpperCase()}
+                                </p>
+                                ${paymentDetailsHtml}
+                            </div>
+                            
+                            <!-- Refund Notice -->
+                            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 20px; margin: 30px 0;">
+                                <p style="margin: 0 0 10px 0; font-size: 16px; color: #34d399; font-weight: 700;">
+                                    💰 Refund Processed
+                                </p>
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #a7f3d0;">
+                                    The full amount of <strong>$${amount}</strong> has been <strong>refunded to your wallet</strong>. You can now request a new withdrawal with corrected details.
+                                </p>
+                            </div>
+                            
+                            <!-- Common Reasons -->
+                            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 20px; margin: 30px 0;">
+                                <p style="margin: 0 0 10px 0; font-size: 16px; color: #fbbf24; font-weight: 700;">
+                                    ℹ️ Common Reasons for Rejection
+                                </p>
+                                <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8; color: #fde68a;">
+                                    <li>Incorrect payment details (email, wallet address, or bank info)</li>
+                                    <li>Suspicious account activity</li>
+                                    <li>Payment method not supported in your region</li>
+                                    <li>Minimum withdrawal amount not met</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Support Button -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="${process.env.BASE_URL}/contact" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);">
+                                            📩 Contact Support
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: rgba(0,0,0,0.3); padding: 30px 40px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #64748b;">
+                                © 2026 SixNumber. All rights reserved.
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #475569;">
+                                🇱🇰 Made with ❤️ in Sri Lanka
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+        `;
+
+        const rejectionPlainText = `
+Withdrawal Rejected
+
+Hi ${user.firstName || user.username},
+
+We regret to inform you that your withdrawal request has been rejected.
+
+Withdrawal Details:
+- Amount: $${amount}
+- Requested On: ${date}
+- Payment Method: ${withdrawal.method.toUpperCase()}
+${paymentDetailsText}
+
+💰 Refund Processed
+The full amount of $${amount} has been refunded to your wallet. You can now request a new withdrawal with corrected details.
+
+ℹ️ Common Reasons for Rejection
+- Incorrect payment details (email, wallet address, or bank info)
+- Suspicious account activity
+- Payment method not supported in your region
+- Minimum withdrawal amount not met
+
+If you believe this is an error, please contact our support team at ${process.env.BASE_URL}/contact
+
+© 2026 SixNumber. All rights reserved.
+🇱🇰 Made with ❤️ in Sri Lanka
+        `;
+
+        const rejectionMsg = {
+            to: user.email,
+            from: { 
+                email: process.env.SENDER_EMAIL || 'info@sixnumber.xyz', 
+                name: 'SixNumber Team'
+            },
+            subject: `❌ Your Withdrawal Request of $${amount} Has Been Rejected`,
+            text: rejectionPlainText,
+            html: rejectionHtml,
+        };
+
+        sgMail.send(rejectionMsg)
+            .then(() => console.log(`✅ Rejection email sent to ${user.email}`))
+            .catch((error) => console.error('❌ SendGrid Rejection Email Error:', error.response ? error.response.body : error));
     }
     
-    await withdrawal.save();
     res.redirect('/admin'); 
 });
 

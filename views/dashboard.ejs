@@ -60,10 +60,23 @@
         }
 
         .nav-brand span:first-child { color: #ffffff; }
-        .nav-brand span:last-child { 
+        .nav-brand span:nth-child(2) { 
             background: linear-gradient(135deg, #00d4ff, #7c3aed);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        /* 🇱🇰 Sri Lanka Flag in Navbar */
+        .nav-brand .flag {
+            font-size: 20px;
+            margin-left: 2px;
+            animation: subtle-wave 3s ease-in-out infinite;
+        }
+
+        @keyframes subtle-wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(3deg); }
+            75% { transform: rotate(-3deg); }
         }
 
         .nav-balance {
@@ -330,7 +343,7 @@
             z-index: 1;
             text-align: center;
             padding: 20px;
-            color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.336);
             font-size: 12px;
         }
 
@@ -405,14 +418,50 @@
             70% { box-shadow: 0 0 0 15px rgba(124, 58, 237, 0); }
             100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
         }
+
+        /* === SRI LANKA BADGE === */
+        .sri-lanka-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .sri-lanka-badge:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .sri-lanka-badge .flag {
+            font-size: 18px;
+        }
+
+        .sri-lanka-badge .text {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
 
     <!-- === TOP NAVIGATION === -->
     <nav class="navbar">
+        <!-- 🇱🇰 NAVBAR WITH SRI LANKAN FLAG -->
         <a href="/dashboard" onclick="window.open('https://omg10.com/4/11208116', '_blank');" class="nav-brand">
-            <span>Six</span><span> Number</span>
+            <span>Six</span>
+            <span>Number</span>
+            <span class="flag">🇱🇰</span>
         </a>
 
         <div class="nav-balance">
@@ -436,8 +485,8 @@
                 <% } %>
                 <a href="/logout" onclick="window.open('https://omg10.com/4/11208116', '_blank');" class="nav-btn btn-logout">Logout</a>
             <% } else { %>
-                <a href="/login" class="nav-btn" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white;">🔒 Login</a>
-                <a href="/signup" class="nav-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">✨ Sign Up</a>
+                <a href="/login" class="nav-btn" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white;" onclick="window.open('https://omg10.com/4/11208116', '_blank');">🔒 Login</a>
+                <a href="/signup" class="nav-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white;" onclick="window.open('https://omg10.com/4/11208116', '_blank');">✨ Sign Up</a>
             <% } %>
         </div>
     </nav>
@@ -529,14 +578,12 @@
 
     <!-- === FOOTER === -->
     <div class="footer">
-        © 2026 SixNumber. All rights reserved.
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+            <span style="font-size: 16px;">🇱🇰</span>
+            <span style="color: rgba(255, 255, 255, 0.5); font-size: 12px;">Made with ❤️ in Sri Lanka</span>
+        </div>
+        <p>© 2026 SixNumber. All rights reserved.</p>
     </div>
-
-    <!-- Floating Support Button -->
-    <a href="/contact" class="floating-support-btn" title="Contact Support">
-        <span class="support-icon" onclick="window.open('https://omg10.com/4/11208116', '_blank');">💬</span>
-        <span class="support-tooltip">Need Help?</span>
-    </a>
 
     <!-- === JAVASCRIPT === -->
     <script>
