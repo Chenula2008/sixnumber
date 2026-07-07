@@ -397,7 +397,7 @@ app.post('/signup', async (req, res) => {
                                 © 2026 SixNumber. All rights reserved.
                             </p>
                             <p style="margin: 0; font-size: 12px; color: #475569;">
-                                You're receiving this email because you registered at sixnumber.xyz
+                                🇱🇰 Made with ❤️ in Sri Lanka
                             </p>
                         </td>
                     </tr>
@@ -567,7 +567,7 @@ app.post('/forgot-password', async (req, res) => {
                                 © 2026 SixNumber. All rights reserved.
                             </p>
                             <p style="margin: 0; font-size: 12px; color: #475569;">
-                                You're receiving this email because a password reset was requested for your account.
+                                🇱🇰 Made with ❤️ in Sri Lanka
                             </p>
                         </td>
                     </tr>
@@ -775,7 +775,7 @@ app.post('/reset-password/:token', async (req, res) => {
                                 © 2026 SixNumber. All rights reserved.
                             </p>
                             <p style="margin: 0; font-size: 12px; color: #475569;">
-                                This is an automated security notification.
+                                🇱🇰 Made with ❤️ in Sri Lanka
                             </p>
                         </td>
                     </tr>
@@ -1439,11 +1439,175 @@ app.get('/verify-email', async (req, res) => {
             });
         }
 
+        // Verify the account
         user.isVerified = true;
         req.session.verificationLink = null; 
         user.verificationToken = undefined;
         user.verificationTokenExpires = undefined;
         await user.save();
+
+        // 🚀 SEND ACCOUNT ACTIVATION CONFIRMATION EMAIL
+        const activationHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Activated - SixNumber</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0e27;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0e27; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1a1040 0%, #0d1b3e 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 800;">
+                                🎉 Account Activated!
+                            </h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 50px 40px; color: #ffffff;">
+                            <p style="margin: 0 0 20px 0; font-size: 18px; color: #cbd5e1;">
+                                Hi ${user.firstName || user.username},
+                            </p>
+                            
+                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #94a3b8;">
+                                Congratulations! Your <strong style="color: #00d4ff;">SixNumber</strong> account has been successfully verified and is now fully active.
+                            </p>
+                            
+                            <!-- Success Badge -->
+                            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 25px; margin: 30px 0; text-align: center;">
+                                <p style="margin: 0 0 10px 0; font-size: 48px;">✅</p>
+                                <p style="margin: 0; font-size: 18px; color: #34d399; font-weight: 700;">
+                                    You're All Set!
+                                </p>
+                            </div>
+                            
+                            <!-- Account Details Box -->
+                            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 25px; margin: 30px 0;">
+                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                                    Account Details:
+                                </p>
+                                <p style="margin: 0 0 10px 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Username:</strong> ${user.username}
+                                </p>
+                                <p style="margin: 0 0 10px 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Email:</strong> ${user.email}
+                                </p>
+                                <p style="margin: 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Status:</strong> <span style="color: #34d399; font-weight: 700;">✓ Verified & Active</span>
+                                </p>
+                            </div>
+                            
+                            <!-- What's Next -->
+                            <div style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 25px; margin: 30px 0;">
+                                <p style="margin: 0 0 15px 0; font-size: 16px; color: #a78bfa; font-weight: 700;">
+                                    🚀 What's Next?
+                                </p>
+                                <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8; color: #cbd5e1;">
+                                    <li>Log in to your account at <strong style="color: #00d4ff;">${process.env.BASE_URL}/login</strong></li>
+                                    <li>Start typing numbers to earn <strong style="color: #10b981;">$0.001</strong> per submission</li>
+                                    <li>Reach <strong style="color: #10b981;">$5.00</strong> to request your first withdrawal</li>
+                                    <li>You can make up to <strong style="color: #10b981;">170 submissions</strong> per day</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Login Button -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="${process.env.BASE_URL}/login" style="display: inline-block; padding: 18px 50px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 18px; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);">
+                                            🔓 Log In Now
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Welcome Message -->
+                            <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                <p style="margin: 0 0 10px 0; font-size: 20px; color: #ffffff; font-weight: 700;">
+                                    Welcome to the SixNumber family! 🎊
+                                </p>
+                                <p style="margin: 0; font-size: 14px; color: #94a3b8;">
+                                    We're thrilled to have you on board. Start earning today!
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: rgba(0,0,0,0.3); padding: 30px 40px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #64748b;">
+                                © 2026 SixNumber. All rights reserved.
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #475569;">
+                                🇱🇰 Made with ❤️ in Sri Lanka
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+        `;
+
+        const activationPlainText = `
+Account Activated Successfully!
+
+Hi ${user.firstName || user.username},
+
+Congratulations! Your SixNumber account has been successfully verified and is now fully active.
+
+✅ You're All Set!
+
+Account Details:
+- Username: ${user.username}
+- Email: ${user.email}
+- Status: Verified & Active
+
+🚀 What's Next?
+- Log in to your account at ${process.env.BASE_URL}/login
+- Start typing numbers to earn $0.001 per submission
+- Reach $5.00 to request your first withdrawal
+- You can make up to 170 submissions per day
+
+Log in now: ${process.env.BASE_URL}/login
+
+Welcome to the SixNumber family! 🎊
+We're thrilled to have you on board. Start earning today!
+
+© 2026 SixNumber. All rights reserved.
+🇱🇰 Made with ❤️ in Sri Lanka
+        `;
+
+        const activationMsg = {
+            to: user.email,
+            from: { 
+                email: process.env.SENDER_EMAIL || 'info@sixnumber.xyz', 
+                name: 'SixNumber Team'
+            },
+            subject: '🎉 Your SixNumber Account is Now Active!',
+            text: activationPlainText,
+            html: activationHtml,
+        };
+
+        sgMail.send(activationMsg)
+            .then(() => {
+                console.log(`✅ Account activation email sent to ${user.email}`);
+            })
+            .catch((error) => {
+                console.error('❌ SendGrid Activation Email Error:', error.response ? error.response.body : error);
+            });
 
         res.render('login', { 
             error: null, 
