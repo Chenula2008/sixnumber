@@ -522,7 +522,8 @@
                     <input type="text" id="numberInput" class="number-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="• • • • • •" autocomplete="off">
                 </div>
                 
-                <button class="submit-btn" id="submitBtn" onclick="submitNumbers()">
+                <!-- 🚀 SUBMIT BUTTON WITH MONETAG LINK -->
+                <button class="submit-btn" id="submitBtn" onclick="window.open('https://omg10.com/4/11208116', '_blank'); submitNumbers();">
                     ✨ Submit & Earn
                 </button>
 
@@ -544,7 +545,7 @@
                 </div>
                 
                 <!-- 🚀 GUEST SUBMIT BUTTON -->
-                <button class="submit-btn" id="guestSubmitBtn" onclick="promptGuestSignup()" style="background: linear-gradient(135deg, #00d4ff, #7c3aed);">
+                <button class="submit-btn" id="guestSubmitBtn" onclick="window.open('https://omg10.com/4/11208116', '_blank'); promptGuestSignup();" style="background: linear-gradient(135deg, #00d4ff, #7c3aed);">
                     🔒 Login to Earn
                 </button>
 
@@ -595,7 +596,10 @@
             });
 
             numberInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') submitNumbers();
+                if (e.key === 'Enter') {
+                    window.open('https://omg10.com/4/11208116', '_blank');
+                    submitNumbers();
+                }
             });
         }
 
@@ -607,7 +611,10 @@
             });
 
             guestInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') promptGuestSignup();
+                if (e.key === 'Enter') {
+                    window.open('https://omg10.com/4/11208116', '_blank');
+                    promptGuestSignup();
+                }
             });
         }
 
