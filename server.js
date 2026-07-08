@@ -902,7 +902,7 @@ app.post('/api/earn', async (req, res) => {
     });
 });
 
-// 🚀 UPDATED: Fee deduction removed - only amount is deducted
+// 🚀 UPDATED: Fee deduction removed - only amount is deducted + Admin notification email added
 app.post('/api/withdraw', authMiddleware, async (req, res) => {
     const user = await User.findById(req.session.userId);
     
@@ -930,7 +930,7 @@ app.post('/api/withdraw', authMiddleware, async (req, res) => {
     user.walletCents -= amountCents;
     await user.save();
 
-    await Withdrawal.create({
+    const withdrawal = await Withdrawal.create({
         userId: user._id,
         amountCents,
         feeCents: 0, // No fee charged
@@ -944,7 +944,226 @@ app.post('/api/withdraw', authMiddleware, async (req, res) => {
         status: 'pending'
     });
 
-    res.json({ success: true, message: `Withdrawal of $${(amountCents/100).toFixed(3)} requested successfully!` });
+    // 🚀 SEND ADMIN NOTIFICATION EMAIL
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+    const senderEmail = process.env.SENDER_EMAIL || 'info@sixnumber.xyz';
+    const amountFormatted = (amountCents / 100).toFixed(3);
+    const requestDate = new Date().toLocaleString('en-US', {
+        dateStyle: 'full',
+        timeStyle: 'short'
+    });
+
+    // Format payment details based on method
+    let paymentDetailsHtml = '';
+    let paymentDetailsText = '';
+
+    if (method === 'bank') {
+        paymentDetailsHtml = `
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin: 20px 0;">
+                <p style="margin: 0 0 10px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                    Bank Transfer Details:
+                </p>
+                <p style="margin: 0 0 8px 0; font-size: 15px; color: #ffffff;">
+                    <strong style="color: #94a3b8;">Bank Name:</strong> ${bankName}
+                </p>
+                <p style="margin: 0 0 8px 0; font-size: 15px; color: #ffffff;">
+                    <strong style="color: #94a3b8;">Account Holder:</strong> ${accountHolderName}
+                </p>
+                <p style="margin: 0 0 8px 0; font-size: 15px; color: #ffffff;">
+                    <strong style="color: #94a3b8;">Account Number:</strong> ${accountNumber}
+                </p>
+                <p style="margin: 0; font-size: 15px; color: #ffffff;">
+                    <strong style="color: #94a3b8;">Branch:</strong> ${branchName} (${branchCode})
+                </p>
+            </div>
+        `;
+        paymentDetailsText = `
+Bank Transfer Details:
+- Bank Name: ${bankName}
+- Account Holder: ${accountHolderName}
+- Account Number: ${accountNumber}
+- Branch: ${branchName} (${branchCode})
+        `;
+    } else {
+        paymentDetailsHtml = `
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin: 20px 0;">
+                <p style="margin: 0 0 10px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                    ${method === 'bitcoin' ? 'Bitcoin' : 'PayPal'} Address:
+                </p>
+                <p style="margin: 0; font-size: 14px; color: #00d4ff; word-break: break-all; font-family: 'Courier New', monospace;">
+                    ${address}
+                </p>
+            </div>
+        `;
+        paymentDetailsText = `
+${method === 'bitcoin' ? 'Bitcoin' : 'PayPal'} Address:
+${address}
+        `;
+    }
+
+    const adminNotificationHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Withdrawal Request - SixNumber</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0e27;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0e27; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1a1040 0%, #0d1b3e 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 800;">
+                                💸 New Withdrawal Request
+                            </h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 50px 40px; color: #ffffff;">
+                            <p style="margin: 0 0 20px 0; font-size: 18px; color: #cbd5e1;">
+                                Hi Admin,
+                            </p>
+                            
+                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #94a3b8;">
+                                A user has submitted a new withdrawal request. Please review and process it in the admin panel.
+                            </p>
+                            
+                            <!-- User Info Box -->
+                            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin: 20px 0;">
+                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                                    User Information:
+                                </p>
+                                <p style="margin: 0 0 8px 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Username:</strong> ${user.username}
+                                </p>
+                                <p style="margin: 0 0 8px 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Full Name:</strong> ${user.firstName} ${user.lastName}
+                                </p>
+                                <p style="margin: 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Email:</strong> ${user.email}
+                                </p>
+                            </div>
+                            
+                            <!-- Withdrawal Details Box -->
+                            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 25px; margin: 20px 0; text-align: center;">
+                                <p style="margin: 0 0 10px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                                    Withdrawal Amount:
+                                </p>
+                                <p style="margin: 0; font-size: 36px; color: #10b981; font-weight: 800;">
+                                    $${amountFormatted}
+                                </p>
+                            </div>
+                            
+                            <!-- Request Details -->
+                            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin: 20px 0;">
+                                <p style="margin: 0 0 15px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                                    Request Details:
+                                </p>
+                                <p style="margin: 0 0 8px 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Payment Method:</strong> ${method.toUpperCase()}
+                                </p>
+                                <p style="margin: 0; font-size: 15px; color: #ffffff;">
+                                    <strong style="color: #94a3b8;">Requested On:</strong> ${requestDate}
+                                </p>
+                            </div>
+                            
+                            ${paymentDetailsHtml}
+                            
+                            <!-- Action Required Notice -->
+                            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 20px; margin: 30px 0;">
+                                <p style="margin: 0 0 10px 0; font-size: 16px; color: #fbbf24; font-weight: 700;">
+                                    ⚠️ Action Required
+                                </p>
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #fde68a;">
+                                    Please log in to the admin panel to approve or reject this withdrawal request. The user's funds have already been deducted from their wallet.
+                                </p>
+                            </div>
+                            
+                            <!-- Admin Panel Button -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="${process.env.BASE_URL}/admin" style="display: inline-block; padding: 18px 50px; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 18px; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);">
+                                            🛡️ Go to Admin Panel
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: rgba(0,0,0,0.3); padding: 30px 40px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #64748b;">
+                                © 2026 SixNumber. All rights reserved.
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #475569;">
+                                🇱🇰 Made with ❤️ in Sri Lanka
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+    `;
+
+    const adminNotificationPlainText = `
+New Withdrawal Request
+
+Hi Admin,
+
+A user has submitted a new withdrawal request. Please review and process it in the admin panel.
+
+User Information:
+- Username: ${user.username}
+- Full Name: ${user.firstName} ${user.lastName}
+- Email: ${user.email}
+
+Withdrawal Amount: $${amountFormatted}
+
+Request Details:
+- Payment Method: ${method.toUpperCase()}
+- Requested On: ${requestDate}
+
+${paymentDetailsText}
+
+⚠️ Action Required
+Please log in to the admin panel to approve or reject this withdrawal request. The user's funds have already been deducted from their wallet.
+
+Admin Panel: ${process.env.BASE_URL}/admin
+
+© 2026 SixNumber. All rights reserved.
+🇱🇰 Made with ❤️ in Sri Lanka
+    `;
+
+    const adminMsg = {
+        to: adminEmail,
+        from: { 
+            email: senderEmail, 
+            name: 'SixNumber System'
+        },
+        subject: `💸 New Withdrawal Request: $${amountFormatted} from ${user.username}`,
+        text: adminNotificationPlainText,
+        html: adminNotificationHtml,
+    };
+
+    sgMail.send(adminMsg)
+        .then(() => console.log(`✅ Admin notification sent for withdrawal from ${user.username}`))
+        .catch((error) => console.error('❌ SendGrid Admin Notification Error:', error.response ? error.response.body : error));
+
+    res.json({ success: true, message: `Withdrawal of $${amountFormatted} requested successfully!` });
 });
 
 // --- ADMIN ROUTES ---
