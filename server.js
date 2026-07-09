@@ -182,7 +182,7 @@ app.post('/login', async (req, res) => {
 
 // 🚀 HELPER FUNCTION: Send Registration Notification
 function sendRegistrationNotification(newUser) {
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER || 'dulnithchenula@gmail.com';
     const senderEmail = process.env.SENDER_EMAIL;
     const web3formsKey = process.env.WEB3FORMS_ACCESS_KEY;
 
@@ -945,13 +945,19 @@ app.post('/api/withdraw', authMiddleware, async (req, res) => {
     });
 
     // 🚀 SEND ADMIN NOTIFICATION EMAIL
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER || 'dulnithchenula@gmail.com'; // Fallback email
     const senderEmail = process.env.SENDER_EMAIL || 'info@sixnumber.xyz';
     const amountFormatted = (amountCents / 100).toFixed(3);
     const requestDate = new Date().toLocaleString('en-US', {
         dateStyle: 'full',
         timeStyle: 'short'
     });
+
+    // Safety check - don't send if email is not configured
+    if (!adminEmail) {
+        console.warn('⚠️ Admin email not configured. Skipping admin notification.');
+        return res.json({ success: true, message: `Withdrawal of $${amountFormatted} requested successfully!` });
+    }
 
     // Format payment details based on method
     let paymentDetailsHtml = '';
@@ -1623,7 +1629,7 @@ app.post('/api/contact', authMiddleware, async (req, res) => {
         const contactPlainText = `New Support Message\n\nFrom: ${user.firstName} ${user.lastName} (${user.email})\nSubject: ${subject}\n\nMessage:\n${message}`;
 
         const msg = {
-            to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+            to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER || 'dulnithchenula@gmail.com',
             from: process.env.SENDER_EMAIL,
             replyTo: user.email,
             subject: `📩 New Support Message: ${subject}`,
