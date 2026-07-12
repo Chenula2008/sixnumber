@@ -9,6 +9,7 @@ const User = require('./models/User');
 const Withdrawal = require('./models/Withdrawal');
 const crypto = require('crypto');
 const sgMail = require('@sendgrid/mail');
+const cron = require('node-cron'); // 🚀 NEW: For scheduled tasks
 
 // 🚀 Initialize SendGrid with your API Key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -34,8 +35,32 @@ app.use(session({
 }));
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('DB Connected'))
+    .then(() => console.log('✅ DB Connected'))
     .catch(err => console.error('MongoDB Connection Error:', err));
+
+// 🚀 DATE-BASED DAILY RESET - Runs at midnight Sri Lanka time
+cron.schedule('0 0 * * *', async () => {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        console.log(`🔄 [CRON] Starting daily reset for date: ${today}`);
+        
+        const result = await User.updateMany(
+            { lastEntryDate: { $ne: today } },
+            { 
+                $set: { 
+                    dailyEntries: 0,
+                    lastEntryDate: today
+                }
+            }
+        );
+        
+        console.log(`✅ [CRON] Daily reset complete! Reset ${result.modifiedCount} users.`);
+    } catch (error) {
+        console.error('❌ [CRON] Daily reset error:', error);
+    }
+}, {
+    timezone: "Asia/Colombo" // Sri Lanka timezone (UTC+5:30)
+});
 
 const authMiddleware = async (req, res, next) => {
     if (req.session.userId) {
@@ -118,10 +143,30 @@ app.get('/withdraw', authMiddleware, async (req, res) => {
     res.render('withdraw', { user, pendingCents });
 });
 
+// 🚀 UPDATED: Added daily entries tracker data
 app.get('/history', authMiddleware, async (req, res) => {
     const user = await User.findById(req.session.userId);
     const myWithdrawals = await Withdrawal.find({ userId: user._id }).sort({ createdAt: -1 });
-    res.render('history', { user, myWithdrawals });
+    
+    // 🚀 Calculate daily entries (date-based)
+    const today = new Date().toISOString().split('T')[0];
+    let dailyEntries = 0;
+    let remainingEntries = 170;
+    let limitReached = false;
+    
+    if (user.lastEntryDate === today) {
+        dailyEntries = user.dailyEntries || 0;
+        remainingEntries = 170 - dailyEntries;
+        limitReached = remainingEntries <= 0;
+    }
+    
+    res.render('history', { 
+        user, 
+        myWithdrawals,
+        dailyEntries,
+        remainingEntries,
+        limitReached
+    });
 });
 
 app.get('/profile', authMiddleware, async (req, res) => {
@@ -1172,7 +1217,7 @@ Admin Panel: ${process.env.BASE_URL}/admin
     res.json({ success: true, message: `Withdrawal of $${amountFormatted} requested successfully!` });
 });
 
-// --- ADMIN ROUTES ---
+// 🚀 UPDATED: Added date-based daily entry tracking to admin page
 app.get('/admin', authMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
@@ -1210,6 +1255,22 @@ app.get('/admin', authMiddleware, async (req, res) => {
             withdrawalFilter = { userId: { $in: matchedUserIds } };
         }
 
+        // 🚀 DATE-BASED AUTO-RESET: Reset users if their lastEntryDate is not today
+        const today = new Date().toISOString().split('T')[0];
+        const resetResult = await User.updateMany(
+            { lastEntryDate: { $ne: today } },
+            { 
+                $set: { 
+                    dailyEntries: 0,
+                    lastEntryDate: today
+                }
+            }
+        );
+        
+        if (resetResult.modifiedCount > 0) {
+            console.log(`🔄 [ADMIN] Auto-reset ${resetResult.modifiedCount} users for new date: ${today}`);
+        }
+
         const users = await User.find(userFilter).sort({ createdAt: -1 }); 
         const withdrawals = await Withdrawal.find(withdrawalFilter)
             .populate('userId', 'username firstName lastName')
@@ -1218,13 +1279,60 @@ app.get('/admin', authMiddleware, async (req, res) => {
         const totalUsers = await User.countDocuments(userFilter);
         const totalWithdrawals = await Withdrawal.countDocuments({ status: 'pending' });
         
+        // 🚀 Calculate daily entry stats (date-based)
+        const DAILY_LIMIT = 170;
+        
+        const usersWithDailyStats = users.map(u => {
+            const dailyEntries = (u.lastEntryDate === today) ? (u.dailyEntries || 0) : 0;
+            const remainingEntries = DAILY_LIMIT - dailyEntries;
+            const limitReached = remainingEntries <= 0;
+            const percentage = (dailyEntries / DAILY_LIMIT) * 100;
+            
+            return {
+                ...u.toObject(),
+                dailyEntries,
+                remainingEntries,
+                limitReached,
+                percentage
+            };
+        });
+        
         res.render('admin', { 
-            user, users, withdrawals, totalUsers, totalWithdrawals,
-            userSearch, withdrawalSearch
+            user, 
+            users: usersWithDailyStats, 
+            withdrawals, 
+            totalUsers, 
+            totalWithdrawals,
+            userSearch, 
+            withdrawalSearch,
+            currentDate: today,
+            DAILY_LIMIT
         });
     } catch (error) {
         console.error("ADMIN PAGE CRASH:", error);
         res.status(500).send("Admin page crashed. Error: " + error.message);
+    }
+});
+
+// 🚀 NEW: Manual reset route for testing
+app.post('/admin/reset-daily-entries', authMiddleware, adminCheck, async (req, res) => {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const result = await User.updateMany(
+            {},
+            { 
+                $set: { 
+                    dailyEntries: 0,
+                    lastEntryDate: today
+                }
+            }
+        );
+        
+        console.log(`🔄 [MANUAL RESET] Reset ${result.modifiedCount} users for ${today}`);
+        res.redirect('/admin');
+    } catch (error) {
+        console.error('❌ Manual reset error:', error);
+        res.redirect('/admin');
     }
 });
 

@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Six Number</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <style>
         /* Reset & Base */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -154,6 +158,8 @@
         .stat-card.blue::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
         .stat-card.green::before { background: linear-gradient(90deg, #10b981, #34d399); }
         .stat-card.orange::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .stat-card.red::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .stat-card.cyan::before { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
         
         .stat-icon {
             width: 48px;
@@ -169,6 +175,8 @@
         .stat-card.blue .stat-icon { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
         .stat-card.green .stat-icon { background: rgba(16, 185, 129, 0.15); color: #34d399; }
         .stat-card.orange .stat-icon { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .stat-card.red .stat-icon { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .stat-card.cyan .stat-icon { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
 
         .stat-value { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 4px; }
         .stat-label { font-size: 14px; color: #64748b; font-weight: 500; }
@@ -244,6 +252,18 @@
         .badge-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
         .badge-approved { background: rgba(16, 185, 129, 0.15); color: #34d399; }
         .badge-rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        
+        /* 🚀 NEW: Daily Entry Badges */
+        .daily-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .daily-badge-safe { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .daily-badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .daily-badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; }
 
         .action-btn {
             padding: 6px 12px;
@@ -291,6 +311,37 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
+        /* 🚀 NEW: Daily Entry Progress Bar */
+        .daily-progress-container {
+            min-width: 140px;
+        }
+        .daily-count {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .daily-count .limit {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .daily-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+        .daily-progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        .daily-progress-fill.safe { background: linear-gradient(90deg, #10b981, #00d4ff); }
+        .daily-progress-fill.warning { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+        .daily-progress-fill.danger { background: linear-gradient(90deg, #ef4444, #f59e0b); }
 
         /* === MOBILE RESPONSIVE FIXES === */
         @media (max-width: 768px) {
@@ -366,6 +417,10 @@
                 width: 28px;
                 height: 28px;
                 font-size: 12px;
+            }
+            
+            .daily-progress-container {
+                min-width: 100px;
             }
         }
 
@@ -449,6 +504,43 @@
                 <div class="stat-value"><%= withdrawals.filter(w => w.status === 'approved').length %></div>
                 <div class="stat-label">Approved Payouts</div>
             </div>
+            
+            <!-- 🚀 NEW: Daily Activity Stats -->
+            <div class="stat-card cyan">
+                <div class="stat-icon">⌨️</div>
+                <div class="stat-value"><%= users.filter(u => u.dailyEntries > 0).length %></div>
+                <div class="stat-label">Active Today</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon">📝</div>
+                <div class="stat-value"><%= users.reduce((sum, u) => sum + (u.dailyEntries || 0), 0) %></div>
+                <div class="stat-label">Total Entries Today</div>
+            </div>
+            <div class="stat-card red">
+                <div class="stat-icon">🚫</div>
+                <div class="stat-value"><%= users.filter(u => u.limitReached).length %></div>
+                <div class="stat-label">Users at Limit</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-value"><%= users.filter(u => u.remainingEntries > 0 && u.remainingEntries <= 20).length %></div>
+                <div class="stat-label">Near Limit</div>
+            </div>
+            
+            <!-- 🚀 NEW: Current Date Display with Manual Reset -->
+            <div class="stat-card cyan">
+                <div class="stat-icon">📅</div>
+                <div class="stat-value" style="font-size: 20px;"><%= currentDate %></div>
+                <div class="stat-label">Current Date</div>
+                <div style="margin-top: 10px; font-size: 11px; color: #64748b;">
+                    Daily Limit: <%= DAILY_LIMIT %> entries
+                </div>
+                <form action="/admin/reset-daily-entries" method="POST" style="margin-top: 10px;" onsubmit="return confirm('Reset all users to 0 entries for today?');">
+                    <button type="submit" style="width: 100%; padding: 8px; background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer;">
+                        🔄 Manual Reset
+                    </button>
+                </form>
+            </div>
         </div>
 
         <!-- Users Section -->
@@ -475,6 +567,7 @@
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Balance</th>
+                            <th>Daily Entries</th>
                             <th>Joined</th>
                             <th>Actions</th>
                         </tr>
@@ -495,6 +588,32 @@
                                     <td><%= u.firstName || '-' %></td>
                                     <td><%= u.lastName || '-' %></td>
                                     <td style="color: #34d399; font-weight: 600;">$<%= ((u.walletCents || 0) / 100).toFixed(3) %></td>
+                                    
+                                    <!-- 🚀 NEW: Daily Entries Column -->
+                                    <td>
+                                        <div class="daily-progress-container">
+                                            <!-- Count Display -->
+                                            <div class="daily-count" style="color: <%= u.limitReached ? '#f87171' : (u.remainingEntries <= 20 ? '#fbbf24' : '#34d399') %>;">
+                                                <%= u.dailyEntries %><span class="limit">/170</span>
+                                            </div>
+                                            
+                                            <!-- Progress Bar -->
+                                            <div class="daily-progress-bar">
+                                                <div class="daily-progress-fill <%= u.limitReached ? 'danger' : (u.remainingEntries <= 20 ? 'warning' : 'safe') %>" 
+                                                     style="width: <%= u.percentage %>%;"></div>
+                                            </div>
+                                            
+                                            <!-- Status Badge -->
+                                            <% if (u.limitReached) { %>
+                                                <span class="daily-badge daily-badge-danger">🚫 Limit Reached</span>
+                                            <% } else if (u.remainingEntries <= 20) { %>
+                                                <span class="daily-badge daily-badge-warning">⚠️ <%= u.remainingEntries %> left</span>
+                                            <% } else { %>
+                                                <span class="daily-badge daily-badge-safe">✅ <%= u.remainingEntries %> left</span>
+                                            <% } %>
+                                        </div>
+                                    </td>
+                                    
                                     <td style="color: #64748b; font-size: 13px;">
                                         <%= (u.createdAt && !isNaN(new Date(u.createdAt).getTime())) ? new Date(u.createdAt).toLocaleDateString() : 'Recently' %>
                                     </td>
@@ -514,7 +633,7 @@
                                 </tr>
                             <% }); %>
                         <% } else { %>
-                            <tr><td colspan="6" style="text-align:center; padding: 30px; color: #64748b;">No users found.</td></tr>
+                            <tr><td colspan="7" style="text-align:center; padding: 30px; color: #64748b;">No users found.</td></tr>
                         <% } %>
                     </tbody>
                 </table>
