@@ -4,6 +4,11 @@ const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     firstName: { type: String, default: '' },
     lastName: { type: String, default: '' },
+    country: { 
+    type: String, 
+    required: true,
+    default: 'Unknown'
+    },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     walletCents: { type: Number, default: 0 }, 
@@ -12,6 +17,10 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     dailyEntries: { type: Number, default: 0 },
     lastEntryDate: { type: String, default: '' },
+
+    // 🚀 Daily Task Tracking
+    dailyTasksCompleted: { type: Number, default: 0 },
+    lastDailyTaskDate: { type: String, default: '' },
 
     // Password Reset Fields
     resetPasswordToken: { type: String },

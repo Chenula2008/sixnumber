@@ -10,6 +10,33 @@ const Withdrawal = require('./models/Withdrawal');
 const crypto = require('crypto');
 const sgMail = require('@sendgrid/mail');
 const cron = require('node-cron'); // 🚀 NEW: For scheduled tasks
+// 🚀 COMPREHENSIVE LIST OF COUNTRIES
+const COUNTRIES = [
+    "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+    "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
+    "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo, Democratic Republic of the", "Congo, Republic of the", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
+    "Denmark", "Djibouti", "Dominica", "Dominican Republic",
+    "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
+    "Fiji", "Finland", "France",
+    "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+    "Haiti", "Honduras", "Hungary",
+    "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast",
+    "Jamaica", "Japan", "Jordan",
+    "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan",
+    "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+    "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
+    "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway",
+    "Oman",
+    "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+    "Qatar",
+    "Romania", "Russia", "Rwanda",
+    "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
+    "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+    "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
+    "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
+    "Yemen",
+    "Zambia", "Zimbabwe"
+];
 
 // 🚀 Initialize SendGrid with your API Key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -95,7 +122,7 @@ app.get('/login', (req, res) => {
 
 app.get('/signup', (req, res) => {
     if (req.session.userId) return res.redirect('/dashboard');
-    res.render('signup', { error: null, success: null });
+    res.render('signup', { error: null, success: null, countries: COUNTRIES }); // 🚀 Added countries
 });
 
 app.get('/dashboard', async (req, res) => {
@@ -148,7 +175,6 @@ app.get('/history', authMiddleware, async (req, res) => {
     const user = await User.findById(req.session.userId);
     const myWithdrawals = await Withdrawal.find({ userId: user._id }).sort({ createdAt: -1 });
     
-    // 🚀 Calculate daily entries (date-based)
     const today = new Date().toISOString().split('T')[0];
     let dailyEntries = 0;
     let remainingEntries = 170;
@@ -167,11 +193,78 @@ app.get('/history', authMiddleware, async (req, res) => {
         remainingEntries,
         limitReached
     });
-});
+}); // 👈 Make sure this closing brace exists!
 
 app.get('/profile', authMiddleware, async (req, res) => {
     const user = await User.findById(req.session.userId);
-    res.render('profile', { user });
+    res.render('profile', { user, countries: COUNTRIES });
+});
+
+// --- PROFILE API ---
+app.post('/api/profile', authMiddleware, async (req, res) => {
+    // 🚀 1. Capture 'country' from the request body
+    const { username, email, firstName, lastName, country } = req.body; 
+    
+    try {
+        const user = await User.findById(req.session.userId);
+        
+        // 🚀 2. Update the fields if they are provided
+        if (username && username.trim() !== '') user.username = username.trim();
+        if (email && email.trim() !== '') user.email = email.trim();
+        if (firstName && firstName.trim() !== '') user.firstName = firstName.trim();
+        if (lastName && lastName.trim() !== '') user.lastName = lastName.trim();
+        if (country) user.country = country; // 🚀 3. Save the newly selected country
+        
+        await user.save();
+        res.json({ success: true, message: "Profile updated successfully!" });
+    } catch (err) {
+        res.status(400).json({ error: "Failed to update. That email or username might already be in use." });
+    }
+});
+
+// 🚀 DAILY TASKS PAGE ROUTE (100 Tasks)
+app.get('/daily-tasks', authMiddleware, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Reset tasks if it's a new day
+    if (user.lastDailyTaskDate !== today) {
+        user.dailyTasksCompleted = 0;
+        user.lastDailyTaskDate = today;
+        await user.save();
+    }
+    
+    res.render('daily-tasks', { 
+        user, 
+        dailyTasksCompleted: user.dailyTasksCompleted 
+    });
+});
+
+// 🚀 CLAIM DAILY TASK REWARD API (Up to 100 tasks, $0.005 each)
+app.post('/api/claim-daily-task', authMiddleware, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Double-check date reset
+    if (user.lastDailyTaskDate !== today) {
+        user.dailyTasksCompleted = 0;
+        user.lastDailyTaskDate = today;
+    }
+    
+    if (user.dailyTasksCompleted >= 100) {
+        return res.status(400).json({ error: "All 100 daily tasks completed for today! Come back tomorrow." });
+    }
+    
+    // 🚀 Add $0.005 (0.5 cents) to wallet
+    user.walletCents += 0.5; 
+    user.dailyTasksCompleted += 1;
+    await user.save();
+    
+    res.json({ 
+        success: true, 
+        newBalance: (user.walletCents / 100).toFixed(3),
+        tasksCompleted: user.dailyTasksCompleted 
+    });
 });
 
 app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/dashboard'); });
@@ -337,7 +430,7 @@ function sendViaSendGrid(data, adminEmail, senderEmail) {
 }
 
 app.post('/signup', async (req, res) => {
-    const { username, email, password, firstName, lastName } = req.body; 
+    const { username, email, password, firstName, lastName, country } = req.body;
     try {
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) return res.render('signup', { error: "Username or Email already exists.", success: null });
@@ -346,7 +439,7 @@ app.post('/signup', async (req, res) => {
         const token = crypto.randomBytes(32).toString('hex');
 
         const newUser = new User({ 
-            username, email, password: hashedPassword, firstName, lastName,
+            username, email, password: hashedPassword, firstName, lastName, country, // 🚀 Added country
             isVerified: false, 
             verificationToken: token,
             verificationTokenExpires: Date.now() + 3600000 
@@ -1217,7 +1310,7 @@ Admin Panel: ${process.env.BASE_URL}/admin
     res.json({ success: true, message: `Withdrawal of $${amountFormatted} requested successfully!` });
 });
 
-// 🚀 UPDATED: Added date-based daily entry tracking to admin page
+// 🚀 UPDATED: Added date-based daily entry tracking AND Daily Tasks stats to admin page
 app.get('/admin', authMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
@@ -1296,6 +1389,13 @@ app.get('/admin', authMiddleware, async (req, res) => {
                 percentage
             };
         });
+
+        // 🚀 CALCULATE DAILY TASKS STATS
+        const usersWithTasksToday = users.filter(u => u.lastDailyTaskDate === today);
+        const totalTasksCompletedToday = usersWithTasksToday.reduce((sum, u) => sum + (u.dailyTasksCompleted || 0), 0);
+        const usersCompletedAll100 = usersWithTasksToday.filter(u => (u.dailyTasksCompleted || 0) >= 100).length;
+        const usersActiveToday = usersWithTasksToday.filter(u => (u.dailyTasksCompleted || 0) > 0).length;
+        const totalPaidToday = ((totalTasksCompletedToday * 0.5) / 100).toFixed(3); // 0.5 cents per task = $0.005
         
         res.render('admin', { 
             user, 
@@ -1306,7 +1406,12 @@ app.get('/admin', authMiddleware, async (req, res) => {
             userSearch, 
             withdrawalSearch,
             currentDate: today,
-            DAILY_LIMIT
+            DAILY_LIMIT,
+            // 🚀 NEW: Daily Tasks Stats
+            totalTasksCompletedToday,
+            usersCompletedAll100,
+            usersActiveToday,
+            totalPaidToday
         });
     } catch (error) {
         console.error("ADMIN PAGE CRASH:", error);
@@ -1846,6 +1951,7 @@ app.get('/verify-email', async (req, res) => {
                                 <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8; color: #cbd5e1;">
                                     <li>Log in to your account at <strong style="color: #00d4ff;">${process.env.BASE_URL}/login</strong></li>
                                     <li>Start typing numbers to earn <strong style="color: #10b981;">$0.001</strong> per submission</li>
+                                    <li>Daily Tasks to earn <strong style="color: #10b981;">$0.005</strong> per submission</li>
                                     <li>Reach <strong style="color: #10b981;">$5.00</strong> to request your first withdrawal</li>
                                     <li>You can make up to <strong style="color: #10b981;">170 submissions</strong> per day</li>
                                 </ul>

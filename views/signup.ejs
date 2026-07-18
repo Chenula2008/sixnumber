@@ -225,6 +225,45 @@
             color: #00d4ff;
         }
 
+        /* === 🚀 FIX: DARK THEME FOR COUNTRY DROPDOWN === */
+        #country {
+            width: 100%;
+            padding: 16px !important;
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
+            border: 2px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 12px !important;
+            outline: none !important;
+            font-size: 15px !important;
+            font-family: 'Inter', sans-serif !important;
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-opacity='0.3' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+            background-position: right 16px center !important;
+            background-repeat: no-repeat !important;
+            background-size: 1.2em 1.2em !important;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #country:focus {
+            border-color: rgba(0, 212, 255, 0.5) !important;
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.1) !important;
+        }
+
+        #country option {
+            background-color: #1a1040 !important;
+            color: #ffffff !important;
+            padding: 10px;
+        }
+        
+        #country option:checked {
+            background-color: #7c3aed !important;
+            color: #ffffff !important;
+        }
+
         /* === SUBMIT BUTTON === */
         .submit-btn {
             width: 100%;
@@ -346,17 +385,7 @@
             color: #00d4ff;
         }
 
-                /* === ERROR & SUCCESS MESSAGE ANIMATIONS === */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        .error-message {
-            animation: shake 0.5s ease;
-        }
-
+        /* === ERROR & SUCCESS MESSAGE ANIMATIONS === */
         .success-message {
             animation: fadeIn 0.5s ease;
         }
@@ -365,7 +394,6 @@
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
     </style>
 </head>
 <body>
@@ -400,21 +428,7 @@
             </div>
 
             <% if (typeof error !== 'undefined' && error) { %>
-                <div class="error-message" style="
-                    background: rgba(239, 68, 68, 0.1);
-                    border: 1px solid rgba(239, 68, 68, 0.3);
-                    color: #f87171;
-                    padding: 14px 18px;
-                    border-radius: 12px;
-                    margin-bottom: 25px;
-                    font-size: 14px;
-                    font-weight: 500;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    animation: shake 0.5s ease;
-                ">
-                    <!-- Yellow Warning Triangle for errors -->
+                <div class="error-message">
                     <span style="font-size: 20px;">⚠️</span>
                     <span><%= error %></span>
                 </div>
@@ -434,7 +448,6 @@
                     align-items: center;
                     gap: 10px;
                 ">
-                    <!-- Green Checkmark for success -->
                     <span style="font-size: 20px;">✅</span>
                     <span><%= success %></span>
                 </div>
@@ -442,7 +455,6 @@
 
             <form action="/signup" method="POST">
 
-                <!-- 🚨 FIXED: Added name="firstName" and name="lastName" so the server receives the data! -->
                 <div class="form-group">
                     <label class="form-label">First Name</label>
                     <div class="input-wrapper">
@@ -450,12 +462,24 @@
                         <span class="input-icon">👤</span>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label class="form-label">Last Name</label>
                     <div class="input-wrapper">
                         <input type="text" id="lastName" name="lastName" class="form-input" placeholder="Doe" required>
                         <span class="input-icon">📛</span>
                     </div>
+                </div>
+
+                <!-- 🚀 FIXED COUNTRY DROPDOWN -->
+                <div class="form-group">
+                    <label class="form-label">Country</label>
+                    <select name="country" id="country" required>
+                        <option value="" disabled selected>Select your country</option>
+                        <% countries.forEach(function(c) { %>
+                            <option value="<%= c %>"><%= c %></option>
+                        <% }); %>
+                    </select>
                 </div>
 
                 <!-- Username Field -->
@@ -515,7 +539,7 @@
     </div>
 
     <!-- JavaScript for Password Toggle -->
-        <script>
+    <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const toggleBtn = document.querySelector('.password-toggle');
@@ -529,137 +553,6 @@
             }
         }
     </script>
-
-    <!-- ADSTERRA 728x90 BANNER AD -->
-        <!-- STICKY BOTTOM BANNER AD -->
-    <!-- <div id="sticky-bottom-ad" style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 728px; background: #1a1040; border-top: 2px solid #7c3aed; box-shadow: 0 -4px 15px rgba(0,0,0,0.5); z-index: 9999; text-align: center; padding: 10px 0;">
-        
-        Close Button
-        <button onclick="document.getElementById('sticky-bottom-ad').style.display='none'" style="position: absolute; top: -12px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">✕</button>
-
-        Adsterra Ad Code
-        <script>
-        atOptions = {
-        'key' : 'db0ed9e0becc15947411eb2559250131',
-        'format' : 'iframe',
-        'height' : 90,
-        'width' : 728,
-        'params' : {}
-        };
-        </script>
-        <script src="https://www.highperformanceformat.com/db0ed9e0becc15947411eb2559250131/invoke.js"></script>
-    </div> -->
-
-        <!-- RIGHT SIDE SKYSCRAPER AD -->
-    <!-- <style>
-        .right-side-ad {
-            position: fixed;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            z-index: 9998;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .right-side-ad .close-btn {
-            background: rgba(239, 68, 68, 0.8);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .right-side-ad .ad-container {
-            background: rgba(26, 16, 64, 0.6);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        /* Hide on mobile and tablet screens so it doesn't block the website */
-        @media (max-width: 1200px) {
-            .right-side-ad { display: none; }
-        }
-    </style> -->
-
-    <!-- LEFT SIDE SKYSCRAPER AD -->
-    <!-- <style>
-        .left-side-ad {
-            position: fixed;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            z-index: 9998;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .left-side-ad .close-btn {
-            background: rgba(239, 68, 68, 0.8);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .left-side-ad .ad-container {
-            background: rgba(26, 16, 64, 0.6);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        /* Hide on mobile and tablet screens so it doesn't block the website */
-        @media (max-width: 1200px) {
-            .left-side-ad { display: none; }
-        }
-    </style> -->
-
-    <!-- <div class="left-side-ad">
-        <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
-        <div class="ad-container">
-            <script>
-            atOptions = {
-            'key' : '15ea3c11d7f9a5219fb4e3501401f1c8',
-            'format' : 'iframe',
-            'height' : 600,
-            'width' : 160,
-            'params' : {}
-            };
-            </script>
-            <script src="https://www.highperformanceformat.com/15ea3c11d7f9a5219fb4e3501401f1c8/invoke.js"></script>
-        </div>
-    </div> -->
-
-    <!-- <div class="right-side-ad">
-        <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
-        <div class="ad-container">
-            <script>
-            atOptions = {
-            'key' : '15ea3c11d7f9a5219fb4e3501401f1c8',
-            'format' : 'iframe',
-            'height' : 600,
-            'width' : 160,
-            'params' : {}
-            };
-            </script>
-            <script src="https://www.highperformanceformat.com/15ea3c11d7f9a5219fb4e3501401f1c8/invoke.js"></script>
-        </div>
-    </div> -->
-
-    <!-- Social Bar -->
-    <!-- <script src="https://pl30091522.effectivecpmnetwork.com/4d/4a/d2/4d4ad260a07ec44f37c29878447d9e4b.js"></script> -->
 
 </body>
 </html>

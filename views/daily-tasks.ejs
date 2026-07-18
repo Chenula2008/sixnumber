@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Tasks - Six Number</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Montag Ad Code -->
+    <script src="https://quge5.com/88/tag.min.js" data-zone="254010" async data-cfasync="false"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1040 50%, #0d1b3e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        /* === 🚀 NAVBAR STYLES === */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 14, 39, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 0 30px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-brand span:first-child { color: #ffffff; }
+        .nav-brand span:nth-child(2) { 
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-brand .flag {
+            font-size: 20px;
+            margin-left: 2px;
+            animation: subtle-wave 3s ease-in-out infinite;
+        }
+
+        @keyframes subtle-wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(3deg); }
+            75% { transform: rotate(-3deg); }
+        }
+
+        .nav-balance { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); padding: 10px 20px; border-radius: 50px; }
+        .balance-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .balance-info { display: flex; flex-direction: column; }
+        .balance-label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+        .balance-amount { font-size: 20px; font-weight: 800; color: #10b981; }
+        
+        .nav-actions { display: flex; gap: 10px; }
+        .nav-btn { padding: 10px 18px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px; border: 1px solid transparent; }
+        .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        .btn-withdraw { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+        .btn-history { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+        .btn-daily-tasks { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+        /* .btn-profile { background: rgba(236, 72, 153, 0.2); color: #f472b6; border-color: rgba(236, 72, 153, 0.3); } */
+        .btn-admin { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
+        .btn-logout { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+
+        /* === 🚀 MAIN CONTENT STYLES === */
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+        
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 36px; font-weight: 900; margin-bottom: 10px; }
+        .header p { color: #94a3b8; font-size: 16px; }
+        
+        .progress-container {
+            background: rgba(255,255,255,0.05); border-radius: 16px;
+            padding: 20px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.08);
+        }
+        .progress-info { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #cbd5e1; }
+        .progress-bar { width: 100%; height: 12px; background: rgba(0,0,0,0.3); border-radius: 6px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #10b981, #00d4ff); border-radius: 6px; transition: width 0.5s ease; }
+
+        .tasks-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .task-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px; padding: 20px; text-align: center;
+            transition: all 0.3s ease; position: relative; overflow: hidden;
+        }
+        .task-card.completed { border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); }
+        .task-card.locked { opacity: 0.4; filter: grayscale(1); }
+        .task-card.active {
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.15);
+            transform: scale(1.02);
+        }
+        .task-icon { font-size: 36px; margin-bottom: 10px; }
+        .task-title { font-size: 16px; font-weight: 700; margin-bottom: 5px; }
+        .task-reward { font-size: 20px; font-weight: 800; color: #10b981; margin-bottom: 15px; }
+        
+        .task-btn {
+            width: 100%; padding: 12px; border-radius: 10px; border: none;
+            font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s;
+        }
+        .task-btn.start { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+        .task-btn.start:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4); }
+        .task-btn.completed-btn { background: rgba(16, 185, 129, 0.2); color: #34d399; cursor: default; }
+        .task-btn.locked-btn { background: rgba(255,255,255,0.1); color: #64748b; cursor: not-allowed; }
+
+        /* 🚀 MODAL STYLES */
+        .step-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 14, 39, 0.98); backdrop-filter: blur(15px);
+            z-index: 9999; display: none; align-items: center; justify-content: center;
+        }
+        .step-modal-overlay.active { display: flex; }
+        
+        .step-modal {
+            background: linear-gradient(135deg, #1a1040, #0d1b3e);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 24px; padding: 50px 40px; text-align: center;
+            max-width: 550px; width: 90%; position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .step-modal h2 { font-size: 32px; margin-bottom: 15px; color: #fff; font-weight: 900; }
+        .step-modal p { color: #94a3b8; margin-bottom: 25px; font-size: 16px; line-height: 1.6; }
+        
+        .step-counter {
+            font-size: 24px; font-weight: 800; 
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 30px; letter-spacing: 1px;
+        }
+        
+        /* 🚀 CIRCULAR TIMER */
+        .timer-wrapper { position: relative; width: 200px; height: 200px; margin: 30px auto; }
+        .timer-circle {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: conic-gradient(#10b981 0deg, rgba(255,255,255,0.05) 0deg);
+            display: flex; align-items: center; justify-content: center;
+            position: relative; transition: background 0.3s ease;
+        }
+        .timer-circle::before {
+            content: ''; position: absolute; width: 170px; height: 170px;
+            background: linear-gradient(135deg, #1a1040, #0d1b3e); border-radius: 50%;
+        }
+        .timer-text {
+            position: relative; z-index: 2; font-family: 'JetBrains Mono', monospace;
+            font-size: 72px; font-weight: 900; color: #10b981;
+            text-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+        }
+        .timer-label {
+            position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+            background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4);
+            padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;
+            color: #34d399; text-transform: uppercase; letter-spacing: 1px;
+        }
+        
+        .warning-box {
+            background: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.4);
+            border-radius: 12px; padding: 16px; margin: 25px 0;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .warning-box .icon { font-size: 28px; flex-shrink: 0; }
+        .warning-box .text { color: #fca5a5; font-weight: 700; font-size: 14px; line-height: 1.5; text-align: left; }
+
+        .pause-notice {
+            background: rgba(245, 158, 11, 0.1); border: 2px solid rgba(245, 158, 11, 0.4);
+            border-radius: 12px; padding: 16px; margin: 25px 0;
+            display: none; align-items: center; gap: 12px;
+        }
+        .pause-notice.active { display: flex; }
+        .pause-notice .icon { font-size: 28px; flex-shrink: 0; }
+        .pause-notice .text { color: #fbbf24; font-weight: 700; font-size: 14px; line-height: 1.5; text-align: left; }
+
+        .click-earn-btn {
+            width: 100%; padding: 20px; font-size: 18px; font-weight: 800;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white; border: none; border-radius: 12px; cursor: pointer;
+            transition: all 0.3s; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 20px;
+        }
+        .click-earn-btn:hover:not(:disabled) { transform: scale(1.03); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
+        .click-earn-btn:disabled { background: #334155; cursor: not-allowed; transform: none; box-shadow: none; color: #64748b; }
+        .click-earn-btn.ready { background: linear-gradient(135deg, #f59e0b, #d97706); animation: pulse 1.5s infinite; color: white; }
+
+        .close-modal-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(239, 68, 68, 0.2); color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 50%;
+            width: 40px; height: 40px; font-size: 20px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: all 0.3s;
+        }
+        .close-modal-btn:hover { background: rgba(239, 68, 68, 0.4); transform: rotate(90deg); }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
+            70% { box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        /* === 🚀 FOOTER STYLES === */
+        .footer-section {
+            margin-top: 50px;
+            text-align: center;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .footer-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .footer-link:hover {
+            color: #00d4ff;
+            transform: translateY(-2px);
+        }
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.336);
+            font-size: 12px;
+        }
+
+        /* === 🚀 FLOATING SUPPORT BUTTON === */
+        .floating-support-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            text-decoration: none;
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+            z-index: 9999;
+            transition: all 0.3s ease;
+            animation: pulse-support 2s infinite;
+        }
+        .floating-support-btn:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 12px 35px rgba(124, 58, 237, 0.7);
+        }
+        .support-tooltip {
+            position: absolute;
+            right: 75px;
+            background: rgba(15, 23, 42, 0.9);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            transform: translateX(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .floating-support-btn:hover .support-tooltip {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        @keyframes pulse-support {
+            0% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.6); }
+            70% { box-shadow: 0 0 0 15px rgba(124, 58, 237, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+        }
+
+        /* === 🚀 MOBILE RESPONSIVE === */
+        @media (max-width: 768px) {
+            .navbar { padding: 0 15px; height: auto; padding: 15px; flex-wrap: wrap; gap: 10px; }
+            .nav-actions { flex-wrap: wrap; justify-content: center; }
+            .tasks-grid { grid-template-columns: 1fr 1fr; }
+            .header h1 { font-size: 28px; }
+            .timer-wrapper { width: 160px; height: 160px; }
+            .timer-circle::before { width: 136px; height: 136px; }
+            .timer-text { font-size: 56px; }
+            .floating-support-btn { bottom: 20px; right: 20px; width: 50px; height: 50px; font-size: 24px; }
+            .support-tooltip { display: none; }
+        }
+        @media (max-width: 480px) {
+            .tasks-grid { grid-template-columns: 1fr; }
+            .step-modal { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 🚀 NAVBAR -->
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand">
+            <span>Six</span>
+            <span>Number</span>
+            <span class="flag">🇱🇰</span>
+        </a>
+        <div class="nav-balance">
+            <div class="balance-icon">💰</div>
+            <div class="balance-info">
+                <span class="balance-label">Balance</span>
+                <span class="balance-amount">$<%= (user.walletCents / 100).toFixed(3) %></span>
+            </div>
+        </div>
+        <div class="nav-actions">
+            <a href="/withdraw" class="nav-btn btn-withdraw" onclick="window.open('https://omg10.com/4/11208116', '_blank');">💸 Withdrawal</a>
+            <a href="/history" class="nav-btn btn-history" onclick="window.open('https://omg10.com/4/11208116', '_blank');">📋 History</a>
+            <a href="/daily-tasks" class="nav-btn btn-daily-tasks">📅 Daily Tasks</a>
+            <a href="/profile" class="nav-btn btn-profile" style="background: #f472b6; color: #ffffff; border: 1px solid rgba(236, 72, 153, 0.2);" onclick="window.open('https://omg10.com/4/11208116', '_blank');">👤 Profile</a>
+            
+            <% if (user.isAdmin || user.role === 'admin' || user.username === 'admin') { %>
+                <a href="/admin" class="nav-btn btn-admin">🛡️ Admin</a>
+            <% } %>
+
+            <a href="/logout" class="nav-btn btn-logout" onclick="window.open('https://omg10.com/4/11208116', '_blank');">Logout</a>
+        </div>
+    </nav>
+
+    <!-- 🚀 MAIN CONTENT -->
+    <div class="container">
+        <div class="header">
+            <h1>📅 Daily Tasks</h1>
+            <p>Complete all <strong>100 tasks</strong> to earn <strong style="color: #10b981;">$0.50</strong> per day!</p>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-info">
+                <span>Daily Progress</span>
+                <span id="progress-text"><%= dailyTasksCompleted %> / 100 Completed</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: <%= (dailyTasksCompleted / 100) * 100 %>%;"></div>
+            </div>
+        </div>
+
+        <div class="tasks-grid" id="tasks-grid"></div>
+
+        <!-- 🚀 FOOTER SECTION -->
+        <div class="footer-section">
+            <div class="footer-links">
+                <a href="/dashboard" class="footer-link" onclick="window.open('https://omg10.com/4/11208116', '_blank');">← Back to Dashboard</a>
+                <!-- <a href="/contact" class="footer-link">💬 Contact Support</a> -->
+            </div>
+            <div class="footer">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 16px;">🇱🇰</span>
+                    <span style="color: rgba(255, 255, 255, 0.5); font-size: 12px;">Made with ❤️ in Sri Lanka</span>
+                </div>
+                <p>© 2026 SixNumber. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🚀 MODAL -->
+    <div class="step-modal-overlay" id="stepModal">
+        <div class="step-modal">
+            <button class="close-modal-btn" onclick="resetTaskSequence()">✕</button>
+            <h2 id="modalTitle">Complete the Steps</h2>
+            <p id="modalDesc">Click the button below to open the offer. You must complete all 21 steps to claim your reward.</p>
+            
+            <div class="step-counter" id="stepCounter">Step 1 / 21</div>
+            
+            <div id="timerContainer" style="display: none;">
+                <div class="timer-wrapper">
+                    <div class="timer-circle" id="timerCircle">
+                        <span class="timer-text" id="adTimer">15</span>
+                    </div>
+                    <div class="timer-label" id="timerLabel">Seconds Left</div>
+                </div>
+                
+                <div class="warning-box">
+                    <span class="icon">⚠️</span>
+                    <div class="text">
+                        <strong>Stay on the ad tab!</strong><br>
+                        The timer only counts down while you're viewing the ad. If you switch tabs, the timer pauses.
+                    </div>
+                </div>
+
+                <div class="pause-notice" id="pauseNotice">
+                    <span class="icon">⏸️</span>
+                    <div class="text">
+                        <strong>Timer Paused</strong><br>
+                        Switch back to the ad tab to resume the countdown.
+                    </div>
+                </div>
+            </div>
+
+            <button class="click-earn-btn" id="clickEarnBtn" onclick="handleStepClick()">
+                💰 Click and Earn
+            </button>
+        </div>
+    </div>
+
+    <!-- 🚀 FLOATING SUPPORT BUTTON -->
+    <a href="/contact" class="floating-support-btn" title="Contact Support">
+        <span class="support-icon" onclick="window.open('https://omg10.com/4/11208116', '_blank');">💬</span>
+        <span class="support-tooltip">Need Help?</span>
+    </a>
+
+    <script>
+        const MONETAG_LINK = 'https://omg10.com/4/11208116';
+        const TOTAL_TASKS = 100;
+        const TOTAL_STEPS = 21;
+        const AD_WAIT_SECONDS = 15;
+        
+        let currentTaskIndex = <%= dailyTasksCompleted %>;
+        let currentStep = 1;
+        let activeTaskId = null;
+        let isWaitingForAd = false;
+        let isTimerPaused = false;
+        let adTimerInterval = null;
+        let timeLeft = AD_WAIT_SECONDS;
+        const originalTitle = document.title;
+
+        // 🚀 UPDATED: All cards now show $0.005
+        const grid = document.getElementById('tasks-grid');
+        for (let i = 0; i < TOTAL_TASKS; i++) {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.id = `card-${i}`;
+            
+            if (i < currentTaskIndex) {
+                card.classList.add('completed');
+                card.innerHTML = `<div class="task-icon">✅</div><div class="task-title">Task ${i + 1}</div><div class="task-reward">+$0.005</div><button class="task-btn completed-btn">Completed</button>`;
+            } else if (i === currentTaskIndex) {
+                card.classList.add('active');
+                card.innerHTML = `<div class="task-icon">🚀</div><div class="task-title">Task ${i + 1}</div><div class="task-reward">+$0.005</div><button id="task-btn-${i}" class="task-btn start" onclick="startTaskSequence(${i})">🚀 Start Task</button>`;
+            } else {
+                card.classList.add('locked');
+                card.innerHTML = `<div class="task-icon">🔒</div><div class="task-title">Task ${i + 1}</div><div class="task-reward">+$0.005</div><button class="task-btn locked-btn">Locked</button>`;
+            }
+            grid.appendChild(card);
+        }
+
+        function startTaskSequence(taskIndex) {
+            if (taskIndex !== currentTaskIndex) return;
+            activeTaskId = taskIndex;
+            currentStep = 1;
+            isWaitingForAd = false;
+            isTimerPaused = false;
+            timeLeft = AD_WAIT_SECONDS;
+            updateModalUI();
+            document.getElementById('stepModal').classList.add('active');
+        }
+
+        function updateModalUI() {
+            document.getElementById('stepCounter').innerText = `Step ${currentStep} / ${TOTAL_STEPS}`;
+            document.getElementById('timerContainer').style.display = 'none';
+            document.getElementById('pauseNotice').classList.remove('active');
+            document.getElementById('modalTitle').innerText = 'Complete the Steps';
+            document.getElementById('modalDesc').innerText = 'Click the button below to open the offer. You must complete all 21 steps to claim your reward.';
+            
+            const btn = document.getElementById('clickEarnBtn');
+            btn.innerText = '💰 Click and Earn';
+            btn.className = 'click-earn-btn';
+            btn.disabled = false;
+            btn.onclick = handleStepClick;
+            document.title = originalTitle;
+        }
+
+        function updateTimerCircle(secondsLeft) {
+            const percentage = (secondsLeft / AD_WAIT_SECONDS) * 100;
+            const degrees = (percentage / 100) * 360;
+            const timerCircle = document.getElementById('timerCircle');
+            timerCircle.style.background = `conic-gradient(#10b981 ${degrees}deg, rgba(255,255,255,0.05) ${degrees}deg)`;
+            
+            if (secondsLeft <= 5) {
+                timerCircle.style.background = `conic-gradient(#ef4444 ${degrees}deg, rgba(255,255,255,0.05) ${degrees}deg)`;
+                document.querySelector('.timer-text').style.color = '#ef4444';
+            } else {
+                document.querySelector('.timer-text').style.color = '#10b981';
+            }
+            
+            document.getElementById('adTimer').innerText = secondsLeft;
+            
+            if (isTimerPaused) {
+                document.title = `⏸️ PAUSED (${secondsLeft}s) - Return to Ad`;
+            } else {
+                document.title = `(${secondsLeft}) Viewing Ad - Six Number`;
+            }
+        }
+
+        function startTimer() {
+            if (adTimerInterval) clearInterval(adTimerInterval);
+            
+            adTimerInterval = setInterval(() => {
+                if (isTimerPaused) return; // Don't count down if paused
+                
+                timeLeft--;
+                updateTimerCircle(timeLeft);
+                
+                if (timeLeft <= 0) {
+                    clearInterval(adTimerInterval);
+                    adTimerInterval = null;
+                    isWaitingForAd = false;
+                    
+                    // SUCCESS!
+                    document.getElementById('timerContainer').style.display = 'none';
+                    document.getElementById('modalTitle').innerText = '✅ Ad Viewed Successfully!';
+                    document.getElementById('modalDesc').innerText = 'Great job! You can now close the ad tab and claim your reward.';
+                    document.title = `✅ Step ${currentStep} Complete - Six Number`;
+                    
+                    const btn = document.getElementById('clickEarnBtn');
+                    btn.disabled = false;
+                    btn.className = 'click-earn-btn ready';
+                    
+                    if (currentStep === TOTAL_STEPS) {
+                        btn.innerText = '🎉 Claim $0.005 Reward';
+                        btn.onclick = claimReward;
+                    } else {
+                        btn.innerText = `➡️ Proceed to Step ${currentStep + 1}`;
+                        btn.onclick = nextStep;
+                    }
+                }
+            }, 1000);
+        }
+
+        function handleStepClick() {
+            if (isWaitingForAd) return;
+
+            // 1. Open Monetag link in new tab
+            window.open(MONETAG_LINK, '_blank');
+            
+            // 2. Start timer
+            isWaitingForAd = true;
+            isTimerPaused = false;
+            timeLeft = AD_WAIT_SECONDS;
+            
+            document.getElementById('modalTitle').innerText = '⏳ Viewing Ad...';
+            document.getElementById('modalDesc').innerText = 'The ad has opened in a new tab. Stay on the ad tab for the countdown to work.';
+            document.getElementById('timerContainer').style.display = 'block';
+            document.getElementById('pauseNotice').classList.remove('active');
+            updateTimerCircle(timeLeft);
+            
+            const btn = document.getElementById('clickEarnBtn');
+            btn.disabled = true;
+            btn.innerText = '⏳ Viewing Ad...';
+            btn.className = 'click-earn-btn';
+
+            // 3. Start countdown
+            startTimer();
+        }
+
+        function nextStep() {
+            currentStep++;
+            isTimerPaused = false;
+            timeLeft = AD_WAIT_SECONDS;
+            updateModalUI();
+            handleStepClick();
+        }
+
+        function resetTaskSequence() {
+            if (adTimerInterval) {
+                clearInterval(adTimerInterval);
+                adTimerInterval = null;
+            }
+            isWaitingForAd = false;
+            isTimerPaused = false;
+            document.getElementById('stepModal').classList.remove('active');
+            currentStep = 1;
+            activeTaskId = null;
+            document.title = originalTitle;
+            
+            Swal.fire({
+                icon: 'warning',
+                title: 'Task Cancelled',
+                html: 'You cancelled the task.<br><br>Click "Start Task" on the card to begin again.',
+                background: '#1a1040',
+                color: '#fff',
+                confirmButtonColor: '#f59e0b'
+            });
+        }
+
+        // 🚀 SMART TAB VISIBILITY CHECK: PAUSE instead of FAIL
+        document.addEventListener('visibilitychange', () => {
+            if (!isWaitingForAd) return;
+            
+            if (document.visibilityState === 'visible') {
+                // User came back to Daily Tasks - PAUSE the timer
+                isTimerPaused = true;
+                document.getElementById('pauseNotice').classList.add('active');
+                document.getElementById('timerLabel').innerText = 'PAUSED';
+                updateTimerCircle(timeLeft);
+            } else {
+                // User went to ad tab - RESUME the timer
+                if (isTimerPaused) {
+                    isTimerPaused = false;
+                    document.getElementById('pauseNotice').classList.remove('active');
+                    document.getElementById('timerLabel').innerText = 'Seconds Left';
+                    updateTimerCircle(timeLeft);
+                }
+            }
+        });
+
+        async function claimReward() {
+            const btn = document.getElementById('clickEarnBtn');
+            btn.innerText = '⏳ Verifying...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/claim-daily-task', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('stepModal').classList.remove('active');
+                    document.title = `🎉 +$0.005 Earned! - Six Number`;
+                    
+                    const taskBtn = document.getElementById(`task-btn-${activeTaskId}`);
+                    taskBtn.innerHTML = '✅ Completed';
+                    taskBtn.className = 'task-btn completed-btn';
+                    
+                    currentTaskIndex++;
+                    document.getElementById('progress-fill').style.width = `${(currentTaskIndex / TOTAL_TASKS) * 100}%`;
+                    document.getElementById('progress-text').innerText = `${currentTaskIndex} / ${TOTAL_TASKS} Completed`;
+                    
+                    if (currentTaskIndex < TOTAL_TASKS) {
+                        const cards = document.querySelectorAll('.task-card');
+                        cards[currentTaskIndex].classList.remove('locked');
+                        cards[currentTaskIndex].classList.add('active');
+                        const nextBtn = cards[currentTaskIndex].querySelector('button');
+                        nextBtn.className = 'task-btn start';
+                        nextBtn.innerHTML = '🚀 Start Task';
+                        nextBtn.onclick = () => startTaskSequence(currentTaskIndex);
+                        
+                        setTimeout(() => { document.title = originalTitle; }, 3000);
+                    } else {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '🎉 All 100 Daily Tasks Completed!',
+                            html: 'You have earned <strong style="color: #10b981;">$0.50</strong> today.<br>Come back tomorrow for more!',
+                            background: '#1a1040',
+                            color: '#fff',
+                            confirmButtonColor: '#10b981'
+                        });
+                        document.title = `🏆 All Tasks Done! - Six Number`;
+                    }
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.error, background: '#1a1040', color: '#fff' });
+                    updateModalUI();
+                }
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Network Error', text: 'Please try again.', background: '#1a1040', color: '#fff' });
+                updateModalUI();
+            }
+        }
+
+        window.addEventListener('beforeunload', function (e) {
+            if (document.getElementById('stepModal').classList.contains('active')) {
+                e.preventDefault();
+                e.returnValue = 'You have an active task sequence. Are you sure you want to leave?';
+            }
+        });
+    </script>
+</body>
+</html>
