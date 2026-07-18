@@ -400,6 +400,10 @@ function sendViaSendGrid(data, adminEmail, senderEmail) {
                     <p style="margin: 0; font-size: 16px; color: #ffffff;">${data.firstName} ${data.lastName}</p>
                 </div>
                 <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; color: #94a3b8;">Country:</p>
+                    <p style="margin: 0; font-size: 16px; color: #ffffff;">${data.country}</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
                     <p style="margin: 0 0 10px 0; font-size: 14px; color: #94a3b8;">Email Address:</p>
                     <p style="margin: 0; font-size: 16px; color: #ffffff;">${data.email}</p>
                 </div>
