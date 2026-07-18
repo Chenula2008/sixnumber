@@ -449,20 +449,6 @@
                 </div>
             <% } %>
 
-            <!-- 🚨 VERIFICATION LINK BOX (Shows only when user needs to verify) -->
-            <% if (typeof verificationLink !== 'undefined' && verificationLink) { %>
-                <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1)); border: 2px solid #10b981; color: #ffffff; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center; animation: pulse 2s infinite;">
-                    <h3 style="margin: 0 0 10px 0; color: #10b981; font-size: 18px;">👇 FINAL STEP: VERIFY YOUR ACCOUNT 👇</h3>
-                    <p style="margin: 0 0 15px 0; font-size: 14px; color: #cbd5e1;">You must click the link below to activate your account before you can log in.</p>
-                    <a href="<%= verificationLink %>" style="display: inline-block; padding: 12px 24px; background: #10b981; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
-                        ✅ Click Here to Verify My Email
-                    </a>
-                    <p style="margin: 15px 0 0 0; font-size: 12px; color: #94a3b8; word-break: break-all;">
-                        Or copy/paste this link: <br><span style="color: #00d4ff;"><%= verificationLink %></span>
-                    </p>
-                </div>
-            <% } %>
-
             <form action="/login" method="POST">
                 <!-- Email Field -->
                 <div class="form-group">
