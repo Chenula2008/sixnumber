@@ -328,6 +328,7 @@ function sendRegistrationNotification(newUser) {
         username: newUser.username,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
+        country: newUser.country || 'Not specified', // 🚀 FIX: Added country to prevent "undefined"
         email: newUser.email,
         date: new Date().toLocaleString()
     };
