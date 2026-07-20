@@ -634,35 +634,22 @@
                     document.getElementById('stepModal').classList.remove('active');
                     document.title = `🎉 +$0.005 Earned! - Six Number`;
                     
-                    const taskBtn = document.getElementById(`task-btn-${activeTaskId}`);
-                    taskBtn.innerHTML = '✅ Completed';
-                    taskBtn.className = 'task-btn completed-btn';
+                    // 🚀 Show success message briefly, then auto-refresh
+                    Swal.fire({
+                        icon: 'success',
+                        title: '✅ Task Complete!',
+                        html: `You earned <strong style="color: #10b981;">$0.005</strong>!<br>Tasks: ${data.tasksCompleted}/100<br>Balance: $${data.newBalance}`,
+                        background: '#1a1040',
+                        color: '#fff',
+                        confirmButtonColor: '#10b981',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // 🚀 AUTO-REFRESH the page after success
+                        location.reload();
+                    });
                     
-                    currentTaskIndex++;
-                    document.getElementById('progress-fill').style.width = `${(currentTaskIndex / TOTAL_TASKS) * 100}%`;
-                    document.getElementById('progress-text').innerText = `${currentTaskIndex} / ${TOTAL_TASKS} Completed`;
-                    
-                    if (currentTaskIndex < TOTAL_TASKS) {
-                        const cards = document.querySelectorAll('.task-card');
-                        cards[currentTaskIndex].classList.remove('locked');
-                        cards[currentTaskIndex].classList.add('active');
-                        const nextBtn = cards[currentTaskIndex].querySelector('button');
-                        nextBtn.className = 'task-btn start';
-                        nextBtn.innerHTML = '🚀 Start Task';
-                        nextBtn.onclick = () => startTaskSequence(currentTaskIndex);
-                        
-                        setTimeout(() => { document.title = originalTitle; }, 3000);
-                    } else {
-                        Swal.fire({
-                            icon: 'success',
-                            title: '🎉 All 100 Daily Tasks Completed!',
-                            html: 'You have earned <strong style="color: #10b981;">$0.50</strong> today.<br>Come back tomorrow for more!',
-                            background: '#1a1040',
-                            color: '#fff',
-                            confirmButtonColor: '#10b981'
-                        });
-                        document.title = `🏆 All Tasks Done! - Six Number`;
-                    }
                 } else {
                     Swal.fire({ icon: 'error', title: 'Error', text: data.error, background: '#1a1040', color: '#fff' });
                     updateModalUI();
