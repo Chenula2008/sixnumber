@@ -510,6 +510,11 @@
                     </div>
                 </div>
 
+                <!-- 🚀 hCAPTCHA VERIFICATION -->
+                <div class="form-group" style="margin: 20px 0; display: flex; justify-content: center;">
+                    <div class="h-captcha" data-sitekey="<%= process.env.HCAPTCHA_SITE_KEY %>" data-theme="dark"></div>
+                </div>
+
                 <!-- Submit Button -->
                 <button type="submit" class="submit-btn" onclick="window.open('https://omg10.com/4/11208116', '_blank');">
                     🚀 Create Account
@@ -553,6 +558,9 @@
             }
         }
     </script>
+
+    <!-- 🚀 hCAPTCHA SCRIPT -->
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 
 </body>
 </html>
