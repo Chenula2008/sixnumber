@@ -394,6 +394,62 @@
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* 🚀 PASSWORD CHECKLIST STYLES */
+        .password-checklist {
+            margin-top: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 14px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+        .checklist-item:last-child { 
+            margin-bottom: 0; 
+        }
+        .checklist-item.valid { 
+            color: #10b981; 
+        }
+        .checklist-item.valid .check-icon { 
+            color: #10b981; 
+        }
+        .check-icon { 
+            font-size: 14px; 
+            width: 18px; 
+            text-align: center; 
+            transition: all 0.3s ease;
+        }
+
+        /* 🚀 EMAIL VALIDATION STYLES */
+        .email-status-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .email-status-icon.visible {
+            opacity: 1;
+        }
+        .form-input.valid-email {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+        }
+        .form-input.invalid-email {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+        }
     </style>
 </head>
 <body>
@@ -495,18 +551,47 @@
                 <div class="form-group">
                     <label class="form-label">Email Address</label>
                     <div class="input-wrapper">
-                        <input type="email" name="email" class="form-input" placeholder="your@email.com" required autocomplete="email">
+                        <input type="email" name="email" id="email" class="form-input" 
+                               placeholder="yourname@gmail.com" 
+                               pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$" 
+                               title="Please enter a valid @gmail.com email address."
+                               required autocomplete="email"
+                               style="padding-right: 50px;"> <!-- Makes room for the checkmark -->
                         <span class="input-icon">📧</span>
+                        <span id="email-check-icon" class="email-status-icon">⏳</span>
                     </div>
+                    <p id="email-hint" style="font-size: 12px; color: #94a3b8; margin-top: 6px; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">
+                        <span>💡</span> Only <strong>@gmail.com</strong> email addresses are allowed.
+                    </p>
                 </div>
 
                 <!-- Password Field -->
                 <div class="form-group">
                     <label class="form-label">Password</label>
                     <div class="input-wrapper">
-                        <input type="password" name="password" id="password" class="form-input" placeholder="Create a strong password" required minlength="6" autocomplete="new-password">
+                        <input type="password" name="password" id="password" class="form-input" 
+                               placeholder="Create a strong password" required autocomplete="new-password">
                         <span class="input-icon">🔒</span>
                         <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
+                    </div>
+                    
+                    <!-- 🚀 REAL-TIME PASSWORD STRENGTH CHECKLIST -->
+                    <div class="password-checklist">
+                        <div class="checklist-item" id="check-length">
+                            <span class="check-icon">❌</span> At least 8 characters
+                        </div>
+                        <div class="checklist-item" id="check-lower">
+                            <span class="check-icon">❌</span> One lowercase letter (a-z)
+                        </div>
+                        <div class="checklist-item" id="check-upper">
+                            <span class="check-icon">❌</span> One uppercase letter (A-Z)
+                        </div>
+                        <div class="checklist-item" id="check-number">
+                            <span class="check-icon">❌</span> One number (0-9)
+                        </div>
+                        <div class="checklist-item" id="check-special">
+                            <span class="check-icon">❌</span> One special character (@$!%*?&)
+                        </div>
                     </div>
                 </div>
 
@@ -561,6 +646,121 @@
 
     <!-- 🚀 hCAPTCHA SCRIPT -->
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+
+    <script>
+        // Password Toggle Function
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        // 🚀 REAL-TIME PASSWORD STRENGTH CHECKER
+        const passwordInput = document.getElementById('password');
+        const checkLength = document.getElementById('check-length');
+        const checkLower = document.getElementById('check-lower');
+        const checkUpper = document.getElementById('check-upper');
+        const checkNumber = document.getElementById('check-number');
+        const checkSpecial = document.getElementById('check-special');
+
+        passwordInput.addEventListener('input', function() {
+            const val = this.value;
+
+            // 1. Check length (8+ characters)
+            if (val.length >= 8) {
+                checkLength.classList.add('valid');
+                checkLength.querySelector('.check-icon').textContent = '✅';
+            } else {
+                checkLength.classList.remove('valid');
+                checkLength.querySelector('.check-icon').textContent = '❌';
+            }
+
+            // 2. Check lowercase
+            if (/[a-z]/.test(val)) {
+                checkLower.classList.add('valid');
+                checkLower.querySelector('.check-icon').textContent = '✅';
+            } else {
+                checkLower.classList.remove('valid');
+                checkLower.querySelector('.check-icon').textContent = '❌';
+            }
+
+            // 3. Check uppercase
+            if (/[A-Z]/.test(val)) {
+                checkUpper.classList.add('valid');
+                checkUpper.querySelector('.check-icon').textContent = '✅';
+            } else {
+                checkUpper.classList.remove('valid');
+                checkUpper.querySelector('.check-icon').textContent = '❌';
+            }
+
+            // 4. Check number
+            if (/[0-9]/.test(val)) {
+                checkNumber.classList.add('valid');
+                checkNumber.querySelector('.check-icon').textContent = '✅';
+            } else {
+                checkNumber.classList.remove('valid');
+                checkNumber.querySelector('.check-icon').textContent = '❌';
+            }
+
+            // 5. Check special character
+            if (/[@$!%*?&]/.test(val)) {
+                checkSpecial.classList.add('valid');
+                checkSpecial.querySelector('.check-icon').textContent = '✅';
+            } else {
+                checkSpecial.classList.remove('valid');
+                checkSpecial.querySelector('.check-icon').textContent = '❌';
+            }
+        });
+
+        // 🚀 REAL-TIME GMAIL VALIDATION
+        const emailInput = document.getElementById('email');
+        const emailCheckIcon = document.getElementById('email-check-icon');
+        const emailHint = document.getElementById('email-hint');
+
+        if (emailInput) {
+            emailInput.addEventListener('input', function() {
+                const val = this.value.trim();
+                const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+
+                if (val.length === 0) {
+                    // Reset state
+                    this.classList.remove('valid-email', 'invalid-email');
+                    emailCheckIcon.classList.remove('visible');
+                    emailHint.innerHTML = '<span>💡</span> Only <strong>@gmail.com</strong> email addresses are allowed.';
+                    emailHint.style.color = '#94a3b8';
+                } else if (gmailRegex.test(val)) {
+                    // Valid Gmail
+                    this.classList.remove('invalid-email');
+                    this.classList.add('valid-email');
+                    emailCheckIcon.textContent = '✅';
+                    emailCheckIcon.classList.add('visible');
+                    emailHint.innerHTML = '<span>✅</span> Valid Gmail address!';
+                    emailHint.style.color = '#10b981';
+                } else {
+                    // Invalid or not Gmail
+                    this.classList.remove('valid-email');
+                    this.classList.add('invalid-email');
+                    
+                    if (val.includes('@') && !val.toLowerCase().endsWith('@gmail.com')) {
+                        emailCheckIcon.textContent = '❌';
+                        emailHint.innerHTML = '<span>❌</span> Only @gmail.com addresses are allowed.';
+                    } else {
+                        emailCheckIcon.textContent = '⚠️';
+                        emailHint.innerHTML = '<span>⚠️</span> Please enter a valid email format.';
+                    }
+                    emailCheckIcon.classList.add('visible');
+                    emailHint.style.color = '#f87171';
+                }
+            });
+        }
+    </script>
 
 </body>
 </html>

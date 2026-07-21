@@ -449,6 +449,7 @@ function sendViaSendGrid(data, adminEmail, senderEmail) {
 
 app.post('/signup', async (req, res) => {
     const { username, email, password, firstName, lastName, country, 'h-captcha-response': hcaptchaToken } = req.body; 
+    
     try {
         // 🚀 VERIFY hCAPTCHA
         const isHuman = await verifyHCaptchaToken(hcaptchaToken);
@@ -460,7 +461,17 @@ app.post('/signup', async (req, res) => {
             });
         }
 
+        // 🚀 ADD THIS GMAIL-ONLY VALIDATION HERE:
+        if (!email || !email.toLowerCase().trim().endsWith('@gmail.com')) {
+            return res.render('signup', { 
+                error: "⚠️ Only @gmail.com email addresses are allowed for registration.", 
+                success: null,
+                countries: COUNTRIES
+            });
+        }
+
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        // ... rest of the code remains the same
         if (existingUser) return res.render('signup', { error: "Username or Email already exists.", success: null, countries: COUNTRIES });
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -618,6 +629,15 @@ app.post('/reset-password/:token', async (req, res) => {
         }
 
         const { newPassword } = req.body;
+
+        // 🚀 STRONG PASSWORD VALIDATION FOR RESET
+        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!strongPasswordRegex.test(newPassword)) {
+            return res.render('reset-password', {
+                token: req.params.token,
+                error: "⚠️ Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)."
+            });
+        }
         if (!newPassword || newPassword.length < 6) {
             return res.render('reset-password', { token: req.params.token, error: "Password must be at least 6 characters long." });
         }
