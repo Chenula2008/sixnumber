@@ -922,6 +922,20 @@ app.post('/admin/withdrawal/:id/action', authMiddleware, adminCheck, async (req,
     res.redirect('/admin'); 
 });
 
+// 🚀 DELETE FEEDBACK ROUTE (Admin Only)
+app.post('/admin/feedback/:id/delete', authMiddleware, adminCheck, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Feedback.findByIdAndDelete(id);
+        
+        // Redirect back to the page they came from (Dashboard or Feedback page)
+        res.redirect(req.headers.referer || '/feedback');
+    } catch (err) {
+        console.error('Error deleting feedback:', err);
+        res.redirect(req.headers.referer || '/feedback');
+    }
+});
+
 // --- SUPPORT / CONTACT ROUTES ---
 app.get('/contact', authMiddleware, async (req, res) => {
     const user = await User.findById(req.session.userId);
