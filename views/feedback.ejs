@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Feedback - Six Number</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1040 50%, #0d1b3e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(120, 80, 255, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(0, 200, 255, 0.08) 0%, transparent 50%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* Navbar (Same as other pages) */
+        .navbar {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(10, 14, 39, 0.85); backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 0 30px; height: 70px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-brand { font-size: 24px; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; text-decoration: none; color: white; }
+        .nav-brand span:first-child { color: #ffffff; }
+        .nav-brand span:nth-child(2) { background: linear-gradient(135deg, #00d4ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-actions { display: flex; gap: 10px; }
+        .nav-btn { padding: 10px 18px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px; border: 1px solid transparent; color: white; background: rgba(255,255,255,0.05); }
+        .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); background: rgba(255,255,255,0.1); }
+        .btn-logout { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+
+        /* Main Content */
+        .main-content { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 40px 20px; animation: fadeInUp 0.6s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .page-header { text-align: center; margin-bottom: 40px; }
+        .page-title { font-size: 36px; font-weight: 800; margin-bottom: 10px; }
+        .page-subtitle { font-size: 16px; color: rgba(255, 255, 255, 0.6); }
+
+        /* Cards */
+        .card {
+            background: rgba(255,255,255,0.03); backdrop-filter: blur(40px);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 24px;
+            padding: 30px; margin-bottom: 40px;
+        }
+        .card-title { font-size: 22px; font-weight: 700; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+
+        /* Form */
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-input, .form-select, .form-textarea {
+            width: 100%; padding: 14px 18px; background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            color: #fff; font-size: 15px; font-family: 'Inter', sans-serif; transition: all 0.3s ease;
+        }
+        .form-textarea { min-height: 120px; resize: vertical; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #ec4899; box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.2); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        .submit-btn {
+            width: 100%; padding: 16px; background: linear-gradient(135deg, #ec4899, #be185d);
+            color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+            cursor: pointer; transition: all 0.3s ease; margin-top: 10px;
+        }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(236, 72, 153, 0.3); }
+
+        /* Star Rating Input */
+        .star-rating { display: flex; gap: 8px; direction: rtl; justify-content: flex-end; }
+        .star-rating input { display: none; }
+        .star-rating label {
+            font-size: 28px; color: rgba(255,255,255,0.2); cursor: pointer; transition: all 0.2s ease;
+        }
+        .star-rating label:hover, .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label { color: #fbbf24; transform: scale(1.1); }
+
+        /* Feedback Grid */
+        .feedback-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .feedback-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px; padding: 24px; transition: all 0.3s ease;
+        }
+        .feedback-card:hover { transform: translateY(-4px); border-color: rgba(236, 72, 153, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        
+        .feedback-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .feedback-user { display: flex; align-items: center; gap: 12px; }
+        .feedback-avatar {
+            width: 40px; height: 40px; background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: #fff; font-size: 16px;
+        }
+        .feedback-name { font-weight: 600; color: #fff; font-size: 15px; }
+        .feedback-country { font-size: 12px; color: rgba(255,255,255,0.5); display: flex; align-items: center; gap: 4px; }
+        .feedback-stars { color: #fbbf24; font-size: 16px; letter-spacing: 2px; }
+        .feedback-message { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.6; font-style: italic; }
+        .feedback-date { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 15px; text-align: right; }
+
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .page-title { font-size: 28px; }
+            .navbar { padding: 0 15px; height: auto; padding: 15px; flex-wrap: wrap; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>Six</span><span>Number</span></a>
+        <div class="nav-actions">
+            <a href="/dashboard" class="nav-btn">🏠 Dashboard</a>
+            <a href="/profile" class="nav-btn">👤 Profile</a>
+            <a href="/logout" class="nav-btn btn-logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">💬 Customer Feedback</h1>
+            <p class="page-subtitle">Share your experience with SixNumber and read what others are saying!</p>
+        </div>
+
+        <!-- Submission Form -->
+        <div class="card">
+            <h2 class="card-title">✍️ Share Your Feedback</h2>
+            <form id="feedbackForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Your Name</label>
+                        <input type="text" id="name" class="form-input" value="<%= user.firstName %> <%= user.lastName %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Country</label>
+                        <select id="country" class="form-select" required>
+                            <% countries.forEach(function(c) { %>
+                                <option value="<%= c %>" <%= user.country === c ? 'selected' : '' %>><%= c %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Rating</label>
+                    <div class="star-rating">
+                        <input type="radio" id="star5" name="rating" value="5" required><label for="star5">★</label>
+                        <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                        <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
+                        <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                        <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Your Message</label>
+                    <textarea id="message" class="form-textarea" placeholder="Tell us about your experience..." maxlength="500" required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">🚀 Submit Feedback</button>
+            </form>
+        </div>
+
+        <!-- Feedback Display -->
+        <div class="card" style="background: transparent; border: none; padding: 0;">
+            <h2 class="card-title">⭐ What Our Users Say</h2>
+            
+            <% if (feedbacks.length === 0) { %>
+                <p style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">No feedback yet. Be the first to share your experience!</p>
+            <% } else { %>
+                <div class="feedback-grid">
+                    <% feedbacks.forEach(function(fb) { %>
+                        <div class="feedback-card">
+                            <div class="feedback-header">
+                                <div class="feedback-user">
+                                    <div class="feedback-avatar"><%= fb.name.charAt(0).toUpperCase() %></div>
+                                    <div>
+                                        <div class="feedback-name"><%= fb.name %></div>
+                                        <div class="feedback-country">🌍 <%= fb.country %></div>
+                                    </div>
+                                </div>
+                                <div class="feedback-stars">
+                                    <% for(let i=0; i<5; i++) { %>
+                                        <%= i < fb.rating ? '★' : '☆' %>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <div class="feedback-message">"<%= fb.message %>"</div>
+                            <div class="feedback-date"><%= new Date(fb.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const country = document.getElementById('country').value;
+            const rating = document.querySelector('input[name="rating"]:checked')?.value;
+            const message = document.getElementById('message').value;
+
+            if (!rating) {
+                return Swal.fire({ icon: 'warning', title: 'Rating Required', text: 'Please select a star rating.', background: '#1a1040', color: '#fff', confirmButtonColor: '#f59e0b' });
+            }
+
+            const btn = e.target.querySelector('.submit-btn');
+            btn.innerText = '⏳ Submitting...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, country, rating, message })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success', title: 'Thank You!', text: data.message,
+                        background: '#1a1040', color: '#fff', confirmButtonColor: '#10b981', timer: 2000
+                    }).then(() => {
+                        location.reload(); // Reload to show the new feedback
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.error, background: '#1a1040', color: '#fff', confirmButtonColor: '#ef4444' });
+                    btn.innerText = '🚀 Submit Feedback';
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Network Error', text: 'Please try again.', background: '#1a1040', color: '#fff', confirmButtonColor: '#ef4444' });
+                btn.innerText = '🚀 Submit Feedback';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

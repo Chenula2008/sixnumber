@@ -10,6 +10,7 @@ const Withdrawal = require('./models/Withdrawal');
 const crypto = require('crypto');
 const sgMail = require('@sendgrid/mail');
 const cron = require('node-cron');
+const Feedback = require('./models/Feedback');
 
 // 🚀 COMPREHENSIVE LIST OF COUNTRIES
 const COUNTRIES = [
@@ -983,6 +984,41 @@ app.get('/verify-email', async (req, res) => {
 app.get('/verify-all-existing', async (req, res) => {
     await User.updateMany({}, { $set: { isVerified: true } });
     res.send("✅ All existing users have been verified! You can now delete this route.");
+});
+
+// 🚀 FEEDBACK PAGE ROUTE
+app.get('/feedback', authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+        // Fetch the 50 most recent feedbacks
+        const feedbacks = await Feedback.find().sort({ createdAt: -1 }).limit(50);
+        res.render('feedback', { user, feedbacks, countries: COUNTRIES });
+    } catch (err) {
+        console.error("Feedback page error:", err);
+        res.status(500).send("Server Error");
+    }
+});
+
+// 🚀 FEEDBACK SUBMISSION API
+app.post('/api/feedback', authMiddleware, async (req, res) => {
+    try {
+        const { name, country, rating, message } = req.body;
+        
+        if (!name || !country || !rating || !message) {
+            return res.status(400).json({ error: "All fields are required." });
+        }
+        if (rating < 1 || rating > 5) {
+            return res.status(400).json({ error: "Invalid rating." });
+        }
+
+        const newFeedback = new Feedback({ name, country, rating, message });
+        await newFeedback.save();
+        
+        res.json({ success: true, message: "Thank you for your feedback!" });
+    } catch (err) {
+        console.error("Feedback submission error:", err);
+        res.status(500).json({ error: "Failed to submit feedback." });
+    }
 });
 
 // 8. START SERVER
