@@ -154,6 +154,7 @@ app.get('/dashboard', async (req, res) => {
     let isLoggedIn = false;
     let pendingCents = 0;
     let remainingEntries = 170;
+    let recentFeedbacks = [];
 
     if (req.session.userId) {
         user = await User.findById(req.session.userId);
@@ -171,6 +172,9 @@ app.get('/dashboard', async (req, res) => {
             user.currentNumbers = generateNumbers();
             await user.save();
         }
+        
+        // 🚀 Fetch the 4 most recent feedbacks for logged-in users
+        recentFeedbacks = await Feedback.find().sort({ createdAt: -1 }).limit(4);
     } else {
         user = {
             username: 'Guest',
@@ -181,9 +185,17 @@ app.get('/dashboard', async (req, res) => {
             isAdmin: false,
             role: 'user'
         };
+        // 🚀 Fetch the 4 most recent feedbacks for guests too, so everyone sees them
+        recentFeedbacks = await Feedback.find().sort({ createdAt: -1 }).limit(4);
     }
     
-    res.render('dashboard', { user, pendingCents, remainingEntries, isLoggedIn });
+    res.render('dashboard', { 
+        user, 
+        pendingCents, 
+        remainingEntries, 
+        isLoggedIn, 
+        recentFeedbacks // 🚀 Pass feedback to the dashboard template
+    });
 });
 
 app.get('/withdraw', authMiddleware, async (req, res) => {
