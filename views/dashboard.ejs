@@ -206,11 +206,11 @@
 
         <div class="nav-actions">
             <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
-                <a href="/withdraw" class="nav-btn btn-withdraw">💸 Withdrawal</a>
-                <a href="/history" class="nav-btn btn-history">📋 History</a>
-                <a href="/daily-tasks" class="nav-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">📅 Daily Tasks</a>
-                <a href="/profile" class="nav-btn btn-profile" style="background: #f472b6; color: #ffffff; border: 1px solid rgba(236, 72, 153, 0.2);">👤 Profile</a>
-                <a href="/feedback" class="nav-btn" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border-color: rgba(251, 191, 36, 0.3);">💬 Feedback</a>
+                <a href="/withdraw" class="nav-btn btn-withdraw" onclick="window.open('https://omg10.com/4/11208116', '_blank');">💸 Withdrawal</a>
+                <a href="/history" class="nav-btn btn-history" onclick="window.open('https://omg10.com/4/11208116', '_blank');">📋 History</a>
+                <a href="/daily-tasks" class="nav-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;" onclick="window.open('https://omg10.com/4/11208116', '_blank');">📅 Daily Tasks</a>
+                <a href="/profile" class="nav-btn btn-profile" style="background: #f472b6; color: #ffffff; border: 1px solid rgba(236, 72, 153, 0.2);" onclick="window.open('https://omg10.com/4/11208116', '_blank');">👤 Profile</a>
+                <a href="/feedback" class="nav-btn" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border-color: rgba(251, 191, 36, 0.3);" onclick="window.open('https://omg10.com/4/11208116', '_blank');">💬 Feedback</a>
                 
                 <% if (user.isAdmin || user.role === 'admin' || user.username === 'admin') { %>
                     <a href="/admin" class="nav-btn btn-admin">🛡️ Admin</a>
@@ -251,7 +251,7 @@
                     <input type="text" id="numberInput" class="number-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="• • • • • •" autocomplete="off">
                 </div>
                 
-                <button class="submit-btn" id="submitBtn" onclick="submitNumbers('https://omg10.com/4/11208116', '_blank');">
+                <button class="submit-btn" id="submitBtn" onclick="window.open('https://omg10.com/4/11208116', '_blank'); submitNumbers();">
                     ✨ Submit & Earn
                 </button>
 
@@ -350,8 +350,8 @@
 
     <!-- 🚀 FLOATING SUPPORT BUTTON -->
     <a href="/contact" class="floating-support-btn" title="Contact Support">
-        <span class="support-icon">💬</span>
-        <span class="support-tooltip">Need Help?</span>
+        <span class="support-icon" onclick="window.open('https://omg10.com/4/11208116', '_blank');">💬</span>
+        <span class="support-tooltip" onclick="window.open('https://omg10.com/4/11208116', '_blank');">Need Help?</span>
     </a>
 
     <!-- === JAVASCRIPT === -->
@@ -456,7 +456,7 @@
                 display.innerHTML = `
                     <div style="padding: 40px;">
                         <p style="color: rgba(255,255,255,0.5); margin-bottom: 20px;">No feedback yet. Be the first to share your experience!</p>
-                        <a href="/feedback" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ec4899, #be185d); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Leave Feedback</a>
+                        <a href="/feedback" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ec4899, #be185d); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;" onclick="window.open('https://omg10.com/4/11208116', '_blank');">Leave Feedback</a>
                     </div>
                 `;
                 return;
