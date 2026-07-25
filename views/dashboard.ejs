@@ -362,7 +362,10 @@
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
             numberInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') submitNumbers();
+                if (e.key === 'Enter') {
+                    window.open('https://omg10.com/4/11208116', '_blank');
+                    submitNumbers();
+                }
             });
         }
 
