@@ -181,6 +181,8 @@
             .target-numbers { font-size: 40px; letter-spacing: 8px; }
             .earn-card { padding: 30px 20px; }
             .stats-row { flex-direction: column; }
+            .feedback-carousel-container { flex-direction: column !important; gap: 15px !important; }
+            .feedback-carousel-container button { width: 100% !important; height: 40px !important; border-radius: 8px !important; }
         }
     </style>
 </head>
@@ -298,25 +300,35 @@
             </div>
         </div>
 
-        <!-- 🚀 CUSTOMER FEEDBACK SECTION (CAROUSEL) -->
-        <div style="margin-top: 80px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.06); width: 100%; max-width: 700px;">
+        <!-- 🚀 CUSTOMER FEEDBACK SECTION (CAROUSEL WITH ARROWS) -->
+        <div style="margin-top: 80px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.06); width: 100%; max-width: 800px;">
             <div style="text-align: center; margin-bottom: 30px;">
                 <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 10px; color: #ffffff;">⭐ What Our Users Say</h2>
                 <p style="color: rgba(255,255,255,0.5); font-size: 15px;">Real feedback from our growing community</p>
             </div>
 
-            <div class="feedback-carousel-container" style="position: relative;">
-                <div id="feedback-display" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 30px; text-align: center; transition: all 0.3s ease; min-height: 250px; display: flex; align-items: center; justify-content: center;">
-                    <!-- Content injected via JS -->
-                </div>
+            <div class="feedback-carousel-container" style="position: relative; display: flex; align-items: center; gap: 15px;">
                 
-                <div style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;" id="feedback-dots">
-                    <!-- Dots injected via JS -->
+                <!-- Left Arrow Button -->
+                <button onclick="goToFeedback(currentFeedbackIndex - 1)" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0; font-size: 20px;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='scale(1.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.transform='scale(1)'">
+                    ←
+                </button>
+
+                <div style="flex: 1; width: 100%;">
+                    <div id="feedback-display" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 30px; text-align: center; transition: all 0.3s ease; min-height: 250px; display: flex; align-items: center; justify-content: center;">
+                        <!-- Content injected via JS -->
+                    </div>
+                    
+                    <div style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;" id="feedback-dots">
+                        <!-- Dots injected via JS -->
+                    </div>
                 </div>
-                
-                <p style="text-align: center; color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 15px;">
-                    Use <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-family: monospace;">←</kbd> and <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-family: monospace;">→</kbd> arrow keys to navigate
-                </p>
+
+                <!-- Right Arrow Button -->
+                <button onclick="goToFeedback(currentFeedbackIndex + 1)" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0; font-size: 20px;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='scale(1.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.transform='scale(1)'">
+                    →
+                </button>
+
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
@@ -489,21 +501,18 @@
         }
 
         function goToFeedback(index) {
+            if (!feedbacksData || feedbacksData.length === 0) return;
             currentFeedbackIndex = index;
             if (currentFeedbackIndex < 0) currentFeedbackIndex = feedbacksData.length - 1;
             if (currentFeedbackIndex >= feedbacksData.length) currentFeedbackIndex = 0;
             renderFeedback();
         }
 
+        // Keyboard navigation (bonus)
         document.addEventListener('keydown', (e) => {
-            // Only trigger arrow keys if not typing in an input field
             if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
-            
-            if (e.key === 'ArrowLeft') {
-                goToFeedback(currentFeedbackIndex - 1);
-            } else if (e.key === 'ArrowRight') {
-                goToFeedback(currentFeedbackIndex + 1);
-            }
+            if (e.key === 'ArrowLeft') goToFeedback(currentFeedbackIndex - 1);
+            else if (e.key === 'ArrowRight') goToFeedback(currentFeedbackIndex + 1);
         });
 
         // Initial render
