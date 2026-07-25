@@ -22,7 +22,7 @@
             pointer-events: none; z-index: 0;
         }
 
-        /* Navbar (Same as other pages) */
+        /* Navbar */
         .navbar {
             position: sticky; top: 0; z-index: 100;
             background: rgba(10, 14, 39, 0.85); backdrop-filter: blur(20px);
@@ -174,8 +174,8 @@
                 <p style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">No feedback yet. Be the first to share your experience!</p>
             <% } else { %>
                 <div class="feedback-grid">
-                                        <% feedbacks.forEach(function(fb) { %>
-                        <div class="feedback-card" style="position: relative;"> <!-- Added position: relative -->
+                    <% feedbacks.forEach(function(fb) { %>
+                        <div class="feedback-card" style="position: relative;">
                             
                             <!-- 🚀 ADMIN DELETE BUTTON -->
                             <% if (user.isAdmin || user.role === 'admin') { %>
@@ -195,24 +195,7 @@
                                     </div>
                                 </div>
                                 <div class="feedback-stars">
-                                    <% for(let i=0; i<5; i++) { %>
-                                        <%= i < fb.rating ? '★' : '☆' %>
-                                    <% } %>
-                                </div>
-                            </div>
-                            <div class="feedback-message">"<%= fb.message %>"</div>
-                            <div class="feedback-date"><%= new Date(fb.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></div>
-                        </div>
-                    <% }); %>
-                                <div class="feedback-user">
-                                    <div class="feedback-avatar"><%= fb.name.charAt(0).toUpperCase() %></div>
-                                    <div>
-                                        <div class="feedback-name"><%= fb.name %></div>
-                                        <div class="feedback-country">🌍 <%= fb.country %></div>
-                                    </div>
-                                </div>
-                                <div class="feedback-stars">
-                                    <% for(let i=0; i<5; i++) { %>
+                                    <% for (var i = 0; i < 5; i++) { %>
                                         <%= i < fb.rating ? '★' : '☆' %>
                                     <% } %>
                                 </div>
