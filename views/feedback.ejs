@@ -210,26 +210,6 @@
                     <% }); %>
                 </div>
             <% } %>
-                            <div class="feedback-header">
-                                <div class="feedback-user">
-                                    <div class="feedback-avatar"><%= fb.name.charAt(0).toUpperCase() %></div>
-                                    <div>
-                                        <div class="feedback-name"><%= fb.name %></div>
-                                        <div class="feedback-country">🌍 <%= fb.country %></div>
-                                    </div>
-                                </div>
-                                <div class="feedback-stars">
-                                    <% for (var i = 0; i < 5; i++) { %>
-                                        <%= i < fb.rating ? '★' : '☆' %>
-                                    <% } %>
-                                </div>
-                            </div>
-                            <div class="feedback-message">"<%= fb.message %>"</div>
-                            <div class="feedback-date"><%= new Date(fb.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></div>
-                        </div>
-                    <% }); %>
-                </div>
-            <% } %>
         </div>
     </div>
 

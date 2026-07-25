@@ -306,7 +306,7 @@
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-                                <% if (typeof recentFeedbacks !== 'undefined' && recentFeedbacks && recentFeedbacks.length > 0) { %>
+                <% if (typeof recentFeedbacks !== 'undefined' && recentFeedbacks && recentFeedbacks.length > 0) { %>
                     <% recentFeedbacks.forEach(function(fb) { %>
                         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(236, 72, 153, 0.3)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255,255,255,0.06)'; this.style.boxShadow='none'">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
@@ -345,30 +345,6 @@
                             </div>
                         </div>
                     <% }); %>
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #00d4ff, #7c3aed); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 16px; flex-shrink: 0;">
-                                        <%= fb.name.charAt(0).toUpperCase() %>
-                                    </div>
-                                    <div>
-                                        <div style="font-weight: 600; color: #fff; font-size: 15px;"><%= fb.name %></div>
-                                        <div style="font-size: 12px; color: rgba(255,255,255,0.5); display: flex; align-items: center; gap: 4px;">🌍 <%= fb.country %></div>
-                                    </div>
-                                </div>
-                                <div style="color: #fbbf24; font-size: 16px; letter-spacing: 2px;">
-                                    <% for (var i = 0; i < 5; i++) { %>
-                                        <%= i < fb.rating ? '★' : '☆' %>
-                                    <% } %>
-                                </div>
-                            </div>
-                            <div style="font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.6; font-style: italic;">
-                                "<%= fb.message %>"
-                            </div>
-                            <div style="font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 15px; text-align: right;">
-                                <%= new Date(fb.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                            </div>
-                        </div>
-                    <% }); %>
                 <% } else { %>
                     <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
                         <p>No feedback yet. Be the first to share your experience!</p>
@@ -378,116 +354,4 @@
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
-                <a href="/feedback" style="color: #00d4ff; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;" onmouseover="this.style.gap='12px'" onmouseout="this.style.gap='8px'">
-                    Read all reviews <span style="font-size: 18px;">→</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- === FOOTER === -->
-    <div class="footer">
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
-            <span style="font-size: 16px;">🇱🇰</span>
-            <span style="color: rgba(255, 255, 255, 0.5); font-size: 12px;">Made with ❤️ in Sri Lanka</span>
-        </div>
-        <p>© 2026 SixNumber. All rights reserved.</p>
-    </div>
-
-    <!-- 🚀 FLOATING SUPPORT BUTTON -->
-    <a href="/contact" class="floating-support-btn" title="Contact Support">
-        <span class="support-icon">💬</span>
-        <span class="support-tooltip">Need Help?</span>
-    </a>
-
-    <!-- === JAVASCRIPT === -->
-    <script>
-        const numberInput = document.getElementById('numberInput');
-        if (numberInput) {
-            numberInput.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^0-9]/g, '');
-            });
-            numberInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') submitNumbers();
-            });
-        }
-
-        const guestInput = document.getElementById('guestNumberInput');
-        if (guestInput) {
-            guestInput.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^0-9]/g, '');
-            });
-            guestInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') promptGuestSignup();
-            });
-        }
-
-        function promptGuestSignup() {
-            Swal.fire({
-                icon: 'info', title: 'Join SixNumber to Earn!',
-                html: 'Creating an account takes less than 10 seconds.<br>Start earning <strong style="color: #10b981;">$0.001</strong> per correct submission instantly!',
-                background: '#1a1040', color: '#fff', showCancelButton: true,
-                confirmButtonText: '✨ Create Free Account', cancelButtonText: '🔒 I have an account',
-                confirmButtonColor: '#10b981', cancelButtonColor: '#3b82f6'
-            }).then((result) => {
-                if (result.isConfirmed) window.location.href = '/signup';
-                else if (result.dismiss === 'cancel') window.location.href = '/login';
-            });
-        }
-
-        async function submitNumbers() {
-            const typedNumbers = document.getElementById('numberInput').value;
-            const submitBtn = document.getElementById('submitBtn');
-
-            if (!/^\d{6}$/.test(typedNumbers)) {
-                return Swal.fire({ icon: 'error', title: 'Oops!', text: 'Please enter exactly 6 numbers.', background: '#1a1040', color: '#fff', confirmButtonColor: '#7c3aed' });
-            }
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Verifying...';
-
-            try {
-                const response = await fetch('/api/earn', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ typedNumbers })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    if (data.remaining !== undefined) {
-                        const remainingText = document.getElementById('remainingText');
-                        if (remainingText) {
-                            remainingText.style.color = data.remaining > 0 ? '#10b981' : '#ef4444';
-                            remainingText.innerHTML = `${data.remaining} <span style="font-size: 16px; color: #94a3b8; font-weight: 500;">/ 170 entries left today</span>`;
-                        }
-                        const progressBar = document.getElementById('limitProgressBar');
-                        if (progressBar) {
-                            progressBar.style.width = `${((170 - data.remaining) / 170) * 100}%`;
-                        }
-                    }
-
-                    document.getElementById('balance').innerText = data.newBalance;
-                    document.getElementById('targetNumbers').innerText = data.newNumbers;
-                    document.getElementById('numberInput').value = '';
-                    document.querySelectorAll('.stat-value')[1].innerText = Math.round(parseFloat(data.newBalance) * 1000);
-
-                    Swal.fire({
-                        icon: 'success', title: '🎉 Correct!',
-                        html: `<span style="font-size: 18px; color: #10b981; font-weight: bold;">+$${data.earned}</span><br><span style="color: #999; font-size: 14px;">added to your wallet</span>`,
-                        background: '#1a1040', color: '#fff', confirmButtonColor: '#10b981', timer: 2000, showConfirmButton: false
-                    });
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Incorrect!', text: data.error, background: '#1a1040', color: '#fff', confirmButtonColor: '#ef4444' });
-                }
-            } catch (err) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', background: '#1a1040', color: '#fff', confirmButtonColor: '#ef4444' });
-            }
-
-            submitBtn.disabled = false;
-            submitBtn.textContent = '✨ Submit & Earn';
-        }
-    </script>
-</body>
-</html>
+                <a href="/feedback" style="color: #00d4ff; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center;
