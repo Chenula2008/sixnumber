@@ -85,6 +85,32 @@ app.use(session({
     })
 }));
 
+const cron = require('node-cron');
+// Make sure to import your DailyTask or Settings model at the top
+// const DailyTask = require('./models/DailyTask'); 
+
+// Schedule a task to run every day at midnight (00:00)
+cron.schedule('0 0 * * *', async () => {
+    console.log('🕒 Midnight reached: Updating Daily Task...');
+    
+    try {
+        // EXAMPLE 1: If you need to generate 6 new random numbers for the day
+        const newNumbers = Math.floor(100000 + Math.random() * 900000).toString();
+        await DailyTask.updateOne(
+            { name: 'daily_numbers' }, // Find your daily task record
+            { numbers: newNumbers, lastUpdated: new Date() },
+            { upsert: true } // Create it if it doesn't exist
+        );
+
+        // EXAMPLE 2: If you need to reset a daily counter (e.g., daily payouts)
+        // await Settings.updateOne({ key: 'daily_payout_count' }, { value: 0 });
+
+        console.log('✅ Daily task updated successfully!');
+    } catch (error) {
+        console.error('❌ Error updating daily task:', error);
+    }
+});
+
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('✅ DB Connected'))
     .catch(err => console.error('MongoDB Connection Error:', err));

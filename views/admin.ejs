@@ -151,7 +151,6 @@
         .badge-approved { background: rgba(16, 185, 129, 0.15); color: #34d399; }
         .badge-rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; }
         
-        /* 🚀 NEW: Daily Entry Badges */
         .daily-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; white-space: nowrap; }
         .daily-badge-safe { background: rgba(16, 185, 129, 0.15); color: #34d399; }
         .daily-badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
@@ -166,7 +165,6 @@
         .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; }
         .action-btn:hover { transform: scale(1.05); }
 
-        /* 🚀 NEW: Daily Entry Progress Bar */
         .daily-progress-container { min-width: 120px; }
         .daily-count { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
         .daily-count .limit { font-size: 11px; color: #64748b; font-weight: 500; }
@@ -225,6 +223,13 @@
 
     <!-- Main Content -->
     <main class="main-content">
+        <!-- 🚀 NEW: Success Message for Manual Reset -->
+        <% if (req.query.reset === 'success') { %>
+            <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                ✅ Daily tasks have been successfully reset to 0 for all users!
+            </div>
+        <% } %>
+
         <!-- Header -->
         <div class="header">
             <div class="header-title">
@@ -248,7 +253,6 @@
                 <div class="stat-label">Total Users</div>
             </div>
             
-            <!-- 🚀 NEW: Verified Users Stats Card -->
             <div class="stat-card green">
                 <div class="stat-icon">✅</div>
                 <div class="stat-value"><%= users.filter(u => u.isVerified).length %> / <%= totalUsers %></div>
@@ -277,7 +281,6 @@
                 <div class="stat-label">Approved Payouts</div>
             </div>
             
-            <!-- 🚀 Daily Activity Stats -->
             <div class="stat-card cyan">
                 <div class="stat-icon">⌨️</div>
                 <div class="stat-value"><%= users.filter(u => u.dailyEntries > 0).length %></div>
@@ -289,7 +292,6 @@
                 <div class="stat-label">Total Entries Today</div>
             </div>
             
-            <!-- 🚀 Daily Tasks Overview Cards -->
             <div class="stat-card cyan">
                 <div class="stat-icon">📅</div>
                 <div class="stat-value"><%= totalTasksCompletedToday || 0 %></div>
@@ -321,7 +323,6 @@
                 <div class="stat-label">Near Limit</div>
             </div>
             
-            <!-- 🚀 Current Date Display with Manual Reset -->
             <div class="stat-card cyan">
                 <div class="stat-icon">📅</div>
                 <div class="stat-value" style="font-size: 18px;"><%= currentDate %></div>
@@ -343,7 +344,6 @@
                 <h2 class="section-title">👥 Registered Users</h2>
             </div>
             
-            <!-- 🚀 USER SEARCH BAR -->
             <form method="GET" action="/admin" style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <input type="text" name="userSearch" value="<%= userSearch %>" placeholder="Search by username or name..." style="flex: 1; min-width: 200px; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; outline: none; font-size: 14px;">
                 <button type="submit" style="padding: 12px 24px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">🔍 Search</button>
@@ -361,7 +361,7 @@
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Country</th>
-                            <th>Status</th> <!-- 🚀 NEW: Status Column -->
+                            <th>Status</th>
                             <th>Balance</th>
                             <th>Daily Entries</th>
                             <th>Daily Tasks</th>
@@ -385,8 +385,6 @@
                                     <td><%= u.firstName || '-' %></td>
                                     <td><%= u.lastName || '-' %></td>
                                     <td><%= u.country || 'Unknown' %></td>
-                                    
-                                    <!-- 🚀 NEW: Email Verification Status -->
                                     <td>
                                         <% if (u.isVerified) { %>
                                             <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; font-size: 11px; font-weight: 600; color: #34d399; white-space: nowrap;">
@@ -398,14 +396,11 @@
                                             </span>
                                         <% } %>
                                     </td>
-
                                     <td style="color: #34d399; font-weight: 600;">$<%= ((u.walletCents || 0) / 100).toFixed(3) %></td>
-                                    
-                                    <!-- 🚀 Daily Entries Column -->
                                     <td>
                                         <div class="daily-progress-container">
                                             <div class="daily-count" style="color: <%= u.limitReached ? '#f87171' : (u.remainingEntries <= 20 ? '#fbbf24' : '#34d399') %>;">
-                                                <%= u.dailyEntries %><span class="limit">/170</span>
+                                                <%= u.dailyEntries %><span class="limit">/<%= DAILY_LIMIT %></span>
                                             </div>
                                             <div class="daily-progress-bar">
                                                 <div class="daily-progress-fill <%= u.limitReached ? 'danger' : (u.remainingEntries <= 20 ? 'warning' : 'safe') %>" 
@@ -420,7 +415,6 @@
                                             <% } %>
                                         </div>
                                     </td>
-
                                     <td>
                                         <span style="font-weight: 600; color: <%= (u.dailyTasksCompleted || 0) >= 100 ? '#10b981' : '#fbbf24' %>;">
                                             <%= u.dailyTasksCompleted || 0 %> / 100
@@ -430,12 +424,9 @@
                                             <%= u.lastDailyTaskDate || 'Never' %>
                                         </span>
                                     </td>
-                                    
                                     <td style="color: #64748b; font-size: 12px; white-space: nowrap;">
                                         <%= (u.createdAt && !isNaN(new Date(u.createdAt).getTime())) ? new Date(u.createdAt).toLocaleDateString() : 'Recently' %>
                                     </td>
-                                    
-                                    <!-- 🛡️ ADMIN PROTECTION CODE START -->
                                     <td>
                                         <% if (!u.isAdmin && u.role !== 'admin') { %>
                                             <form action="/admin/user/<%= u._id %>/delete" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete <%= u.username %>?');">
@@ -445,7 +436,6 @@
                                             <span style="color: #a78bfa; font-size: 12px; font-weight: 600;">🛡️ Protected</span>
                                         <% } %>
                                     </td>
-                                    <!-- 🛡️ ADMIN PROTECTION CODE END -->
                                 </tr>
                             <% }); %>
                         <% } else { %>
@@ -462,7 +452,6 @@
                 <h2 class="section-title">💸 Withdrawal Requests</h2>
             </div>
 
-            <!-- 🚀 WITHDRAWAL SEARCH BAR -->
             <form method="GET" action="/admin" style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <input type="text" name="withdrawalSearch" value="<%= withdrawalSearch %>" placeholder="Search withdrawals by user name..." style="flex: 1; min-width: 200px; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; outline: none; font-size: 14px;">
                 <button type="submit" style="padding: 12px 24px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">🔍 Search</button>
@@ -503,7 +492,6 @@
                                         </div>
                                     </td>
                                     <td style="color: #fbbf24; font-weight: 700;">$<%= ((w.amountCents || 0) / 100).toFixed(3) %></td>
-                                    
                                     <td>
                                         <% if (w.method === 'bank') { %>
                                             <span style="color: #fbbf24; font-weight: 600;">🏦 Bank</span>
@@ -513,28 +501,16 @@
                                             <span style="color: #3b82f6; font-weight: 600;">🅿️ PayPal</span>
                                         <% } %>
                                     </td>
-
                                     <td style="font-size: 12px; color: #94a3b8; max-width: 250px; line-height: 1.5;">
                                         <% if (w.method === 'bank') { %>
-                                            <div style="margin-bottom: 4px;">
-                                                <strong style="color: #fbbf24;">🏦 Bank:</strong> <%= w.bankName || '-' %>
-                                            </div>
-                                            <div style="margin-bottom: 4px;">
-                                                <strong style="color: #fff;">Name:</strong> <%= w.accountHolderName || '-' %>
-                                            </div>
-                                            <div style="margin-bottom: 4px;">
-                                                <strong style="color: #fff;">A/C:</strong> <%= w.accountNumber || '-' %>
-                                            </div>
-                                            <div>
-                                                <strong style="color: #fff;">Branch:</strong> <%= w.branchName || '-' %> (<%= w.branchCode || '-' %>)
-                                            </div>
+                                            <div style="margin-bottom: 4px;"><strong style="color: #fbbf24;">🏦 Bank:</strong> <%= w.bankName || '-' %></div>
+                                            <div style="margin-bottom: 4px;"><strong style="color: #fff;">Name:</strong> <%= w.accountHolderName || '-' %></div>
+                                            <div style="margin-bottom: 4px;"><strong style="color: #fff;">A/C:</strong> <%= w.accountNumber || '-' %></div>
+                                            <div><strong style="color: #fff;">Branch:</strong> <%= w.branchName || '-' %> (<%= w.branchCode || '-' %>)</div>
                                         <% } else { %>
-                                            <div style="font-family: monospace; word-break: break-all;">
-                                                <%= w.paymentAddress || '-' %>
-                                            </div>
+                                            <div style="font-family: monospace; word-break: break-all;"><%= w.paymentAddress || '-' %></div>
                                         <% } %>
                                     </td>
-
                                     <td>
                                         <% if (w.status === 'approved') { %>
                                             <span class="badge badge-approved">Approved</span>
