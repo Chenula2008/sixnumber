@@ -85,10 +85,6 @@ app.use(session({
     })
 }));
 
-const cron = require('node-cron');
-// Make sure to import your DailyTask or Settings model at the top
-// const DailyTask = require('./models/DailyTask'); 
-
 // Schedule a task to run every day at midnight (00:00)
 cron.schedule('0 0 * * *', async () => {
     console.log('🕒 Midnight reached: Updating Daily Task...');
