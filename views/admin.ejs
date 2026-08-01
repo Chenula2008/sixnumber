@@ -224,7 +224,7 @@
     <!-- Main Content -->
     <main class="main-content">
         <!-- 🚀 NEW: Success Message for Manual Reset -->
-        <% if (req.query.reset === 'success') { %>
+        <% if (isResetSuccess) { %>
             <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
                 ✅ Daily tasks have been successfully reset to 0 for all users!
             </div>

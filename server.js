@@ -851,6 +851,7 @@ app.get('/admin', authMiddleware, async (req, res) => {
         const totalPaidToday = ((totalTasksCompletedToday * 0.5) / 100).toFixed(3);
         
         res.render('admin', { 
+            isResetSuccess: req.query.reset === 'success',
             user, users: usersWithDailyStats, withdrawals, totalUsers, totalWithdrawals,
             userSearch, withdrawalSearch, currentDate: today, DAILY_LIMIT,
             totalTasksCompletedToday, usersCompletedAll100, usersActiveToday, totalPaidToday
