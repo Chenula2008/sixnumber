@@ -41,26 +41,26 @@ const COUNTRIES = [
 ];
 
 // 🚀 hCAPTCHA VERIFICATION FUNCTION
-// async function verifyHCaptchaToken(token) {
-//     if (!token) return false;
-//     try {
-//         const params = new URLSearchParams();
-//         params.append('secret', process.env.HCAPTCHA_SECRET_KEY);
-//         params.append('response', token);
+async function verifyHCaptchaToken(token) {
+    if (!token) return false;
+    try {
+        const params = new URLSearchParams();
+        params.append('secret', process.env.HCAPTCHA_SECRET_KEY);
+        params.append('response', token);
         
-//         const response = await fetch('https://api.hcaptcha.com/siteverify', {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-//             body: params.toString()
-//         });
+        const response = await fetch('https://api.hcaptcha.com/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+        });
         
-//         const data = await response.json();
-//         return data.success === true;
-//     } catch (error) {
-//         console.error('hCaptcha verification error:', error);
-//         return false;
-//     }
-// }
+        const data = await response.json();
+        return data.success === true;
+    } catch (error) {
+        console.error('hCaptcha verification error:', error);
+        return false;
+    }
+}
 
 // 🚀 Initialize SendGrid with your API Key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
