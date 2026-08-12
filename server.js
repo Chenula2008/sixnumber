@@ -1074,7 +1074,7 @@ app.get('/feedback', authMiddleware, async (req, res) => {
         })
             .sort({ walletCents: -1 })    // Sort by highest balance first
             .limit(5)
-            .select('username firstName lastName walletCents country');
+            .select('firstName lastName username walletCents country');
 
         res.render('feedback', { 
             user, 
