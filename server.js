@@ -1063,9 +1063,22 @@ app.get('/verify-all-existing', async (req, res) => {
 app.get('/feedback', authMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
+        
         // Fetch the 50 most recent feedbacks
         const feedbacks = await Feedback.find().sort({ createdAt: -1 }).limit(50);
-        res.render('feedback', { user, feedbacks, countries: COUNTRIES });
+        
+        // 🚀 Fetch Top 5 Earners (sorted by walletCents descending)
+        const topEarners = await User.find({})
+            .sort({ walletCents: -1 })
+            .limit(5)
+            .select('username firstName lastName walletCents country');
+
+        res.render('feedback', { 
+            user, 
+            feedbacks, 
+            countries: COUNTRIES, 
+            topEarners // 🚀 Pass the top earners to the template
+        });
     } catch (err) {
         console.error("Feedback page error:", err);
         res.status(500).send("Server Error");

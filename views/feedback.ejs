@@ -104,6 +104,13 @@
         .feedback-message { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.6; font-style: italic; }
         .feedback-date { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 15px; text-align: right; }
 
+        /* 🚀 TOP EARNERS TABLE STYLES */
+        .earners-table { width: 100%; border-collapse: collapse; }
+        .earners-table th { text-align: left; padding: 12px; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .earners-table td { padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .earners-table tr { transition: background 0.2s; }
+        .earners-table tr:hover { background: rgba(255,255,255,0.03); }
+
         @media (max-width: 768px) {
             .form-row { grid-template-columns: 1fr; }
             .page-title { font-size: 28px; }
@@ -127,6 +134,42 @@
         <div class="page-header">
             <h1 class="page-title">💬 Customer Feedback</h1>
             <p class="page-subtitle">Share your experience with SixNumber and read what others are saying!</p>
+        </div>
+
+        <!-- 🚀 TOP EARNERS LEADERBOARD -->
+        <div class="card">
+            <h2 class="card-title">🏆 Top Earners Leaderboard</h2>
+            <div style="overflow-x: auto;">
+                <table class="earners-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Rank</th>
+                            <th>User</th>
+                            <th>Country</th>
+                            <th style="text-align: right;">Total Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% topEarners.forEach((earner, index) => { %>
+                            <tr style="<%= earner._id.toString() === user._id.toString() ? 'background: rgba(16, 185, 129, 0.1); border-left: 3px solid #10b981;' : '' %>">
+                                <td style="font-weight: 700; color: <%= index === 0 ? '#fbbf24' : (index === 1 ? '#94a3b8' : (index === 2 ? '#b45309' : '#64748b')) %>;">
+                                    <%= index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : `#${index + 1}`)) %>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; color: #fff; font-size: 15px;"><%= earner.username %></div>
+                                    <div style="font-size: 12px; color: rgba(255,255,255,0.5);"><%= earner.firstName %> <%= earner.lastName %></div>
+                                </td>
+                                <td style="color: rgba(255,255,255,0.7); font-size: 14px;">
+                                    🌍 <%= earner.country || 'Unknown' %>
+                                </td>
+                                <td style="text-align: right;">
+                                    <span style="font-weight: 800; color: #10b981; font-size: 16px;">$<%= ((earner.walletCents || 0) / 100).toFixed(3) %></span>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Submission Form -->
@@ -194,7 +237,6 @@
                             </div>
                             <div class="feedback-message">"<%= fb.message %>"</div>
                             
-                            <!-- 🚀 REARRANGED: Delete button moved to bottom-right, aligned with date -->
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                                 <div class="feedback-date" style="margin-top: 0;">
                                     <%= new Date(fb.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
@@ -245,7 +287,7 @@
                         icon: 'success', title: 'Thank You!', text: data.message,
                         background: '#1a1040', color: '#fff', confirmButtonColor: '#10b981', timer: 2000
                     }).then(() => {
-                        location.reload(); // Reload to show the new feedback
+                        location.reload();
                     });
                 } else {
                     Swal.fire({ icon: 'error', title: 'Error', text: data.error, background: '#1a1040', color: '#fff', confirmButtonColor: '#ef4444' });
