@@ -1067,9 +1067,12 @@ app.get('/feedback', authMiddleware, async (req, res) => {
         // Fetch the 50 most recent feedbacks
         const feedbacks = await Feedback.find().sort({ createdAt: -1 }).limit(50);
         
-        // 🚀 Fetch Top 5 Earners (sorted by walletCents descending)
-        const topEarners = await User.find({})
-            .sort({ walletCents: -1 })
+        // 🚀 Fetch Top 5 Earners (Excluding Admins)
+        const topEarners = await User.find({ 
+            isAdmin: { $ne: true },       // Exclude users where isAdmin is true
+            role: { $ne: 'admin' }        // Exclude users where role is 'admin'
+        })
+            .sort({ walletCents: -1 })    // Sort by highest balance first
             .limit(5)
             .select('username firstName lastName walletCents country');
 
@@ -1077,7 +1080,7 @@ app.get('/feedback', authMiddleware, async (req, res) => {
             user, 
             feedbacks, 
             countries: COUNTRIES, 
-            topEarners // 🚀 Pass the top earners to the template
+            topEarners 
         });
     } catch (err) {
         console.error("Feedback page error:", err);
