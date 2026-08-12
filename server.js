@@ -808,6 +808,7 @@ app.get('/admin', authMiddleware, async (req, res) => {
 
         const userSearch = req.query.userSearch || '';
         const withdrawalSearch = req.query.withdrawalSearch || '';
+        const isResetSuccess = req.query.reset === 'success'; // 🚀 For the success banner
 
         let userFilter = {};
         if (userSearch) {
@@ -822,8 +823,20 @@ app.get('/admin', authMiddleware, async (req, res) => {
             withdrawalFilter = { userId: { $in: matchedUsers.map(u => u._id) } };
         }
 
+        // 🚀 DATE-BASED AUTO-RESET: Reset users if their dates are not today
         const today = new Date().toISOString().split('T')[0];
-        await User.updateMany({ lastEntryDate: { $ne: today } }, { $set: { dailyEntries: 0, lastEntryDate: today } });
+        
+        // 1. Reset Daily Typing Entries
+        await User.updateMany(
+            { lastEntryDate: { $ne: today } },
+            { $set: { dailyEntries: 0, lastEntryDate: today } }
+        );
+        
+        // 2. 🚀 FIX: Reset Daily Tasks
+        await User.updateMany(
+            { lastDailyTaskDate: { $ne: today } },
+            { $set: { dailyTasksCompleted: 0, lastDailyTaskDate: today } }
+        );
 
         const users = await User.find(userFilter).sort({ createdAt: -1 }); 
         const withdrawals = await Withdrawal.find(withdrawalFilter).populate('userId', 'username firstName lastName').sort({ createdAt: -1 });  
@@ -844,6 +857,7 @@ app.get('/admin', authMiddleware, async (req, res) => {
             };
         });
 
+        // 🚀 CALCULATE DAILY TASKS STATS
         const usersWithTasksToday = users.filter(u => u.lastDailyTaskDate === today);
         const totalTasksCompletedToday = usersWithTasksToday.reduce((sum, u) => sum + (u.dailyTasksCompleted || 0), 0);
         const usersCompletedAll100 = usersWithTasksToday.filter(u => (u.dailyTasksCompleted || 0) >= 100).length;
@@ -851,10 +865,20 @@ app.get('/admin', authMiddleware, async (req, res) => {
         const totalPaidToday = ((totalTasksCompletedToday * 0.5) / 100).toFixed(3);
         
         res.render('admin', { 
-            isResetSuccess: req.query.reset === 'success',
-            user, users: usersWithDailyStats, withdrawals, totalUsers, totalWithdrawals,
-            userSearch, withdrawalSearch, currentDate: today, DAILY_LIMIT,
-            totalTasksCompletedToday, usersCompletedAll100, usersActiveToday, totalPaidToday
+            user, 
+            users: usersWithDailyStats, 
+            withdrawals, 
+            totalUsers, 
+            totalWithdrawals,
+            userSearch, 
+            withdrawalSearch,
+            currentDate: today,
+            DAILY_LIMIT,
+            totalTasksCompletedToday,
+            usersCompletedAll100,
+            usersActiveToday,
+            totalPaidToday,
+            isResetSuccess // 🚀 Pass this to show the success banner
         });
     } catch (error) {
         console.error("ADMIN PAGE CRASH:", error);
