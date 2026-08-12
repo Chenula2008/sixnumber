@@ -5,13 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Tasks - Six Number</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Montag Ad Code -->
-    <!-- <script src="https://quge5.com/88/tag.min.js" data-zone="254010" async data-cfasync="false"></script> -->
-
+    
     <!-- Adsterra Ad Code -->
     <script src="https://pl30672642.effectivecpmnetwork.com/3f/8f/42/3f8f42b3760fc0fad9fc1064f5e3e3d4.js"></script>
-    <!-- <script async="async" data-cfasync="false" src="https://pl30672643.effectivecpmnetwork.com/8bea917f56175f93390c546a9e07224a/invoke.js"></script> -->
-    <!-- <div id="container-8bea917f56175f93390c546a9e07224a"></div> -->
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -196,23 +192,19 @@
 
         /* Hide top-right social bar ad on mobile screens to prevent overlap */
         @media (max-width: 768px) {
-            #social-bar-ad {
-                display: flex;
-            }
+            #social-bar-ad { display: none !important; }
+        }
+
+        /* Default: Show Desktop Ad, Hide Mobile Ad */
+        .desktop-ad { display: block; }
+        .mobile-ad { display: none; }
+
+        /* Mobile Screens (under 768px): Hide Desktop, Show Mobile */
+        @media (max-width: 768px) {
+            .desktop-ad { display: none !important; }
+            .mobile-ad { display: block !important; }
         }
     </style>
-
-    <style>
-    /* Default: Show Desktop Ad, Hide Mobile Ad */
-    .desktop-ad { display: block; }
-    .mobile-ad { display: none; }
-
-    /* Mobile Screens (under 768px): Hide Desktop, Show Mobile */
-    @media (max-width: 768px) {
-        .desktop-ad { display: none !important; }
-        .mobile-ad { display: block !important; }
-    }
-</style>
 </head>
 <body>
     <!-- 🚀 NAVBAR -->
@@ -266,7 +258,6 @@
         <div class="step-modal">
             <button class="close-modal-btn" onclick="resetTaskSequence()">✕</button>
             <h2 id="modalTitle">Complete the Steps</h2>
-            <!-- 🚀 UPDATED: Changed 21 to 10 steps -->
             <p id="modalDesc">Click the button below to open the offer. You must complete all 10 steps to claim your reward.</p>
             
             <div class="step-counter" id="stepCounter">Step 1 / 10</div>
@@ -303,9 +294,9 @@
     </div>
 
     <script>
-        const MONETAG_LINK = 'https://www.effectivecpmnetwork.com/sk3igeakhw?key=d115a9f24e580272427a899a58fff791om/4/11208116';
+        // 🚀 FIXED: Corrected the broken URL
+        const MONETAG_LINK = 'https://www.effectivecpmnetwork.com/sk3igeakhw?key=d115a9f24e580272427a899a58fff791';
         const TOTAL_TASKS = 100;
-        // 🚀 UPDATED: Reduced steps from 21 to 10
         const TOTAL_STEPS = 10; 
         const AD_WAIT_SECONDS = 15;
         
@@ -487,6 +478,7 @@
             }
         });
 
+        // 🚀 UPDATED: Auto-refresh after successful claim
         async function claimReward() {
             const btn = document.getElementById('clickEarnBtn');
             btn.innerText = '⏳ Verifying...';
@@ -500,32 +492,22 @@
                     document.getElementById('stepModal').classList.remove('active');
                     document.title = `🎉 +$0.005 Earned! - Six Number`;
                     
-                    const taskBtn = document.getElementById(`task-btn-${activeTaskId}`);
-                    taskBtn.innerHTML = '✅ Completed';
-                    taskBtn.className = 'task-btn completed-btn';
+                    // 🚀 Show success message and auto-refresh
+                    Swal.fire({
+                        icon: 'success',
+                        title: '✅ Task Completed!',
+                        html: `You earned <strong style="color: #10b981;">$0.005</strong>!<br>New Balance: <strong>$${data.newBalance}</strong><br><br>Page refreshing...`,
+                        background: '#1a1040',
+                        color: '#fff',
+                        confirmButtonColor: '#10b981',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // 🚀 AUTO-REFRESH: Reloads the page to sync balance and task state
+                        location.reload();
+                    });
                     
-                    currentTaskIndex++;
-                    document.getElementById('progress-fill').style.width = `${(currentTaskIndex / TOTAL_TASKS) * 100}%`;
-                    document.getElementById('progress-text').innerText = `${currentTaskIndex} / ${TOTAL_TASKS} Completed`;
-                    
-                    if (currentTaskIndex < TOTAL_TASKS) {
-                        const cards = document.querySelectorAll('.task-card');
-                        cards[currentTaskIndex].classList.remove('locked');
-                        cards[currentTaskIndex].classList.add('active');
-                        const nextBtn = cards[currentTaskIndex].querySelector('button');
-                        nextBtn.className = 'task-btn start';
-                        nextBtn.innerHTML = '🚀 Start Task';
-                        nextBtn.onclick = () => startTaskSequence(currentTaskIndex);
-                        
-                        setTimeout(() => { document.title = originalTitle; }, 3000);
-                    } else {
-                        Swal.fire({
-                            icon: 'success', title: '🎉 All 100 Daily Tasks Completed!',
-                            html: 'You have earned <strong style="color: #10b981;">$0.50</strong> today.<br>Come back tomorrow for more!',
-                            background: '#1a1040', color: '#fff', confirmButtonColor: '#10b981'
-                        });
-                        document.title = `🏆 All Tasks Done! - Six Number`;
-                    }
                 } else {
                     Swal.fire({ icon: 'error', title: 'Error', text: data.error, background: '#1a1040', color: '#fff' });
                     updateModalUI();
@@ -555,21 +537,17 @@
         };
     </script>
     <script src="https://pl30672644.effectivecpmnetwork.com/3b/51/8c/3b518cc05b33b0b3871c93d496662058.js"></script>
+    
     <!-- 📊 SOCIAL BAR AD (Right Side) with Close Button -->
     <div id="social-bar-ad" style="position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 9998; display: flex; flex-direction: column; gap: 10px;">
-        <!-- Close Button -->
         <button onclick="closeSocialAd()" style="position: absolute; top: -10px; right: -10px; background: #ef4444; color: white; border: 2px solid #0b0f19; border-radius: 50%; width: 26px; height: 26px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.4); z-index: 9999; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">×</button>
-        
         <script src="https://www.highperformanceformat.com/be19fd5e0eddd3d4c8b5409204f77558/invoke.js"></script>
     </div>
 
     <script>
-        // 1. Check if the user previously closed this ad
         if (localStorage.getItem('socialAdClosed') === 'true') {
             document.getElementById('social-bar-ad').style.display = 'none';
         }
-
-        // 2. Function to hide the ad and remember the choice
         function closeSocialAd() {
             document.getElementById('social-bar-ad').style.display = 'none';
             localStorage.setItem('socialAdClosed', 'true');
@@ -581,69 +559,47 @@
         <script src="https://www.highperformanceformat.com/be19fd5e0eddd3d4c8b5409204f77558/invoke.js"></script>
     </div>
 
-<!-- 📊 SMART RESPONSIVE BOTTOM AD (Desktop 728x90 / Mobile 320x50) -->
-<div id="smart-bottom-ad" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9998; text-align: center;">
-    
-    <!-- Close Button -->
-    <button onclick="closeSmartAd()" style="position: absolute; top: -10px; right: -10px; background: #ef4444; color: white; border: 2px solid #0b0f19; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.4); z-index: 9999; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">×</button>
-    
-    <!-- Ad Container -->
-    <div style="background: rgba(15, 23, 42, 0.9); padding: 5px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+    <!-- 📊 SMART RESPONSIVE BOTTOM AD (Desktop 728x90 / Mobile 320x50) -->
+    <div id="smart-bottom-ad" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9998; text-align: center;">
+        <button onclick="closeSmartAd()" style="position: absolute; top: -10px; right: -10px; background: #ef4444; color: white; border: 2px solid #0b0f19; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.4); z-index: 9999; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">×</button>
         
-        <!-- 🖥️ DESKTOP AD (728x90) -->
-        <div class="desktop-ad">
-            <script>
-              atOptions = {
-                'key' : 'b398d5f563c36b763584985a92dbd7ef',
-                'format' : 'iframe',
-                'height' : 90,
-                'width' : 728,
-                'params' : {}
-              };
-            </script>
-            <script src="https://www.highperformanceformat.com/b398d5f563c36b763584985a92dbd7ef/invoke.js"></script>
-        </div>
+        <div style="background: rgba(15, 23, 42, 0.9); padding: 5px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+            <div class="desktop-ad">
+                <script>
+                  atOptions = {
+                    'key' : 'b398d5f563c36b763584985a92dbd7ef',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                  };
+                </script>
+                <script src="https://www.highperformanceformat.com/b398d5f563c36b763584985a92dbd7ef/invoke.js"></script>
+            </div>
 
-        <!-- 📱 MOBILE AD (320x50) -->
-        <div class="mobile-ad">
-            <script>
-              atOptions = {
-                'key' : '7725180e5a3393c1b0f9736ab11c9988',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-              };
-            </script>
-            <script src="https://www.highperformanceformat.com/7725180e5a3393c1b0f9736ab11c9988/invoke.js"></script>
+            <div class="mobile-ad">
+                <script>
+                  atOptions = {
+                    'key' : '7725180e5a3393c1b0f9736ab11c9988',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                  };
+                </script>
+                <script src="https://www.highperformanceformat.com/7725180e5a3393c1b0f9736ab11c9988/invoke.js"></script>
+            </div>
         </div>
-
     </div>
-</div>
 
-<style>
-    /* Default: Show Desktop Ad, Hide Mobile Ad */
-    .desktop-ad { display: block; }
-    .mobile-ad { display: none; }
-
-    /* Mobile Screens (under 768px): Hide Desktop, Show Mobile */
-    @media (max-width: 768px) {
-        .desktop-ad { display: none !important; }
-        .mobile-ad { display: block !important; }
-    }
-</style>
-
-<script>
-    // 1. Check if the user previously closed this ad
-    if (localStorage.getItem('smartAdClosed') === 'true') {
-        document.getElementById('smart-bottom-ad').style.display = 'none';
-    }
-
-    // 2. Function to hide the ad and remember the choice
-    function closeSmartAd() {
-        document.getElementById('smart-bottom-ad').style.display = 'none';
-        localStorage.setItem('smartAdClosed', 'true');
-    }
-</script>
+    <script>
+        if (localStorage.getItem('smartAdClosed') === 'true') {
+            document.getElementById('smart-bottom-ad').style.display = 'none';
+        }
+        function closeSmartAd() {
+            document.getElementById('smart-bottom-ad').style.display = 'none';
+            localStorage.setItem('smartAdClosed', 'true');
+        }
+    </script>
 </body>
 </html>
