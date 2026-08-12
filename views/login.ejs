@@ -407,6 +407,39 @@
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
+        /* 🚀 PASSWORD CHECKLIST STYLES */
+        .password-checklist {
+            margin-top: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 14px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+        .checklist-item:last-child { 
+            margin-bottom: 0; 
+        }
+        .checklist-item.valid { 
+            color: #10b981; 
+        }
+        .checklist-item.valid .check-icon { 
+            color: #10b981; 
+        }
+        .check-icon { 
+            font-size: 14px; 
+            width: 18px; 
+            text-align: center; 
+            transition: all 0.3s ease;
+        }
+
     </style>
 </head>
 <body>
@@ -470,13 +503,33 @@
                     </div>
                 </div>
 
-                <!-- Password Field -->
+                               <!-- Password Field -->
                 <div class="form-group">
                     <label class="form-label">Password</label>
                     <div class="input-wrapper">
-                        <input type="password" name="password" id="password" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
+                        <input type="password" name="password" id="password" class="form-input" 
+                               placeholder="Enter your password" required autocomplete="current-password">
                         <span class="input-icon">🔒</span>
                         <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
+                    </div>
+                    
+                    <!-- 🚀 REAL-TIME PASSWORD STRENGTH CHECKLIST -->
+                    <div class="password-checklist">
+                        <div class="checklist-item" id="check-length">
+                            <span class="check-icon">❌</span> At least 8 characters
+                        </div>
+                        <div class="checklist-item" id="check-lower">
+                            <span class="check-icon">❌</span> One lowercase letter (a-z)
+                        </div>
+                        <div class="checklist-item" id="check-upper">
+                            <span class="check-icon">❌</span> One uppercase letter (A-Z)
+                        </div>
+                        <div class="checklist-item" id="check-number">
+                            <span class="check-icon">❌</span> One number (0-9)
+                        </div>
+                        <div class="checklist-item" id="check-special">
+                            <span class="check-icon">❌</span> One special character (@$!%*?&)
+                        </div>
                     </div>
                 </div>
 
@@ -651,6 +704,81 @@
         localStorage.setItem('smartAdClosed', 'true');
     }
 </script>
+
+    <script>
+        // Password Toggle Function (if not already present)
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.password-toggle');
+            
+            if (passwordInput && passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else if (passwordInput) {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        // 🚀 REAL-TIME PASSWORD STRENGTH CHECKER FOR LOGIN
+        const loginPasswordInput = document.getElementById('password');
+        const checkLength = document.getElementById('check-length');
+        const checkLower = document.getElementById('check-lower');
+        const checkUpper = document.getElementById('check-upper');
+        const checkNumber = document.getElementById('check-number');
+        const checkSpecial = document.getElementById('check-special');
+
+        if (loginPasswordInput) {
+            loginPasswordInput.addEventListener('input', function() {
+                const val = this.value;
+
+                // 1. Check length (8+ characters)
+                if (val.length >= 8) {
+                    checkLength.classList.add('valid');
+                    checkLength.querySelector('.check-icon').textContent = '✅';
+                } else {
+                    checkLength.classList.remove('valid');
+                    checkLength.querySelector('.check-icon').textContent = '❌';
+                }
+
+                // 2. Check lowercase
+                if (/[a-z]/.test(val)) {
+                    checkLower.classList.add('valid');
+                    checkLower.querySelector('.check-icon').textContent = '✅';
+                } else {
+                    checkLower.classList.remove('valid');
+                    checkLower.querySelector('.check-icon').textContent = '❌';
+                }
+
+                // 3. Check uppercase
+                if (/[A-Z]/.test(val)) {
+                    checkUpper.classList.add('valid');
+                    checkUpper.querySelector('.check-icon').textContent = '✅';
+                } else {
+                    checkUpper.classList.remove('valid');
+                    checkUpper.querySelector('.check-icon').textContent = '❌';
+                }
+
+                // 4. Check number
+                if (/[0-9]/.test(val)) {
+                    checkNumber.classList.add('valid');
+                    checkNumber.querySelector('.check-icon').textContent = '✅';
+                } else {
+                    checkNumber.classList.remove('valid');
+                    checkNumber.querySelector('.check-icon').textContent = '❌';
+                }
+
+                // 5. Check special character
+                if (/[@$!%*?&]/.test(val)) {
+                    checkSpecial.classList.add('valid');
+                    checkSpecial.querySelector('.check-icon').textContent = '✅';
+                } else {
+                    checkSpecial.classList.remove('valid');
+                    checkSpecial.querySelector('.check-icon').textContent = '❌';
+                }
+            });
+        }
+    </script>
 
 </body>
 </html>
