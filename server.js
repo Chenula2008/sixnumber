@@ -195,7 +195,6 @@ app.get('/dashboard', async (req, res) => {
             await user.save();
         }
         
-        // 🚀 Fetch the 4 most recent feedbacks for logged-in users
         recentFeedbacks = await Feedback.find().sort({ createdAt: -1 }).limit(4);
     } else {
         user = {
@@ -207,16 +206,25 @@ app.get('/dashboard', async (req, res) => {
             isAdmin: false,
             role: 'user'
         };
-        // 🚀 Fetch the 4 most recent feedbacks for guests too, so everyone sees them
         recentFeedbacks = await Feedback.find().sort({ createdAt: -1 }).limit(4);
     }
     
+    // 🚀 Fetch Top 5 Earners (Excluding Admins)
+    const topEarners = await User.find({ 
+        isAdmin: { $ne: true },       
+        role: { $ne: 'admin' }        
+    })
+        .sort({ walletCents: -1 })    
+        .limit(5)
+        .select('username firstName lastName walletCents country');
+
     res.render('dashboard', { 
         user, 
         pendingCents, 
         remainingEntries, 
         isLoggedIn, 
-        recentFeedbacks // 🚀 Pass feedback to the dashboard template
+        recentFeedbacks,
+        topEarners // 🚀 Pass to template
     });
 });
 

@@ -309,6 +309,50 @@
             </div>
         </div>
 
+        <!-- 🚀 TOP EARNERS LEADERBOARD -->
+        <div style="margin-top: 60px; width: 100%; max-width: 800px; background: rgba(255,255,255,0.03); backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 30px;">
+            <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; color: #fff; text-align: center; justify-content: center;">🏆 Top Earners Leaderboard</h2>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: 12px; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.1); width: 60px;">Rank</th>
+                            <th style="text-align: left; padding: 12px; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.1);">User</th>
+                            <th style="text-align: left; padding: 12px; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.1);">Country</th>
+                            <th style="text-align: right; padding: 12px; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.1);">Total Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (typeof topEarners !== 'undefined' && topEarners.length > 0) { %>
+                            <% topEarners.forEach((earner, index) => { %>
+                                <tr style="transition: background 0.2s; <%= (typeof isLoggedIn !== 'undefined' && isLoggedIn && user._id && earner._id.toString() === user._id.toString()) ? 'background: rgba(16, 185, 129, 0.1); border-left: 3px solid #10b981;' : '' %>" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='<%= (typeof isLoggedIn !== 'undefined' && isLoggedIn && user._id && earner._id.toString() === user._id.toString()) ? 'rgba(16, 185, 129, 0.1)' : 'transparent' %>'">
+                                    <td style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: 700; color: <%= index === 0 ? '#fbbf24' : (index === 1 ? '#94a3b8' : (index === 2 ? '#b45309' : '#64748b')) %>;">
+                                        <%= index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : `#${index + 1}`)) %>
+                                    </td>
+                                    <td style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <div style="font-weight: 600; color: #fff; font-size: 15px;">
+                                            <%= (earner.firstName && earner.lastName) ? (earner.firstName + ' ' + earner.lastName) : earner.username %>
+                                        </div>
+                                        <div style="font-size: 12px; color: rgba(255,255,255,0.5);">@<%= earner.username %></div>
+                                    </td>
+                                    <td style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.7); font-size: 14px;">
+                                        🌍 <%= earner.country || 'Unknown' %>
+                                    </td>
+                                    <td style="padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: right;">
+                                        <span style="font-weight: 800; color: #10b981; font-size: 16px;">$<%= ((earner.walletCents || 0) / 100).toFixed(3) %></span>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="4" style="padding: 20px; text-align: center; color: rgba(255,255,255,0.5);">No earners yet. Start typing to become the first!</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- 🚀 CUSTOMER FEEDBACK SECTION (CAROUSEL WITH ARROWS) -->
         <div style="margin-top: 80px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.06); width: 100%; max-width: 800px;">
             <div style="text-align: center; margin-bottom: 30px;">
